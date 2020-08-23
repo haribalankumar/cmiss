@@ -1,0 +1,57 @@
+!  lungex00.cmn    
+!  -------------------------------
+!  Variables used in pulmonary gas exchange problems.
+!  -------------------------------
+      
+      INTEGER
+     &  nj_PA,nj_Qdot,nj_Vdot
+      COMMON /LUNGEX00I/
+     &  nj_PA,nj_Qdot,nj_Vdot
+      REAL*8
+     &  AIR_BLOOD_SURFACE,ALV_AIR_VOL,BARRIER_THICKNESS,CAP_BLOOD_VOL,
+     &  delta,DO2_TOTAL,fci,foi,GASPAR(1:20),hconc,HCT_INITIAL,
+     &  INITIAL_POB,INITIAL_PCB,INITIAL_POA,INITIAL_PCA,kt,kr,L,ltwo,
+     &  LUNG_ELASTANCE,MCH,MCV,MIXED_VENOUS_PO2,MW,O2CONTENT,
+     &  O2_EXCHANGED,O2molVol,O2UPTAKE,PAO2_AVERAGE,PAO2_BREATH,
+     &  PAO2_EXPIRED,PartO2_BREATH,P_ATM,PO2_arterial,p_water,Q_ACINUS,
+     &  rtwo,sigma_c,sigma_o,SO2_arterial,standard_molar_vol,V_ACINUS,
+     &  ycd,yod
+      COMMON /LUNGEX00R/
+     &  AIR_BLOOD_SURFACE,ALV_AIR_VOL,BARRIER_THICKNESS,
+     &  CAP_BLOOD_VOL,DO2_TOTAL,fci,foi,GASPAR,HCT_INITIAL,INITIAL_POB,
+     &  INITIAL_PCB,INITIAL_POA,INITIAL_PCA,LUNG_ELASTANCE,
+     &  MIXED_VENOUS_PO2,O2CONTENT,O2_EXCHANGED,O2UPTAKE,PAO2_AVERAGE,
+     &  PAO2_BREATH,PAO2_EXPIRED,PartO2_BREATH,P_ATM,PO2_arterial,
+     &  Q_ACINUS,SO2_arterial,V_ACINUS,ycd,yod
+      PARAMETER
+     &  (delta=79.4d0,hconc=3.98d-8,kt=10.0d3,kr=3.6d6,L=171.2d6,
+     &   ltwo=164.0d3,MCH=30.0d-12,MCV=90.0d-15,MW=64458.0d0,
+     &   O2molVol=25.43d0,rtwo=0.12,sigma_c=3.3d-5,sigma_o=1.4d-6,
+     &   standard_molar_vol=22.4136d0,p_water=47.0d0)
+
+
+!  Parameters:
+!    standard_molar_vol = standard molar volume, litre/mol
+!    p_water = vapour pressure of water, mmHg
+!    sigma_o = O2 solubility in the membrane, mol/l/mmHg
+!    sigma_c = CO2 solubiltity in the membrane, mol/l/mmHg
+!    MCH = mean cell hemoglobin, gram
+!    MCV = mean cell volume MCV, litre
+!    MW = molecular weight of hemoglobin, g/mol
+!    kt = equilibrium constant for MWC O2-Hb saturation fn, l/mol (see BenTal:2006)
+!    kr = equilibrium constant for MWC O2-Hb saturation fn, l/mol (see BenTal:2006)
+!    L = equilibrium constant for MWC O2-Hb saturation fn (see BenTal:2006)
+!    hconc = concentration of H+, mol/l (see BenTal:2006)
+!    rtwo = dehydration reaction rate, s^-1 (see BenTal:2006)
+!    ltwo = hydration reaction rate, l/s/mol (see BenTal:2006)
+!    delta = acceleration rate (see BenTal:2006)
+ 
+!  Real variables:
+!    P_ATM=atmospheric total pressure, mmHg 
+!    LUNG_ELASTANCE=elastance, mmHg/l       
+!    HCT_INITIAL=capillary blood hematocrit
+!    CAP_BLOOD_VOL=capillary blood volume, litre
+!    ALV_AIR_VOL=capillary blood volume, litre
+!    AIR_BLOOD_SURFACE=air-blood surface area, m2  
+!    BARRIER_THICKNESS=air-blood barrier thickness, m
+

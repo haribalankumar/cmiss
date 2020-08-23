@@ -1,0 +1,36 @@
+BEGIN	{	
+		num_omit = 0;
+	}
+FILENAME ~ "omit"	{
+		omit[num_omit,0] = NF;
+		for(i=1;i<=NF;i++)
+		{
+			omit[num_omit,i] = $i;
+		}
+		num_omit++;
+	}
+FILENAME !~ "omit"	{
+		should_omit = 0;
+		for(j=0;j<num_omit;j++)
+		{
+			if(omit[j,0]>0)
+			{
+				is_match = 1;
+				for(i=1;i<=omit[j,0];i++)
+				{
+					if((omit[j,i]!="*")&&(omit[j,i]!=$(i+1)))
+					{
+						is_match = 0;
+					}
+				}
+				if(is_match)
+				{
+					should_omit = 1;
+				}
+			}
+		}
+		if(!should_omit)
+		{
+			print $0;
+		}
+	}

@@ -1,0 +1,60 @@
+#-------------------------------------------------------------------------------
+# SGI IRIX configuration
+#-------------------------------------------------------------------------------
+
+# Select your compiler
+  CC = cc
+# CC = gcc -ansi -pedantic
+
+# Note: using CFLAGS = -O3 might be better.  I haven't tried -O3.  -O uses -O2.
+#CFLAGS = -O3 -mips4 -64 -OPT:alias=RESTRICT
+CFLAGS = -O0 -g -mips4 -n32
+#CFLAGS = -O3 -mips4 -n32 -OPT:alias=RESTRICT
+#CFLAGS = -O0 -g -mips3 -n32
+RANLIB = echo
+
+#-------------------------------------------------------------------------------
+# BLAS and 32/64-bit options: uncomment the appropriate lines
+#-------------------------------------------------------------------------------
+
+# 1: Default: with 32-bit int's and long's, and the 32-bit SCSL BLAS
+CONFIG = -DNCBLAS
+LIB = -lscs -lm
+
+# 2: with no BLAS
+# CONFIG = -DNBLAS
+# LIB = -lm
+
+# 3: with no BLAS, in 64-bit mode
+# CONFIG = -DNBLAS -DLP64 -64
+# LIB = -lm
+
+# 4: with 32-bit int's, 64-bit long's, and the 64-byte SCSL BLAS
+# Compare the output with umfpack_**_demo.out64
+# CONFIG = -DNCBLAS -DLP64 -64
+# LIB = -lscs_i8 -lm
+
+# 5: with the Fortran interface to the vendor-supplied BLAS
+# CONFIG = -DNCBLAS -DNSCSL
+# LIB = -lblas -lm
+
+# 6: with the C-BLAS interface to the vendor-supplied BLAS
+# NOTE: with gcc and the 07/09/98 version of SGI's cblas.h, spurious warnings
+# about complex BLAS arguments will be reported.  This is because this older
+# version of SGI's cblas.h does not make use of the SCSL_VOID_ARGS parameter,
+# which is present in the 12/6/01 version of SGI's cblas.h.  You can safely
+# ignore these warnings.  See umf_config.h for more information.
+# CONFIG = -DNSCSL
+# LIB = -lblas -lm
+
+
+#-------------------------------------------------------------------------------
+# For compiling the MATLAB mexFunction.
+#-------------------------------------------------------------------------------
+
+MEX = mex -inline -O
+#UMFPACKMEX = umfpack
+
+# If you do not have MATLAB, uncomment this line:
+UMFPACKMEX = 
+

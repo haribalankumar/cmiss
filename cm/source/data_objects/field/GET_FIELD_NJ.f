@@ -1,0 +1,28 @@
+      SUBROUTINE GET_FIELD_NJ(FIELD_LABEL,NJ,ERROR,*)
+
+C#### Subroutine: GET_FIELD_NJ
+C###  Description:
+C###    Gets the nj index of a field.
+
+      IMPLICIT NONE
+      INCLUDE 'field00.cmn'
+
+!     Parameter List
+      INTEGER FIELD_INDEX,NJ
+      CHARACTER FIELD_LABEL*(*),ERROR*(*)
+
+      CALL ENTERS('GET_FIELD_NJ',*9999)
+
+      CALL GET_FIELD_INDEX(FIELD_LABEL,FIELD_INDEX,ERROR,*9999)
+
+      CALL GET_INTEGER(FIELD_NJ_PTR,ALLOCATED_FIELD_NJ,
+     &  FIELD_INDEX,NJ,ERROR,*9999)
+
+      CALL EXITS('GET_FIELD_NJ')
+      RETURN
+ 9999 CALL ERRORS('GET_FIELD_NJ',ERROR)
+      CALL EXITS('GET_FIELD_NJ')
+      RETURN 1
+      END
+
+

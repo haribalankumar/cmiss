@@ -1,0 +1,4 @@
+!  b32.cmn
+      REAL*8 RDMATE(50,6,12,10)
+      COMMON /B32R/ RDMATE
+

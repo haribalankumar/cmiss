@@ -1,0 +1,5 @@
+!  eqt000.cmn
+      INTEGER NG
+      REAL*8 D1(64),W1(64)
+      COMMON /EQT000R/ D1,W1,NG
+

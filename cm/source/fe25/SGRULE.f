@@ -1,0 +1,73 @@
+      SUBROUTINE SGRULE(INDEX,ISEG,ISRULE,iw,CSEG,ERROR,*)
+
+C#### Subroutine: SGRULE
+C###  Description:
+C###    SGRULE creates grid segment ISRULE.
+
+      IMPLICIT NONE
+      INCLUDE 'geom00.cmn'
+      INCLUDE 'ityp00.cmn'
+!     Parameter List
+      INTEGER INDEX,ISEG(*),ISRULE,iw
+      CHARACTER CSEG(*)*(*),ERROR*(*)
+!     Local Variables
+      INTEGER INDEX_OLD
+
+      CALL ENTERS('SGRULE',*9999)
+
+      CALL OPEN_SEGMENT(ISRULE,ISEG,iw,'RULE',INDEX,INDEX_OLD,
+     '  1,1,CSEG,ERROR,*9999)
+
+      IF(iw.EQ.1) THEN
+        IF(NJT.EQ.2) THEN
+          IF(ITYP10(1).EQ.1) THEN
+            CALL GRDXXY(INDEX,ERROR,*9999)
+            CALL GRDYXY(INDEX,ERROR,*9999)
+          ELSE IF(ITYP10(1).EQ.2) THEN
+            CALL GRDRRT(INDEX,ERROR,*9999)
+            CALL GRDTRT(INDEX,1,ERROR,*9999)
+          ELSE IF(ITYP10(1).EQ.3) THEN
+          ELSE IF(ITYP10(1).EQ.4) THEN
+            CALL GRDLLM(INDEX,ERROR,*9999)
+            CALL GRDMLM(INDEX,ERROR,*9999)
+          ELSE IF(ITYP10(1).EQ.5) THEN
+          ENDIF
+        ELSE IF(NJT.EQ.3) THEN
+          IF(ITYP10(1).EQ.1) THEN
+            CALL GRDXXZ(INDEX,ERROR,*9999)
+            CALL GRDZXZ(INDEX,ERROR,*9999)
+          ELSE IF(ITYP10(1).EQ.2) THEN
+            CALL GRDXXZ(INDEX,ERROR,*9999)
+            CALL GRDZXZ(INDEX,ERROR,*9999)
+          ELSE IF(ITYP10(1).EQ.3) THEN
+          ELSE IF(ITYP10(1).EQ.4) THEN
+            CALL GRDLLM(INDEX,ERROR,*9999)
+            CALL GRDMLM(INDEX,ERROR,*9999)
+          ELSE IF(ITYP10(1).EQ.5) THEN
+          ENDIF
+        ENDIF
+      ELSE IF(iw.EQ.2) THEN
+        IF(ITYP10(1).EQ.1) THEN
+          CALL GRDYYZ(INDEX,ERROR,*9999)
+        ELSE IF(ITYP10(1).EQ.2) THEN
+          CALL GRDYYZ(INDEX,ERROR,*9999)
+        ELSE IF(ITYP10(1).EQ.3) THEN
+          CALL GRDTRT(INDEX,2,ERROR,*9999)
+        ELSE IF(ITYP10(1).EQ.4) THEN
+          CALL GRDTRT(INDEX,2,ERROR,*9999)
+          CALL GRDLLT(INDEX,ERROR,*9999)
+        ELSE IF(ITYP10(1).EQ.5) THEN
+          CALL GRDTRT(INDEX,2,ERROR,*9999)
+        ENDIF
+      ENDIF
+
+      CALL CLOSE_SEGMENT(ISRULE,iw,ERROR,*9999)
+
+      CALL EXITS('SGRULE')
+      RETURN
+ 9999 CALL ERRORS('SGRULE',ERROR)
+      CALL EXITS('SGRULE')
+      RETURN 1
+      END
+
+

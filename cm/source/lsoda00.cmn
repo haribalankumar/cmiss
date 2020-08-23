@@ -1,0 +1,25 @@
+!  lsoda00.cmn
+      INTEGER LSODA_ERROR_TYPE,LSODA_IOPT,
+     '  LSODA_ITASK,LSODA_JACOBIAN_TYPE,LSODA_LIWORK,
+     '  LSODA_LWORK,LSODA_MAX_ITERS,LSODA_ERROR_CONTROL
+      REAL*8 LSODA_ABS_ERR,LSODA_MAX_STEP,LSODA_REL_ERR
+
+      COMMON /LSODA00I/ LSODA_ERROR_TYPE,LSODA_IOPT,
+     '  LSODA_ITASK,LSODA_JACOBIAN_TYPE,LSODA_LIWORK,
+     '  LSODA_LWORK,LSODA_MAX_ITERS,LSODA_ERROR_CONTROL
+      COMMON /LSODA00R/ LSODA_ABS_ERR,LSODA_MAX_STEP,
+     '  LSODA_REL_ERR
+
+C *** The number of integer and real variables which come from the
+C *** original LSODA common blocks but were moved to the workspace
+C *** array to enable multiprocessing to work.
+      INTEGER LSODA_NUM_REAL_COMMON,LSODA_NUM_INT_COMMON
+      PARAMETER(LSODA_NUM_REAL_COMMON=240)
+      PARAMETER(LSODA_NUM_INT_COMMON=51)
+
+C *** The LSODA variable ISTATE needs to be stored at each grid point
+C *** and be accessible outside the scope of LSODA - need to make sure
+C *** that this declaration doesn't conflict with those in
+C *** LSODA_WRAPPER()
+      INTEGER LSODA_ISTATE
+      PARAMETER(LSODA_ISTATE=51)

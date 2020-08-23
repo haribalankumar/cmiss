@@ -1,0 +1,36 @@
+#-------------------------------------------------------------------------------
+# IBM RS 6000 configuration
+#-------------------------------------------------------------------------------
+
+# You need to modify the -bmaxdata according to how much memory you have.
+# It is set below assuming you have 2GB of memory, which is too large
+# for some RS 6000's.  If you do not have 2GB of virtual memory space, then
+# reduce the "-bmaxdata:" setting, or remove it completely.
+
+CC = xlc
+
+# other optimizations have not tested (they may result in better performance)
+CFLAGS = -O3
+RANLIB = ranlib
+
+# BLAS options:
+
+# 1: with the vendor-supplied BLAS.  This is the default.
+CONFIG = -DNCBLAS -bmaxdata:2000000000
+LIB = -lessl -lm
+
+# 2: with no BLAS (this will be slow)
+# CONFIG = -DNBLAS -bmaxdata:2000000000
+# LIB = -lm
+
+
+#-------------------------------------------------------------------------------
+# For compiling the MATLAB mexFunction.
+#-------------------------------------------------------------------------------
+
+MEX = mex -inline -O
+UMFPACKMEX = umfpack
+
+# If you do not have MATLAB, uncomment this line:
+# UMFPACKMEX = 
+

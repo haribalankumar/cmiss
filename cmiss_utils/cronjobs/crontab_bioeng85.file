@@ -1,0 +1,14 @@
+# m h  dom mon dow   command
+
+# Svn update and weekly clean
+50 23 * * * ssh bioeng85 exec /hpc/cmiss/cmiss_utils/cronjobs/cmiss_cronjobs_daily_initial.sh
+
+# Compilation and testing.
+0 0 * * * /hpc/cmiss/cmiss_utils/cronjobs/cmiss_cronjobs_daily_master.sh
+
+# Run scripts for CM documentation
+0 4 * * * ssh bioeng1031 exec /hpc/cmiss/cmiss_utils/cronjobs/cmiss_cronjobs_daily_cm-docs.sh
+
+# Collect and summarize testing results.
+50 5 * * * ssh bioeng1031 exec /hpc/cmiss/cmiss_utils/cronjobs/cmiss_cronjobs_daily_final.sh
+

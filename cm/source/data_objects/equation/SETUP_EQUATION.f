@@ -1,0 +1,360 @@
+      SUBROUTINE SETUP_EQUATION(EQUATION_LABEL,nr,ERROR,*)
+
+C#### Subroutine: SETUP_EQUATION
+C###  Description:
+C###    This routine sets up the notes, variables and initial
+C###    values for an equation.
+
+      IMPLICIT NONE
+      INCLUDE 'geom00.cmn'
+      INCLUDE 'ityp00.cmn'
+      INCLUDE 'ktyp30.cmn'
+      INCLUDE 'equation00.cmn'
+      INCLUDE 'loc00.cmn'
+      INCLUDE 'loc00.inc'
+
+!     Parameter List
+      INTEGER nr
+      CHARACTER EQUATION_LABEL*(*),ERROR*(*)
+      
+!     Local Variables
+      INTEGER IB1,IE1,nh,nj,nm,nx
+      CHARACTER INPUT_LABEL*(EQN_IN_LABELS_LEN),
+     &  OUTPUT_LABEL*(EQN_OUT_LABELS_LEN),STRING*32
+      
+      CALL ENTERS('SETUP_EQUATION',*9999)
+      
+      USE_EQUATION_OBJECT=.TRUE.
+      
+      CALL GET_EQUATION_NX(EQUATION_LABEL,nx,ERROR,*9999)
+      IF(ITYP5(nr,nx).EQ.1.AND.ITYP2(nr,nx).EQ.6)THEN
+      
+        CALL ADD_EQUATION_NOTE(EQUATION_LABEL,
+     &    'Linear 2nd Order Elliptic Equation',ERROR,*9999)
+        CALL ADD_EQUATION_NOTE(EQUATION_LABEL,
+     &    '+---------------------------------------+',ERROR,*9999)
+        CALL ADD_EQUATION_NOTE(EQUATION_LABEL,
+     &    '| A GRAD^2(u) + B GRAD(u) + C u + D = 0 |',ERROR,*9999)
+        CALL ADD_EQUATION_NOTE(EQUATION_LABEL,
+     &    '| ~             ~           ~           |',ERROR,*9999)
+        CALL ADD_EQUATION_NOTE(EQUATION_LABEL,
+     &    '+---------------------------------------+',ERROR,*9999)
+        CALL ADD_EQUATION_NOTE(EQUATION_LABEL,
+     &    'This is a generalised steady-state '//
+     &    'advection-diffusion equation',ERROR,*9999)
+        
+        OUTPUT_LABEL='u_current'
+        CALL ADD_EQUATION_OUTPUT(EQUATION_LABEL,OUTPUT_LABEL,
+     &    ERROR,*9999)
+        CALL SET_EQUATION_OUTPUT_NH(EQUATION_LABEL,OUTPUT_LABEL,
+     &    1,ERROR,*9999)
+        CALL SET_EQUATION_OUTPUT_NIY(EQUATION_LABEL,OUTPUT_LABEL,
+     &    1,ERROR,*9999)
+
+        OUTPUT_LABEL='u_initial'
+        CALL ADD_EQUATION_OUTPUT(EQUATION_LABEL,OUTPUT_LABEL,
+     &    ERROR,*9999)
+        CALL SET_EQUATION_OUTPUT_NH(EQUATION_LABEL,OUTPUT_LABEL,
+     &    1,ERROR,*9999)
+        CALL SET_EQUATION_OUTPUT_NIY(EQUATION_LABEL,OUTPUT_LABEL,
+     &    3,ERROR,*9999)
+
+        nm=0
+        IF(NJT.GE.1)THEN
+          INPUT_LABEL='D'
+          nm=nm+1
+          CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &      ERROR,*9999)
+          CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &      nm,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &      'INITIAL_VALUE',' ',' ',ERROR,*9999)
+          CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &      INPUT_LABEL,0.0D0,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &      0.0D0,ERROR,*9999)
+        ENDIF
+        IF(NJT.GE.1)THEN
+          INPUT_LABEL='Ax'
+          nm=nm+1
+          CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &      ERROR,*9999)
+          CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &      nm,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &      'INITIAL_VALUE',' ',' ',ERROR,*9999)
+          CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &      INPUT_LABEL,0.0D0,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &      0.0D0,ERROR,*9999)
+        ENDIF
+        IF(NJT.GE.2)THEN
+          INPUT_LABEL='Ay'
+          nm=nm+1
+          CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &      ERROR,*9999)
+          CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &      nm,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &      'INITIAL_VALUE',' ',' ',ERROR,*9999)
+          CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &      INPUT_LABEL,0.0D0,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &      0.0D0,ERROR,*9999)
+        ENDIF
+        IF(NJT.GE.3)THEN
+          INPUT_LABEL='Az'
+          nm=nm+1
+          CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &      ERROR,*9999)
+          CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &      nm,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &      'INITIAL_VALUE',' ',' ',ERROR,*9999)
+          CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &      INPUT_LABEL,0.0D0,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &      0.0D0,ERROR,*9999)
+        ENDIF
+        IF(NJT.GE.1)THEN
+          INPUT_LABEL='Bx'
+          nm=nm+1
+          CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &      ERROR,*9999)
+          CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &      nm,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &      'INITIAL_VALUE',' ',' ',ERROR,*9999)
+          CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &      INPUT_LABEL,0.0D0,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &      0.0D0,ERROR,*9999)
+        ENDIF
+        IF(NJT.GE.2)THEN
+          INPUT_LABEL='By'
+          nm=nm+1
+          CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &      ERROR,*9999)
+          CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &      nm,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &      'INITIAL_VALUE',' ',' ',ERROR,*9999)
+          CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &      INPUT_LABEL,0.0D0,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &      0.0D0,ERROR,*9999)
+        ENDIF
+        IF(NJT.GE.3)THEN
+          INPUT_LABEL='Bz'
+          nm=nm+1
+          CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &      ERROR,*9999)
+          CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &      nm,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &      'INITIAL_VALUE',' ',' ',ERROR,*9999)
+          CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &      INPUT_LABEL,0.0D0,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &      0.0D0,ERROR,*9999)
+        ENDIF
+        IF(NJT.GE.1)THEN
+          INPUT_LABEL='Cx'
+          nm=nm+1
+          CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &      ERROR,*9999)
+          CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &      nm,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &      'INITIAL_VALUE',' ',' ',ERROR,*9999)
+          CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &      INPUT_LABEL,0.0D0,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &      0.0D0,ERROR,*9999)
+        ENDIF
+        IF(NJT.GE.2)THEN
+          INPUT_LABEL='Cy'
+          nm=nm+1
+          CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &      ERROR,*9999)
+          CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &      nm,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &      'INITIAL_VALUE',' ',' ',ERROR,*9999)
+          CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &      INPUT_LABEL,0.0D0,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &      0.0D0,ERROR,*9999)
+        ENDIF
+        IF(NJT.GE.3)THEN
+          INPUT_LABEL='Cz'
+          nm=nm+1
+          CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &      ERROR,*9999)
+          CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &      nm,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &      'INITIAL_VALUE',' ',' ',ERROR,*9999)
+          CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &      INPUT_LABEL,0.0D0,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &      0.0D0,ERROR,*9999)
+        ENDIF
+      ELSEIF(ITYP5(nr,nx).EQ.2.AND.ITYP2(nr,nx).EQ.3)THEN
+      
+        CALL ADD_EQUATION_NOTE(EQUATION_LABEL,
+     &    'Time-Dependent Advection-Diffusion Equation',ERROR,*9999)
+        CALL ADD_EQUATION_NOTE(EQUATION_LABEL,
+     &    '+-----------------------------------------------------+',
+     &    ERROR,*9999)
+        CALL ADD_EQUATION_NOTE(EQUATION_LABEL,
+     &    '| s du = D GRAD^2(u) - v GRAD(u) - grad_v u + b u + a |',
+     &    ERROR,*9999)
+        CALL ADD_EQUATION_NOTE(EQUATION_LABEL,
+     &    '|   --   ~             ~              ~               |',
+     &    ERROR,*9999)
+        CALL ADD_EQUATION_NOTE(EQUATION_LABEL,
+     &    '|   dt                                                |',
+     &    ERROR,*9999)
+        CALL ADD_EQUATION_NOTE(EQUATION_LABEL,
+     &    '+-----------------------------------------------------+',
+     &    ERROR,*9999)
+        CALL ADD_EQUATION_NOTE(EQUATION_LABEL,
+     &    'where this equation is repeated for each dependent variables'
+     &    ,ERROR,*9999)
+        
+        OUTPUT_LABEL='C_current'
+        CALL ADD_EQUATION_OUTPUT(EQUATION_LABEL,OUTPUT_LABEL,
+     &    ERROR,*9999)
+        CALL SET_EQUATION_OUTPUT_NH(EQUATION_LABEL,OUTPUT_LABEL,
+     &    1,ERROR,*9999)
+        CALL SET_EQUATION_OUTPUT_NIY(EQUATION_LABEL,OUTPUT_LABEL,
+     &    1,ERROR,*9999)
+
+        OUTPUT_LABEL='C_initial'
+        CALL ADD_EQUATION_OUTPUT(EQUATION_LABEL,OUTPUT_LABEL,
+     &    ERROR,*9999)
+        CALL SET_EQUATION_OUTPUT_NH(EQUATION_LABEL,OUTPUT_LABEL,
+     &    1,ERROR,*9999)
+        CALL SET_EQUATION_OUTPUT_NIY(EQUATION_LABEL,OUTPUT_LABEL,
+     &    3,ERROR,*9999)
+
+        nm=0
+        DO nh=1,KTYP3A(nx)
+
+          ! Constant Source term
+          nm=nm+1
+          WRITE(STRING,'(I12)') nh
+          CALL STRING_TRIM(STRING,IB1,IE1)
+          WRITE(INPUT_LABEL,'(''a_'',A)') STRING(IB1:IE1)
+          CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &      ERROR,*9999)
+          CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &      nm,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &      'INITIAL_VALUE',' ',' ',ERROR,*9999)
+          CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &      INPUT_LABEL,0.0D0,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &      0.0D0,ERROR,*9999)
+          
+          ! Linear Source term
+          nm=nm+1
+          WRITE(STRING,'(I12)') nh
+          CALL STRING_TRIM(STRING,IB1,IE1)
+          WRITE(INPUT_LABEL,'(''b_'',A)') STRING(IB1:IE1)
+          CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &      ERROR,*9999)
+          CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &      nm,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &      'INITIAL_VALUE',' ',' ',ERROR,*9999)
+          CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &      INPUT_LABEL,0.0D0,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &      0.0D0,ERROR,*9999)
+          
+          ! Storage term
+          nm=nm+1
+          WRITE(STRING,'(I12)') nh
+          CALL STRING_TRIM(STRING,IB1,IE1)
+          WRITE(INPUT_LABEL,'(''s_'',A)') STRING(IB1:IE1)
+          CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &      ERROR,*9999)
+          CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &      nm,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &      'INITIAL_VALUE',' ',' ',ERROR,*9999)
+          CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &      INPUT_LABEL,1.0D0,ERROR,*9999)
+          CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &      1.0D0,ERROR,*9999)
+          
+          DO nj=1,NJ_LOC(NJL_GEOM,0,nr)
+            
+            ! Diffusion coefficient
+            nm=nm+1
+            WRITE(STRING,'(I12)') nh
+            CALL STRING_TRIM(STRING,IB1,IE1)
+            WRITE(INPUT_LABEL,'(''D_fibre'',I1,''_'',A)') nj,
+     &        STRING(IB1:IE1)
+            CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &        ERROR,*9999)
+            CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &        nm,ERROR,*9999)
+            CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &        'INITIAL_VALUE',' ',' ',ERROR,*9999)
+            CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &        INPUT_LABEL,0.0D0,ERROR,*9999)
+            CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &        0.0D0,ERROR,*9999)
+          
+            ! Forced term, v
+            nm=nm+1
+            WRITE(STRING,'(I12)') nh
+            CALL STRING_TRIM(STRING,IB1,IE1)
+            WRITE(INPUT_LABEL,'(''v_fibre'',I1,''_'',A)') nj,
+     &        STRING(IB1:IE1)
+            CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &        ERROR,*9999)
+            CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &        nm,ERROR,*9999)
+            CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &        'INITIAL_VALUE',' ',' ',ERROR,*9999)
+            CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &        INPUT_LABEL,0.0D0,ERROR,*9999)
+            CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &        0.0D0,ERROR,*9999)
+          
+            ! Gradient of Forced term, v
+            nm=nm+1
+            WRITE(STRING,'(I12)') nh
+            CALL STRING_TRIM(STRING,IB1,IE1)
+            WRITE(INPUT_LABEL,'(''grad_v_fibre'',I1,''_'',A)') nj,
+     &        STRING(IB1:IE1)
+            CALL ADD_EQUATION_INPUT(EQUATION_LABEL,INPUT_LABEL,
+     &        ERROR,*9999)
+            CALL SET_EQUATION_INPUT_NM(EQUATION_LABEL,INPUT_LABEL,
+     &        nm,ERROR,*9999)
+            CALL SET_EQUATION_INPUT_MAP(EQUATION_LABEL,INPUT_LABEL,
+     &        'INITIAL_VALUE',' ',' ',ERROR,*9999)
+            CALL SET_EQUATION_INPUT_INIT_VALUE(EQUATION_LABEL,
+     &        INPUT_LABEL,0.0D0,ERROR,*9999)
+            CALL SET_EQUATION_INPUT_VALUE(EQUATION_LABEL,INPUT_LABEL,
+     &        0.0D0,ERROR,*9999)
+          
+          ENDDO
+
+
+        ENDDO
+      ELSE
+        ERROR='>> Equation setup not implemented'
+        GOTO 9999
+      ENDIF
+      
+      CALL EXITS('SETUP_EQUATION')
+      RETURN
+ 9999 CALL ERRORS('SETUP_EQUATION',ERROR)
+      CALL EXITS('SETUP_EQUATION')
+      RETURN 1
+      END

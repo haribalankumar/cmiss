@@ -1,0 +1,25 @@
+C -*- Fortran -*-
+C  bmg01.cmn
+c
+      INTEGER BMG_iPARMS_c(64,9),BMG_pWORK_c(13,9), 
+     &	      NBMG_iWORK_PL_c(9),NBMG_rWORK_PL_c(9),
+     &        NBMG_iWORK_c(9), NBMG_rWORK_c(9)
+      
+      LOGICAL BMG_IOFLAG_c(46,9),BMG_InWORK_c(7,9)
+
+      REAL*8 BMG_rPARMS_c(6,9)
+      
+      COMMON /BMGPARMS_c/ BMG_iPARMS_c, BMG_pWORK_c, 
+     &                  NBMG_iWORK_c, NBMG_rWORK_c,
+     &                  NBMG_iWORK_PL_c, NBMG_rWORK_PL_c
+
+      COMMON /BMGLOGS_c/ BMG_IOFLAG_c,BMG_InWORK_c
+
+      COMMON /BMGRPARMS_c/ BMG_rPARMS_c
+
+      INTEGER*4 
+     &  BMG_iWORK_PTR_c(9),BMG_rWORK_PTR_c(9),
+     &  BMG_iWORK_PL_PTR_c(9),BMG_rWORK_PL_PTR_c(9)
+
+      COMMON /BMGPTRI4_c/ BMG_iWORK_PTR_c,BMG_rWORK_PTR_c,
+     &                  BMG_iWORK_PL_PTR_c,BMG_rWORK_PL_PTR_c

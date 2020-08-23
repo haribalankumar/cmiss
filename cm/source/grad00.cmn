@@ -1,0 +1,4 @@
+!  grad00.cmn
+      REAL*8 SCALE
+      COMMON /GRAD00R/ SCALE
+

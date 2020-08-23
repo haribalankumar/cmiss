@@ -1,0 +1,232 @@
+<HTML>
+<HEAD>
+<TITLE>The NodeGroup class defines structures and methods for creating and
+manipulating groups of nodes.  The NodeGroup structure has 4 fields:</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aObjects%3a%3aNodeGroup">CmUtils::Objects::NodeGroup</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#CHANGES">CHANGES</A></LI>
+<LI><A HREF="#METHODS">METHODS</A></LI>
+<UL>
+<LI><A HREF="#new()"><B>new()</B></A></LI>
+<LI><A HREF="#name(%5bstring%2fnumber%5d)"><B>name([string/number])</B></A></LI>
+<LI><A HREF="#property(name%2c%5bvalue%5d)"><B>property(name,[value])</B></A></LI>
+<LI><A HREF="#getPropertyNames(%5bName(s)%5d)"><B>getPropertyNames([Name(s)])</B></A></LI>
+<LI><A HREF="#addFieldSet(FieldSet)"><B>addFieldSet(FieldSet)</B></A></LI>
+<LI><A HREF="#getFieldSets()"><B>getFieldSets()</B></A></LI>
+<LI><A HREF="#getFieldSet(number)"><B>getFieldSet(number)</B></A></LI>
+<LI><A HREF="#getAllFieldNames(%5bFieldSet(s)%5d)"><B>getAllFieldNames([FieldSet(s)])</B></A></LI>
+<LI><A HREF="#addNode(Node)"><B>addNode(Node)</B></A></LI>
+<LI><A HREF="#addNodes(Node(s))"><B>addNodes(Node(s))</B></A></LI>
+<LI><A HREF="#updateNode(Node)"><B>updateNode(Node)</B></A></LI>
+<LI><A HREF="#deleteNode(NodeName)"><B>deleteNode(NodeName)</B></A></LI>
+<LI><A HREF="#deleteNodes(NodeName(s))"><B>deleteNodes(NodeName(s))</B></A></LI>
+<LI><A HREF="#isNode(NodeName)"><B>isNode(NodeName)</B></A></LI>
+<LI><A HREF="#getNodeNames(%5bNodeName(s)%5d)"><B>getNodeNames([NodeName(s)])</B></A></LI>
+<LI><A HREF="#getNodes(%5bNodeName(s)%5d)"><B>getNodes([NodeName(s)])</B></A></LI>
+<LI><A HREF="#getNodesByFieldSet(%5bNodeName(s)%5d)"><B>getNodesByFieldSet([NodeName(s)])</B></A></LI>
+<LI><A HREF="#getNode(NodeName)"><B>getNode(NodeName)</B></A></LI>
+<LI><A HREF="#numberOfNodes()"><B>numberOfNodes()</B></A></LI>
+<LI><A HREF="#maximumNodeNumber()"><B>maximumNodeNumber()</B></A></LI>
+<LI><A HREF="#listFields(%5bFH%5d)"><B>listFields([FH])</B></A></LI>
+<LI><A HREF="#listNodes(%5bFH%5d)"><B>listNodes([FH])</B></A></LI>
+<LI><A HREF="#mergeGroup(Group%5b%2cOptions%5d)"><B>mergeGroup(Group[,Options])</B></A></LI>
+</UL>
+<LI><A HREF="#Transformation%20METHODS">Transformation METHODS</A></LI>
+<UL>
+<LI><A HREF="#reduce(Factor%5b%2cNodeName(s)%5d)"><B>reduce(Factor[,NodeName(s)])</B></A></LI>
+<LI><A HREF="#renumber(%5bOffset%5b%2cIncrement%5b%2cNodeNames%5d%5d%5d)"><B>renumber([Offset[,Increment[,NodeNames]]])</B></A></LI>
+<LI><A HREF="#offset_number(%5bOffset%5b%2cNodeNames%5d%5d)"><B>offset_number([Offset[,NodeNames]])</B></A></LI>
+<LI><A HREF="#translate(Translation%5b%2cNodeName(s)%5d)"><B>translate(Translation[,NodeName(s)])</B></A></LI>
+<LI><A HREF="#setorigin(Origin%5b%2cNodeName(s)%5d)"><B>setorigin(Origin[,NodeName(s)])</B></A></LI>
+<LI><A HREF="#scale(Scale%5b%2cNodeName(s)%5d)"><B>scale(Scale[,NodeName(s)])</B></A></LI>
+<LI><A HREF="#multmatrix4(matrix%5b%2cNodeName(s)%5d)"><B>multmatrix4(matrix[,NodeName(s)])</B></A></LI>
+<LI><A HREF="#rotateradians(Angles%5b%2cNodeName(s)%5d)%20rotatedegrees(Angles%5b%2cNodeName(s)%5d)"><B>rotateradians(Angles[,NodeName(s)]) rotatedegrees(Angles[,NodeName(s)])</B></A></LI>
+<LI><A HREF="#centroid(%5bNodeName(s)%5d)"><B>centroid([NodeName(s)])</B></A></LI>
+<LI><A HREF="#distance(node1%2c%20node2)"><B>distance(node1, node2)</B></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aObjects%3a%3aNodeGroup">CmUtils::Objects::NodeGroup</A></H1>
+
+<P>The NodeGroup class defines structures and methods for creating and
+manipulating groups of nodes.  The NodeGroup structure has 4 fields:</P><DL><DT><A NAME="NAME">NAME</A></DT>
+<DD>
+Name of the NodeGroup</DD>
+<DT><A NAME="FOCUS">FOCUS</A></DT>
+<DD>
+Value of the focus for NodeGroups based on prolate-spheroidal coordinates</DD>
+<DT><A NAME="FIELDSETS">FIELDSETS</A></DT>
+<DD>
+A set of FieldSets which describe the Nodes in this NodeGroup</DD>
+<DT><A NAME="NODES">NODES</A></DT>
+<DD>
+The set of nodes belonging to this NodeGroup</DD>
+</DL>
+<H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>0.6 (7 September 2001)</P><H1><A NAME="CHANGES">CHANGES</A></H1>
+
+<P>0.6 GBS: Added <B>distance</B> method to compute distance between two nodes.</P><H1><A NAME="METHODS">METHODS</A></H1>
+<H2><A NAME="new()"><B>new()</B></A></H2>
+
+<P>Returns a new NodeGroup.</P><H2><A NAME="name(%5bstring%2fnumber%5d)"><B>name([string/number])</B></A></H2>
+
+<P>Optional argument is name for NodeGroup.  Returns the name of the NodeGroup.</P><H2><A NAME="property(name%2c%5bvalue%5d)"><B>property(name,[value])</B></A></H2>
+
+<P>Sets a problem-specific/dependent property (named NAME) of the NodeGroup.
+Optional argument is the value of the property.  Returns the value.</P><H2><A NAME="getPropertyNames(%5bName(s)%5d)"><B>getPropertyNames([Name(s)])</B></A></H2>
+
+<P>Returns the sorted names of all (or NAMED) Properties defined for a NodeGroup.</P><H2><A NAME="addFieldSet(FieldSet)"><B>addFieldSet(FieldSet)</B></A></H2>
+
+<P>Adds a FieldSet to the list of FieldSets of this NodeGroup.  Returns the 
+index of the last FieldSet.</P><H2><A NAME="getFieldSets()"><B>getFieldSets()</B></A></H2>
+
+<P>Returns the list of defined FieldSets.</P><H2><A NAME="getFieldSet(number)"><B>getFieldSet(number)</B></A></H2>
+
+<P>Returns a specific FieldSet by number.  FieldSets do not have names :-(</P><H2><A NAME="getAllFieldNames(%5bFieldSet(s)%5d)"><B>getAllFieldNames([FieldSet(s)])</B></A></H2>
+
+<P>Returns the sorted names of all Fields in DEFINED or, by default, 
+ALL FieldSets of a NodeGroup.</P><H2><A NAME="addNode(Node)"><B>addNode(Node)</B></A></H2>
+
+<P>Adds a Node to the list of Nodes in the NodeGroup.  Node will NOT be added
+(replaced) if it already exists.  Returns the total number of defined Nodes
+in the NodeGroup.</P><H2><A NAME="addNodes(Node(s))"><B>addNodes(Node(s))</B></A></H2>
+
+<P>Adds one or more Nodes to the list of Nodes in the NodeGroup.  Nodes will 
+NOT be added (replaced) if they already exist.  Returns the total number of 
+defined Nodes in the NodeGroup.</P><H2><A NAME="updateNode(Node)"><B>updateNode(Node)</B></A></H2>
+
+<P>Updates the Node in the NodeGroup.  Node will NOT be changed unless it already
+exists.  Returns the total number of defined Nodes in the NodeGroup.</P><H2><A NAME="deleteNode(NodeName)"><B>deleteNode(NodeName)</B></A></H2>
+
+<P>Deletes Node named NodeName in the NodeGroup.  Returns the total number of 
+defined Nodes in the NodeGroup.</P><H2><A NAME="deleteNodes(NodeName(s))"><B>deleteNodes(NodeName(s))</B></A></H2>
+
+<P>Deletes one or more Nodes named NodeName(s) in the NodeGroup.
+Returns the total number of defined Nodes in the NodeGroup.</P><H2><A NAME="isNode(NodeName)"><B>isNode(NodeName)</B></A></H2>
+
+<P>Returns True if the Node named NodeName is in the NodeGroup, otherwise returns
+False.</P><H2><A NAME="getNodeNames(%5bNodeName(s)%5d)"><B>getNodeNames([NodeName(s)])</B></A></H2>
+
+<P>If NodeName(s) are specified, returns a list of names of all Nodes with these 
+names that exist in the NodeGroup, in the order they are specified.  If no 
+argument is given, returns a list of names of ALL Nodes, sorted in 
+numerical/alphabetical order.</P><H2><A NAME="getNodes(%5bNodeName(s)%5d)"><B>getNodes([NodeName(s)])</B></A></H2>
+
+<P>If NodeName(s) are specified, returns a list of all Nodes with these names that
+exist in the NodeGroup, in the order they are specified.  If no argument is 
+given, returns a list of ALL Nodes, sorted in numerical/alphabetical order.</P><H2><A NAME="getNodesByFieldSet(%5bNodeName(s)%5d)"><B>getNodesByFieldSet([NodeName(s)])</B></A></H2>
+
+<P>If NodeName(s) are specified, returns a list of all Nodes with these names that
+exist in the NodeGroup.  If no argument is given, returns a list of ALL Nodes.
+Returned Nodes are sorted by FieldSet, then by name
+(numerically/alphabetically).</P><H2><A NAME="getNode(NodeName)"><B>getNode(NodeName)</B></A></H2>
+
+<P>Returns the Node named NodeName from the NodeGroup.</P><H2><A NAME="numberOfNodes()"><B>numberOfNodes()</B></A></H2>
+
+<P>Returns the number of Nodes defined in the NodeGroup.</P><H2><A NAME="maximumNodeNumber()"><B>maximumNodeNumber()</B></A></H2>
+
+<P>Returns the number of Nodes defined in the NodeGroup.</P><H2><A NAME="listFields(%5bFH%5d)"><B>listFields([FH])</B></A></H2>
+
+<P>List the Field information of this NodeGroup to the filehandle <I>FH</I>
+(default to STDOUT).  Set the &quot;verbose&quot; flag ($s-&gt;verbose(1)) to see
+extended information.</P><H2><A NAME="listNodes(%5bFH%5d)"><B>listNodes([FH])</B></A></H2>
+
+<P>List the Node information of this NodeGroup to the filehandle <I>FH</I>
+(default to STDOUT).  Set the &quot;verbose&quot; flag ($s-&gt;verbose(1)) to see
+extended information.</P><H2><A NAME="mergeGroup(Group%5b%2cOptions%5d)"><B>mergeGroup(Group[,Options])</B></A></H2>
+
+<P>Merges another Group into this NodeGroup.  By default, nodes are added as long
+as they do not already exist.  The Options hashref can alter this by either
+forcing an overwrite of existing nodes (key &quot;overwrite&quot;), or assigning a new
+number to the new nodes (key &quot;newnumber&quot;).</P>
+<PRE>  $options{newnumber} = 1;
+  $group-&gt;mergeGroup($another_group,$options);</PRE>
+<H1><A NAME="Transformation%20METHODS">Transformation METHODS</A></H1>
+
+<P>The following routines define useful transformations of existing NodeGroups. 
+By default each routine processes the whole NodeGroup, but a list of NodeNames
+may be specified to restrict processing to just a portion of it.  NodeNames can
+be specified as either an array or a list, and are always the last argument(s)
+to the method call.</P>
+<P>Where operations apply to coordinate values, they are restricted to fields
+matching <CODE>/coordinate/i</CODE> with components matching <CODE>/[xyz]/i</CODE>.</P><H2><A NAME="reduce(Factor%5b%2cNodeName(s)%5d)"><B>reduce(Factor[,NodeName(s)])</B></A></H2>
+
+<P>Deletes nodes so that only 1/Factor of the original number remain.  For
+example:</P>
+<PRE>  $group-&gt;reduce(2);</PRE>
+
+<P>keeps only every other node.  Useful for subsampling a dataset.</P><H2><A NAME="renumber(%5bOffset%5b%2cIncrement%5b%2cNodeNames%5d%5d%5d)"><B>renumber([Offset[,Increment[,NodeNames]]])</B></A></H2>
+
+<P>Renumbers the NodeGroup starting from Offset (default 1) by an Increment
+(default 1).</P>
+<P><B>Note:</B> Nodes may be lost if a portion of the group is renumbered to the same
+as other existing nodes.</P><H2><A NAME="offset_number(%5bOffset%5b%2cNodeNames%5d%5d)"><B>offset_number([Offset[,NodeNames]])</B></A></H2>
+
+<P>Renumbers the NodeGroup by adding Offset to each node number.</P>
+<P><B>Note:</B> Nodes may be lost if a portion of the group is renumbered to the same
+as other existing nodes.</P><H2><A NAME="translate(Translation%5b%2cNodeName(s)%5d)"><B>translate(Translation[,NodeName(s)])</B></A></H2>
+
+<P>Translates nodal x/y/z coordinates by Translation.  The translation may be
+specified by either:
+  * a hashref,   with keys of one or more of x,y,z
+  * an arrayref, with values in order of x,y,z
+  * a scalar,    where the value applies equally to each direction</P>
+<PRE>  $group-&gt;translate({x =&gt; 3, z =&gt; -7});
+  $group-&gt;translate([4,5,6]);</PRE>
+<H2><A NAME="setorigin(Origin%5b%2cNodeName(s)%5d)"><B>setorigin(Origin[,NodeName(s)])</B></A></H2>
+
+<P>Translates nodal x/y/z coordinates so that Origin is the origin.  The origin
+may be specified by either:
+  * a hashref,   with keys of one or more of x,y,z
+  * an arrayref, with values in order of x,y,z</P>
+<PRE>  $group-&gt;setorigin([-10,10,5]);</PRE>
+<H2><A NAME="scale(Scale%5b%2cNodeName(s)%5d)"><B>scale(Scale[,NodeName(s)])</B></A></H2>
+
+<P>Scales nodal x/y/z coordinates by the given Scale.  The values to scale by
+may be specified by either:
+  * a hashref,   with keys of one or more of x,y,z
+  * an arrayref, with values in order of x,y,z
+  * a scalar,    where the value applies equally to each direction</P>
+<PRE>  $group-&gt;scale({x =&gt; 5});
+  $group-&gt;scale(2);</PRE>
+<H2><A NAME="multmatrix4(matrix%5b%2cNodeName(s)%5d)"><B>multmatrix4(matrix[,NodeName(s)])</B></A></H2>
+
+<P>Perform a general transformation on nodal coordinates by multiplying by a
+standard 16 element transformation Matrix.  The matrix must be specified as an
+arrayref with 16 elements (or a 4x4 array of arrays).  The matrix is given
+row-first.</P>
+<PRE>  $mat = [ 
+    [ 1, 0, 0, 5],
+    [ 0, 0,-1,10],
+    [ 0, 1, 0, 0],
+    [ 0, 0, 0, 1] ];
+  $group-&gt;multmatrix4($mat);</PRE>
+<H2><A NAME="rotateradians(Angles%5b%2cNodeName(s)%5d)%20rotatedegrees(Angles%5b%2cNodeName(s)%5d)"><B>rotateradians(Angles[,NodeName(s)]) rotatedegrees(Angles[,NodeName(s)])</B></A></H2>
+
+<P>Rotates nodal x/y/z coordinates by the given Angles.  The values to rotate by
+may be specified by either:
+  * a hashref,   with keys of one or more of x,y,z
+  * an arrayref, with values in order of x,y,z
+  * a scalar,    where the rotation is assumed to be in the x-direction
+Angles are given in radians or degrees depending on the function called</P>
+<PRE>  $group-&gt;rotateradians({z =&gt; $pi/2});
+  $group-&gt;rotatedegrees([45,-30,10]);</PRE>
+
+<P>Both these routines called the internal routine <CODE>_rotate</CODE> which converts
+the angles to a 4x4 transformation matrix and calls the <CODE>multmatrix4</CODE> routine.
+CmUtils::RotationTransform is used to do the conversion.</P><H2><A NAME="centroid(%5bNodeName(s)%5d)"><B>centroid([NodeName(s)])</B></A></H2>
+
+<P>Computes the centroid of the xyz coordinate components of the NodeGroup.</P>
+<PRE>  @centroid = $group-&gt;centroid();</PRE>
+<H2><A NAME="distance(node1%2c%20node2)"><B>distance(node1, node2)</B></A></H2>
+
+<P>Computes the distance between two nodes ina nodegroup (assuming xyz
+coordinates).  e.g. nodes 1 and 5:</P>
+<PRE>  $distance = $group-&gt;distance(1, 5);</PRE>
+
+</BODY>
+</HTML>

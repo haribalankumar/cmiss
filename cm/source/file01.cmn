@@ -1,0 +1,4 @@
+!  file01.cmn
+      LOGICAL FILEIP
+      COMMON /FILE01L/ FILEIP
+

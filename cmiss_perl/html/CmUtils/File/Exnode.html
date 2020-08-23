@@ -1,0 +1,111 @@
+<HTML>
+<HEAD>
+<TITLE>Routines for reading and writing exnode/exdata files.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aFile%3a%3aExnode">CmUtils::File::Exnode</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#CHANGES">CHANGES</A></LI>
+<LI><A HREF="#SUBROUTINES">SUBROUTINES</A></LI>
+<UL>
+<LI><A HREF="#readExnode"><B>readExnode</B></A></LI>
+<LI><A HREF="#readExdata"><B>readExdata</B></A></LI>
+<LI><A HREF="#writeExnode"><B>writeExnode</B></A></LI>
+<LI><A HREF="#writeExdata"><B>writeExdata</B></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aFile%3a%3aExnode">CmUtils::File::Exnode</A></H1>
+
+<P>Routines for reading and writing <I>exnode</I>/<I>exdata</I> files.</P><H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>0.5 (12 October 2000)
+0.6 (08 August 2001)</P><H1><A NAME="CHANGES">CHANGES</A></H1>
+
+<P>version 0.6
+- added the ability to read and write string values for Exnode files JMB</P><H1><A NAME="SUBROUTINES">SUBROUTINES</A></H1>
+<H2><A NAME="readExnode"><B>readExnode</B></A></H2>
+<DL><DT><A NAME="PARAMETERS">PARAMETERS</A></DT>
+<DD>
+(filename)</DD>
+<DT><A NAME="USAGE">USAGE</A></DT>
+<DD>
+
+<PRE>  @groups = readExnode($filename);
+  $group = readExnode(&quot;newfile&quot;);</PRE>
+</DD>
+<DT><A NAME="FUNCTION">FUNCTION</A></DT>
+<DD>
+Returns a list of NodeGroups read from <I>filename</I> (or <I>filename.exnode</I>).
+If a scalar is assigned the return value, it will contain the first NodeGroup
+read.</DD>
+</DL>
+<H2><A NAME="readExdata"><B>readExdata</B></A></H2>
+<DL><DT><A NAME="PARAMETERS">PARAMETERS</A></DT>
+<DD>
+(filename)</DD>
+<DT><A NAME="USAGE">USAGE</A></DT>
+<DD>
+
+<PRE>  @groups = readExdata($filename);</PRE>
+</DD>
+<DT><A NAME="FUNCTION">FUNCTION</A></DT>
+<DD>
+Returns a list of NodeGroups read from <I>filename</I> (or <I>filename.exdata</I>).
+If a scalar is assigned the return value, it will contain the first NodeGroup
+read.  Calls <B>readExnode</B>.</DD>
+</DL>
+<H2><A NAME="writeExnode"><B>writeExnode</B></A></H2>
+<DL><DT><A NAME="PARAMETERS">PARAMETERS</A></DT>
+<DD>
+(filename, group(s), options)</DD>
+<DT><A NAME="USAGE">USAGE</A></DT>
+<DD>
+
+<PRE>  $options{nodes} = $group-&gt;getNodes(10..20);
+  writeExnode($filename, $group, \%options);</PRE>
+</DD>
+<DT><A NAME="FUNCTION">FUNCTION</A></DT>
+<DD>
+Writes one or more NodeGroups to an <I>exnode</I> file.  Options are passed through
+the <I>options</I> hash to control the subset of the NodeGroups which will be
+printed.</DD>
+<DT><A NAME="OPTIONS">OPTIONS</A></DT>
+<DD>
+<DL><DT><A NAME="nodes">nodes</A></DT>
+<DD>
+A array of node structures which will be output.  A number of routines are
+available to get nodes from a group (e.g. <B>getNodes</B>.  See CmUtils::Objects::NodeGroup).
+If not set, all nodes will be printed.</DD>
+<DT><A NAME="fields">fields</A></DT>
+<DD>
+An array of field names which will be printed.  If not set, all fields will be
+printed.</DD>
+<DT><A NAME="noDerivatives">noDerivatives</A></DT>
+<DD>
+Set this option to True to suppress printing of nodal derivatives.</DD>
+<DT><A NAME="noVersions">noVersions</A></DT>
+<DD>
+Set this option to suppress printing of multiple versions - only the first
+will be printed.  (not yet implemented)</DD>
+</DL>
+</DD>
+</DL>
+<H2><A NAME="writeExdata"><B>writeExdata</B></A></H2>
+<DL><DT><A NAME="PARAMETERS">PARAMETERS</A></DT>
+<DD>
+(filename, group(s), options)</DD>
+<DT><A NAME="USAGE">USAGE</A></DT>
+<DD>
+
+<PRE>  $options{nodes} = $group-&gt;getNodes(10..20);
+  writeExdata($filename, $group, \%options);</PRE>
+</DD>
+<DT><A NAME="FUNCTION">FUNCTION</A></DT>
+<DD>
+Calls <B>writeExnode</B>, but writes to an <I>exdata</I> file.</DD>
+</DL>
+
+</BODY>
+</HTML>

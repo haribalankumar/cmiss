@@ -1,0 +1,58 @@
+<HTML>
+<HEAD>
+<TITLE>The Internet CMISS Submission System</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#ffffff">
+
+<H1>CMISS Internet Submission System</H1>
+
+<HR NOSHADE>
+<P>
+
+Please enter your username and password:
+
+<FORM ACTION="http://www.esc.auckland.ac.nz/Groups/Bioengineering/CMISS/scripts/check-password.cgi" METHOD="POST">
+<TABLE WIDTH="50%">
+<TR>
+<TD ALIGN="RIGHT">Username:</TD>
+<TD><INPUT TYPE="text" NAME="user" SIZE="20"></TD>
+</TR>
+<TR>
+<TD ALIGN="RIGHT">Password:</TD>
+<TD><INPUT TYPE="password" NAME="password" SIZE="20"></TD>
+</TR>
+</TABLE>
+And then press either <INPUT TYPE="submit" VALUE="Enter CMISS System">
+or <INPUT TYPE="reset"  VALUE="Clear Fields">
+</FORM>
+
+<HR NOSHADE>
+
+<CENTER>
+<H2>Notes</H2>
+</CENTER>
+
+<UL>
+<LI> Most of the CMISS examples have been designed for interactive use,
+     and rely on outputing information to a GX window. In remote batch
+     mode this will not work. Commands such as "open window"and "draw",
+     as well as anything else that may do any graphics may be
+     left in the comfile. However CMISS cannot use these commands
+     since the display isn't set and X windows cannot initialize itself
+     in those circumstances.<P>
+
+<LI> The CMGUI action button requires the hpc_cmgui shell script 
+     to be set up as a Helper Application in Netscape. Set the MIME type as 
+     "application/x-cmgui", with the application being "hpc_cmgui.sh %s".
+     <P>
+     On the Bioengineering system the shell script is located at 
+     "$CMISS_ROOT/www/webcmiss/hpc_cmgui.sh". Remote users should
+     downloaded the script from <a href="hpc_cmgui.sh">here</a>.
+     They will also need to download a cmgui executable for their system.
+</UL>
+
+<P>
+
+</BODY>
+</HTML>

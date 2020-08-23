@@ -1,0 +1,46 @@
+Scripts to Update CMISS Input Files
+===================================
+
+Each subdirectory is labelled in the format YYYYMMDD with the date of the
+release prior to the change in file format.  The subdirectory therefore
+contains scripts to update CMISS input files from the format of the release on
+the corresponding date to format of the next release.
+
+From 2006 fixes for CMGUI are now stored in a directory corresponding to the 
+cmgui release number for which they are required.
+
+Scripts named fixip*.* update CMISS input files having the corresponding
+extension .ip*.  CMISS is usually able to update these files automatically
+when reading them prompting the user for input if run interactively.
+Sometimes, however, it is useful to run these scripts when there are a large
+number of files or when the files are not readable by every user.  The scripts
+(by default) operate on all files below the current directory having the
+corresponding extension.  A backup of each file changed is made with the
+extension .old.
+
+Scripts named fixcom.* update the CMISS command files (usually having a .com
+extension).  CMISS is not able to update these automatically.  These scripts
+work similarly to the fixip*.* scripts.
+
+
+Notes for Developers
+====================
+
+Please make sure that the scripts can detect that a modification has already
+been applied to a file so that additional lines are not added each time the
+script is run.
+
+When committing the scripts please provide an informative log message
+referring to the source code change that necessitated the input file format
+change and the reason for the change.
+
+Use the script arguments '-c examples' to check out the appropriate example
+files from CVS and update them.  Check they look right and commit the changes
+with an informative log message.
+
+The command
+
+  pod2text -c $CMISS_ROOT/cmiss_perl/lib/CmUtils/IpFileFix.pm | less
+
+may be useful for documentation on functions available for modifying input
+files.

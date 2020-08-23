@@ -1,0 +1,123 @@
+<HTML>
+<HEAD>
+<TITLE>A collection of routines to read and write node</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aFile">CmUtils::File</A></LI>
+<LI><A HREF="#USAGE">USAGE</A></LI>
+<LI><A HREF="#TAGS">TAGS</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#SUBROUTINES">SUBROUTINES</A></LI>
+<UL>
+<LI><A HREF="#cmRead(filename%2c%5boptions%5d)"><B>cmRead(filename,[options])</B></A></LI>
+<LI><A HREF="#cmWrite(filename%2cgroup%2c%5boptions%5d)"><B>cmWrite(filename,group,[options])</B></A></LI>
+</UL>
+<LI><A HREF="#TODO">TODO</A></LI>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aFile">CmUtils::File</A></H1>
+
+<P>A collection of routines to read and write node-based files for CMISS and 
+CMGUI.  All file features should be supported, including multiple
+node-groups, derivatives and versions.  </P><H1><A NAME="USAGE">USAGE</A></H1>
+
+<PRE>  use CmUtils::File qw(readExnode writeIpnode);</PRE>
+
+<P>will make available the two routines.  The read routines return one or more
+node-groups.</P>
+<PRE>  use CmUtils::File qw(:Exnode :Ipnode);</PRE>
+
+<P>which will make the read and write Exnode and Ipnode routines available.</P>
+<PRE>  $group = readExnode(&quot;file.exnode&quot;);
+  writeIpnode(&quot;newfile.ipnode&quot;, $group);</PRE>
+
+<P>Generic routines are also available, which determine the file type from the
+file extensions, or from a <I>format</I> option.  These routines (<B>cmRead</B> and
+<B>cmWrite</B>) are exported by default.</P>
+<PRE>  use CmUtils::File;
+  $group = cmRead('file.ipnode');
+  $options-&gt;{format}='exdata';
+  cmWrite('newfile', $group, $options);</PRE>
+<H1><A NAME="TAGS">TAGS</A></H1>
+
+<P>Available tags to use are</P>
+<P><I>:all</I> for all routines</P>
+<P><I>:Exnode</I> for readExnode and writeExnode</P>
+<P><I>:Exdata</I> for readExdata and writeExdata</P>
+<P><I>:Ipnode</I> for readIpnode and writeIpnode</P>
+<P><I>:Ipdata</I> for readIpdata and writeIpdata</P>
+<P><I>:Ipfiel</I> for readIpfiel and writeIpfiel</P>
+<P><I>:Ipfibr</I> for readIpfibr and writeIpfibr</P>
+<P><I>:Ascii</I>  for readAscii  and writeAscii</P><H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>0.6 (6 November 2000)</P><H1><A NAME="SUBROUTINES">SUBROUTINES</A></H1>
+
+<P>The following generic subroutines are exported by default:</P>
+<PRE>    cmRead
+    cmWrite</PRE>
+
+<P>The following subroutines are imported from the File modules, and are
+exported on request:</P>
+<PRE>    readExnode
+    writeExnode
+    readExdata
+    writeExdata
+    readIpnode
+    writeIpnode
+    readIpdata
+    writeIpdata    
+    readIpfiel
+    writeIpfiel
+    readIpfibr
+    writeIpfibr
+    readAscii
+    writeAscii</PRE>
+<H2><A NAME="cmRead(filename%2c%5boptions%5d)"><B>cmRead(filename,[options])</B></A></H2>
+
+<P>Generic file reading routine for CMISS Ip and Ex format files.  File format
+is determined from the <I>options</I> hash if possible, otherwise it should be 
+specified in the <I>filename</I>.</P><DL><DT><A NAME="USAGE">USAGE</A></DT>
+<DD>
+
+<PRE>  $group = cmRead('file.ipnode');</PRE>
+
+<PRE>  $o-&gt;{format}='exdata';
+  $g = cmRead('file', $o);</PRE>
+</DD>
+<DT><A NAME="OPTIONS">OPTIONS</A></DT>
+<DD>
+<DL><DT><A NAME="format">format</A></DT>
+<DD>
+File format to read.</DD>
+</DL>
+</DD>
+</DL>
+<H2><A NAME="cmWrite(filename%2cgroup%2c%5boptions%5d)"><B>cmWrite(filename,group,[options])</B></A></H2>
+
+<P>Generic file writing routine for CMISS Ip and Ex format files.  File format
+is determined from the <I>options</I> hash if possible, otherwise it should be 
+specified in the <I>filename</I>.</P><DL><DT><A NAME="USAGE">USAGE</A></DT>
+<DD>
+
+<PRE>  cmWrite('file.ipnode', $group);</PRE>
+
+<PRE>  $o-&gt;{format}='exdata';
+  cmWrite('file', $g, $o);</PRE>
+</DD>
+<DT><A NAME="OPTIONS">OPTIONS</A></DT>
+<DD>
+<DL><DT><A NAME="format">format</A></DT>
+<DD>
+File format to read.</DD>
+<DT><A NAME="...">...</A></DT>
+<DD>
+Other options as defined by the file writing routines.</DD>
+</DL>
+</DD>
+</DL>
+<H1><A NAME="TODO">TODO</A></H1>
+
+<P>ipxi?</P>
+</BODY>
+</HTML>

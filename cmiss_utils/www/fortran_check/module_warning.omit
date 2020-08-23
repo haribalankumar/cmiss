@@ -1,0 +1,54 @@
+fe00.f IOGEOM variable ID set line * but never used
+fe00.f IOGEOM variable IEE set line * but never used
+fe00.f IOGEOM variable MG set line * but never used
+fe00.f IOGEOM variable NBB set line * but never used
+fe00.f IOGEOM variable NCC set line * but never used
+fe00.f IOGEOM variable NEE set line * but never used
+fe00.f IOGEOM variable NFEE set line * but never used
+fe00.f IOGEOM variable NHH set line * but never used
+fe00.f IOGEOM variable NJJ set line * but never used
+fe00.f IOGEOM variable NKK set line * but never used
+fe00.f IOGEOM variable NNN set line * but never used
+fe00.f IOGEOM variable NPP set line * but never used
+fe00.f IOGEOM variable NRR set line * but never used
+fe00.f IOGEOM variable NVV set line * but never used
+fe00.f IOHIST variable DUMMY set line * but never used
+fe00.f IOHIST variable NOO_NPNY set line * but never used
+fe00.f IOHIST variable NOO_NQNY set line * but never used
+fe00.f IOHIST variable NRR set line * but never used
+fe00.f IO_MATRIX variable DUMMY_VALUE set line * but never used
+fe00.f IOMATR variable LINE set line * but never used
+fe00.f IOSIGN variable DUMMY set line * but never used
+fe00.f IOSIGN variable IDUMMY set line * but never used
+fe00.f IOSIGN variable NDD set line * but never used
+fe02.f D2XRCDXI variable D2XXI set line * but never used
+fe02.f D2XRCDXI variable DXXI set line * but never used
+fe02.f D2XRCDXI variable X set line * but never used
+fe02.f NODE_CHANGE_DYNAM variable CHANGE_STRUCTURE declared (dummy argument) line * but never referenced
+fe08.f DSAUP2 variable IUPD declared (dummy argument) line * but never referenced
+fe08.f DGETV0 variable ITRY declared (dummy argument) line * but never referenced
+fe11.f IPOPTI variable IIY set line * but never used
+fe11.f IPOPTI variable IOSTAT set line * but never used
+fe11.f IPOPTI variable OPENED set line * but never used
+fe14.f ACWK variable ID declared (dummy argument) line * but never referenced
+fe14.f DAWK variable ID declared (dummy argument) line * but never referenced
+fe24.f DEDATA variable N set line * but never used
+fe25.f SGSECT variable T set line * but never used
+fe26.f DATA_CHANGE_DYNAM variable CHANGE_STRUCTURE declared (dummy argument) line * but never referenced
+fe26.f EXPORT_FIELD_HEADING_CELL variable CELL_ICQS_SPATIAL declared (dummy argument) line * but never referenced
+fe26.f EXPORT_FIELD_HEADING_CELL variable CELL_RCQS_SPATIAL declared (dummy argument) line * but never referenced
+fe26.f EXPORT_FIELD_HEADING_CELL variable CELL_YQS_SPATIAL declared (dummy argument) line * but never referenced
+fe26.f EXPORT_FIELD_HEADING_CELL variable CELL_YQS_VALUE declared (dummy argument) line * but never referenced
+fe26.f EXPORT_FIELD_HEADING_CELL variable ICQS_SPATIAL declared (dummy argument) line * but never referenced
+fe26.f EXPORT_FIELD_HEADING_CELL variable RCQS_SPATIAL declared (dummy argument) line * but never referenced
+fe26.f EXPOIN variable CELL_ICQS_SPATIAL declared (dummy argument) line * but never referenced
+fe26.f EXPOIN variable CELL_RCQS_SPATIAL declared (dummy argument) line * but never referenced
+fe26.f EXPOIN variable CELL_YQS_SPATIAL declared (dummy argument) line * but never referenced
+fe26.f EXPOIN variable CELL_YQS_VALUE declared (dummy argument) line * but never referenced
+fe28.f DRISOC variable NEE set line * but never used
+fe30.f IPMAT3_CELL1 variable ICQS declared (dummy argument) line * but never referenced
+fe30.f IPMAT3_CELL1 variable NX declared (dummy argument) line * but never referenced
+fe30.f IPMAT3_CELL1 variable RCQS declared (dummy argument) line * but never referenced
+fe40.f IPANA4 variable NR declared (dummy argument) line * but never referenced
+fe40.f IPANA4 variable NX declared (dummy argument) line * but never referenced
+fe50.f ZEOP variable NHE declared (dummy argument) line * but never referenced

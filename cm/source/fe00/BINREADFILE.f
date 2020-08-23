@@ -1,0 +1,82 @@
+      SUBROUTINE BINREADFILE(FILEID,DATA_TYPE,NUM_DATA,IDATA,
+     '  SRDATA,DRDATA,CDATA,LDATA,SIDATA,ERROR,*)
+
+C#### Subroutine: BINREADFILE
+C###  Description:
+C###    BINREADFILE reads num_data lots of data (of type
+C###    given by data_type) into the data array from a binary file
+C###    specified by FILEID.
+
+      IMPLICIT NONE
+      INCLUDE 'binf00.cmn'
+      INCLUDE 'mach00.cmn'
+      INCLUDE 'mach00.inc'
+!     Parameter List
+      INTEGER FILEID,DATA_TYPE,NUM_DATA,IDATA(*)
+      REAL SRDATA(*)
+      REAL*8 DRDATA(*)
+      CHARACTER CDATA*(*),ERROR*(*)
+      LOGICAL LDATA(*)
+      INTEGER*2 SIDATA(*)
+!     Local Variables
+      INTEGER CERROR(50),CERRLEN,CSTRING(250),CSTRLEN,ENDIAN,ERR
+
+      CALL ENTERS('BINREADFILE',*9999)
+
+      IF(DATA_TYPE.NE.CHARTYPE) THEN
+        IF(FILEENDIANTYPE(FILEID).EQ.ENDIANTYPE) THEN
+          ENDIAN=0
+        ELSE
+          ENDIAN=1
+        ENDIF
+      ELSE
+        ENDIAN=0
+      ENDIF
+
+      IF(DATA_TYPE.EQ.INTTYPE) THEN !integer data
+        CALL BINARYREADFILE(FILEID,ENDIAN,NUM_DATA,DATA_TYPE,IDATA,
+     '    ERR,CERROR)
+      ELSE IF(DATA_TYPE.EQ.SPTYPE) THEN !real*4 data
+        CALL BINARYREADFILE(FILEID,ENDIAN,NUM_DATA,DATA_TYPE,SRDATA,
+     '    ERR,CERROR)
+      ELSE IF(DATA_TYPE.EQ.DPTYPE) THEN !real*8 data
+        CALL BINARYREADFILE(FILEID,ENDIAN,NUM_DATA,DATA_TYPE,DRDATA,
+     '    ERR,CERROR)
+      ELSE IF(DATA_TYPE.EQ.CHARTYPE) THEN !character data
+        CALL BINARYREADFILE(FILEID,ENDIAN,NUM_DATA,DATA_TYPE,CSTRING,
+     '    ERR,CERROR)
+      ELSE IF(DATA_TYPE.EQ.LOGTYPE) THEN !logical data
+        CALL BINARYREADFILE(FILEID,ENDIAN,NUM_DATA,DATA_TYPE,LDATA,
+     '    ERR,CERROR)
+      ELSE IF(DATA_TYPE.EQ.SINTTYPE) THEN !shortint data
+        CALL BINARYREADFILE(FILEID,ENDIAN,NUM_DATA,DATA_TYPE,SIDATA,
+     '    ERR,CERROR)
+      ELSE
+        ERROR='>>Invalid data type'
+        GOTO 9999
+      ENDIF
+      IF(ERR.NE.0) THEN
+        CALL CSTRINGLEN(CERRLEN,CERROR)
+        CALL C2FSTRING(CERROR,CERRLEN,ERROR)
+        GOTO 9999
+      ENDIF
+      IF(DATA_TYPE.EQ.CHARTYPE) THEN
+        CALL CSTRINGLEN(CSTRLEN,CSTRING)
+        IF(CSTRLEN.EQ.0.AND.NUM_DATA.EQ.1) THEN
+C         Zero length string and data read ie. read a single byte of
+C         value zero.
+          CDATA(1:1)=CHAR(0)
+        ELSE
+          CALL C2FSTRING(CSTRING,CSTRLEN,CDATA)
+        ENDIF
+      ENDIF
+
+      CALL EXITS('BINREADFILE')
+      RETURN
+ 9999 CALL ERRORS('BINREADFILE',ERROR)
+      CALL EXITS('BINREADFILE')
+      CALL BINARYCLOSEFILE(FILEID,ERR,CERROR)
+      RETURN 1
+      END
+
+

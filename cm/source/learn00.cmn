@@ -1,0 +1,4 @@
+!  learn00.cmn
+      LOGICAL LEARN
+      COMMON /LEARN00L/ LEARN
+

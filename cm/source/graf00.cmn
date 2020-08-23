@@ -1,0 +1,6 @@
+!  graf00.cmn
+      REAL SCREEN_WIDTH,
+     '     XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,DIAG
+      COMMON /GRAF00R4/ SCREEN_WIDTH,
+     '                  XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,DIAG
+

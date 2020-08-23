@@ -1,0 +1,1586 @@
+C#### Module: FE_PARALLEL
+C###  Description:
+C###    Routines for parallel computation of element stiffness matrices
+C###    in FE50 problems.
+
+C###  Routine: ALLOCATE_PARALLEL Set up global arrays
+C###  Routine: CALC_ELEM_STIFF Calculates element stiffness matrix
+C###  Routine: RECEIVE_ARRAYS Read arrays & vars from master process
+C###  Routine: RECEIVE_COMMON Read common blocks from master process
+C###  Routine: RECEIVE_DATA Read new element data from master process
+C###  Routine: SEND_RESULT Send results back to master process
+
+
+      PROGRAM PARALLEL_ELEM_STIFF
+
+C**** Computes element stiffness matrices (FE50 problems only)
+C**** for parallel processing purposes.
+C**** Written by Martyn Nash, Sep. 1994.
+C**** If parameter lists for subroutines MELGE or ZEES change
+C**** or common blocks change, then this file will need to be
+C**** updated accordingly.
+C**** Usage: <my>cm_parallel <-connid #> <-port #> <-output> <-help>
+
+      IMPLICIT NONE
+      INCLUDE 'cmiss$reference:fsklib.inc'
+      INCLUDE 'cmiss$reference:host00.inc'
+      INCLUDE 'cmiss$reference:mxch.inc'
+      INCLUDE 'cmiss$reference:time02.cmn'
+C!     Parameter Declarations
+C      INCLUDE 'cmiss$parameters:parameters.inc'
+C
+C      INTEGER USE_OPTIX,IWK_ITERATIVE_MX,WK_ITERATIVE_MX
+C      PARAMETER (USE_OPTIX=(2*(USE_NPSOLX+USE_MINOSX)-
+C     '  (USE_NPSOLX+USE_MINOSX)*(USE_NPSOLX+USE_MINOSX)+
+C     '  (USE_NPSOLX+USE_MINOSX)/2))
+C      PARAMETER(IWK_ITERATIVE_MX=(4*NOMX+2*NZ_ITERATIVE_MX+1+1)*
+C     '  USE_ITERATIVEX+1,
+C     '  WK_ITERATIVE_MX=(NOMX*(N_ITERATIVE_MX)+
+C     '  (N_ITERATIVE_MX-3)*(N_ITERATIVE_MX-2)+NOMX+1)*USE_ITERATIVEX+1)
+C
+C!     Array Declarations
+C      INTEGER IBT(3,NIMX,NBFMX),
+C     '  IDO(NKMX,NNMX,0:NIMX,NBFMX),
+C     '  INP(NNMX,NIMX,NBFMX),
+C     '  NAN(NIMX,NAMX,NBFMX),
+C     '  NBH(NCMX,NHMX,NEMX),NBJ(NJMX,NEMX),
+C     '  NFF(6,NEMX),
+C     '  NGAP(NIMX,NBMX),
+C     '  NHE(NEMX),
+C     '  NHP(NPMX,0:NRMX),
+C     '  NKEF(0:4,16,6,NBFMX),
+C     '  NKH(NHMX,NPMX,NCMX,0:NRMX),
+C     '  NMNO(2*(NOPMX+1)*USE_OPTIX+1),
+C     '  NNF(0:17,6,NBFMX),
+C     '  NPF(9,NFMX),
+C     '  NPNE(NNMX,NBFMX,NEMX),
+C     '  NPNY(0:6,NYMX,0:NRCMX),nr,NRE(NEMX),
+C     '  NVHE(NNMX,NBFMX,NHMX,NEMX),
+C     '  NVHP(NHMX,NPMX,NCMX),
+C     '  NW(NEMX,3),nx,NXI(-NIMX:NIMX,0:NEIMX,0:NEMX),
+C     '  NYNE(NAMX,NHMX,0:NRCMX,NCMX,NEMX),
+C     '  NYNP(NKMX,NVMX,NHMX,NPMX,0:NRCMX,NCMX,NRMX)
+C      REAL*8
+C     '  CE(NMMX,NEMX),
+C     '  CP(NMMX,NPMX),
+C     '  FEXT(NIFEXTM,NGMX,NEMX),
+C     '  PG(NSMX,NUMX,NGMX,NBMX),
+C     '  SE(NSMX,NBFMX,NEMX),
+C     '  WG(NGMX,NBMX),
+C     '  XE(NSMX,NJMX),
+C     '  ZE(NSMX,NHMX),ZE1(NSMX,NHMX)
+C      CHARACTER ERROR*(MXCH)
+C      LOGICAL FIX(NYMX,NIYFIXM)
+C!     Variables declared in CMISS that do no need to be passed
+C      INTEGER LGE(NHMX*NSMX,NRCMX)
+C      REAL*8 CG(NMMX,NGMX),
+C     '  D_RE(NSMX*NHMX*NOPMX*USE_NONLINX+1),
+C     '  D_RI3(NHMX*NSMX*USE_NONLINX+1),
+C     '  D_TG(3*3*NHMX*NSMX*USE_NONLINX+1),
+C     '  D_ZG(NHMX*NUMX*NHMX*NSMX*USE_NONLINX+1),
+C     '  ES(NHMX*NSMX,NHMX*NSMX),
+C     '  RE1(NSMX*NHMX*USE_NONLINX+1),
+C     '  RE2(NSMX*NHMX*USE_NONLINX+1),
+C     '  RG(NGMX),
+C     '  XG(NJMX,NUMX),
+C     '  ZG(NHMX,NUMX),ZG1(NHMX,NUMX)
+C      LOGICAL ELEM
+
+!     Array Declarations
+      INTEGER*4 IBT_PTR,IDO_PTR,INP_PTR,NAN_PTR,NBH_PTR,NBJ_PTR,
+     '  NBJF_PTR,NFF_PTR,NGAP_PTR,NHE_PTR,NHP_PTR,
+     '  NKEF_PTR,NKH_PTR,NMNO_PTR,
+     '  NNF_PTR,NPF_PTR,NPNE_PTR,NPNY_PTR,NRE_PTR,
+     '  NVHE_PTR,NVHP_PTR,NW_PTR,
+     '  NXI_PTR,NYNE_PTR,NYNP_PTR,
+     '  CE_PTR,CP_PTR,FEXT_PTR,PG_PTR,SE_PTR,WG_PTR,
+     '  XE_PTR,ZE_PTR,ZE1_PTR,FIX_PTR,
+     '  LGE_PTR,CG_PTR,D_RE_PTR,D_RI3_PTR,D_TG_PTR,D_ZG_PTR,ES_PTR,
+     '  RE1_PTR,RE2_PTR,RG_PTR,XG_PTR,ZG_PTR,ZG1_PTR
+!     Local Variables
+      INTEGER CONNID,I,IBEG,IEND,IFROMC,
+     '  NACTION,ne,nr,nx,NUMARGS,PORT
+      CHARACTER ARGS(10)*80,ERROR*(MXCH)
+      LOGICAL ABBREV,OUTPUT
+
+C      INTEGER IHANDLE2,IRET  !variables to prevent hanging processes
+C      REAL*8 IDLE_TIME,MAXTIME
+C      DATA MAXTIME /1800.0d0/ !secs (=30 mins)
+
+      CALL GET_COMMAND_LINE(ARGS,NUMARGS)
+
+      CONNID=0
+      PORT=0
+      OUTPUT=.FALSE.
+      DO I=1,NUMARGS
+        CALL STRING_TRIM(ARGS(I),IBEG,IEND)
+        IF(ABBREV(ARGS(I)(IBEG:IEND),'-CONNID',2)) THEN
+          IF(I+1.LE.NUMARGS) CONNID=IFROMC(ARGS(I+1))
+        ELSE IF(ABBREV(ARGS(I)(IBEG:IEND),'-PORT',2)) THEN
+          IF(I+1.LE.NUMARGS) PORT=IFROMC(ARGS(I+1))
+        ELSE IF(ABBREV(ARGS(I)(IBEG:IEND),'-OUTPUT',2)) THEN
+          OUTPUT=.TRUE.
+        ELSE IF(ABBREV(ARGS(I)(IBEG:IEND),'-HELP',2)) THEN
+          WRITE(*,'(1X,A)')'Usage: <my>cm_parallel <-connid #> '
+     '      //'<-port #> <-output> <-help>'
+          STOP
+        ENDIF
+      ENDDO
+      IF(CONNID.EQ.0) THEN
+        WRITE(*,'(1X,A)')'CONNID?:'
+        READ(*,*)CONNID
+      ENDIF
+      IF(PORT.EQ.0) THEN
+        PORT=9000+CONNID
+      ENDIF
+      IF(OUTPUT) WRITE(*,'('' Waiting for CMISS to connect through '
+     '  //'port '',I5,'' with connection id '',I2)') PORT,CONNID
+
+C     open socket connection
+      IF(FSKLISTEN(CONNID,PORT).EQ.-1) GOTO 9999
+      IF(OUTPUT) WRITE(*,'(1X,A)')'CMISS has connected'
+
+C     read first action code from master
+      IF(FSKREAD(NACTION,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+
+      DO WHILE(NACTION.NE.QUIT_PROCESS)
+C       receive global common blocks
+        CALL RECEIVE_COMMON(CONNID,nx,ERROR,*9999)
+        IF(OUTPUT) WRITE(*,'(1X,A)')'common blocks received'
+
+C       allocate memory for global arrays
+        CALL ALLOCATE_PARALLEL(
+     '    IBT_PTR,IDO_PTR,INP_PTR,NAN_PTR,NBH_PTR,NBJ_PTR,NBJF_PTR,
+     '    NFF_PTR,NGAP_PTR,NHE_PTR,NHP_PTR,
+     '    NKEF_PTR,NKH_PTR,NMNO_PTR,
+     '    NNF_PTR,NPF_PTR,NPNE_PTR,NPNY_PTR,NRE_PTR,
+     '    NVHE_PTR,NVHP_PTR,NW_PTR,
+     '    NXI_PTR,NYNE_PTR,NYNP_PTR,
+     '    CE_PTR,CP_PTR,FEXT_PTR,PG_PTR,SE_PTR,WG_PTR,
+     '    XE_PTR,ZE_PTR,ZE1_PTR,FIX_PTR,
+     '    LGE_PTR,CG_PTR,D_RE_PTR,D_RI3_PTR,D_TG_PTR,D_ZG_PTR,ES_PTR,
+     '    RE1_PTR,RE2_PTR,RG_PTR,XG_PTR,ZG_PTR,ZG1_PTR,ERROR,*9999)
+        IF(OUTPUT) WRITE(*,'(1X,A)')'memory allocated for global arrays'
+
+C       receive global arrays from master
+        CALL RECEIVE_ARRAYS(CONNID,
+     '    %VAL(IBT_PTR),%VAL(IDO_PTR),%VAL(INP_PTR),%VAL(NAN_PTR),
+     '    %VAL(NBH_PTR),%VAL(NBJ_PTR),%VAL(NBJF_PTR),%VAL(NFF_PTR),
+     '    %VAL(NGAP_PTR),
+     '    %VAL(NHE_PTR),%VAL(NHP_PTR),
+     '    %VAL(NKEF_PTR),%VAL(NKH_PTR),
+     '    %VAL(NMNO_PTR),%VAL(NNF_PTR),%VAL(NPF_PTR),%VAL(NPNE_PTR),
+     '    %VAL(NPNY_PTR),%VAL(NRE_PTR),%VAL(NVHE_PTR),%VAL(NVHP_PTR),
+     '    %VAL(NW_PTR),%VAL(NXI_PTR),%VAL(NYNE_PTR),%VAL(NYNP_PTR),
+     '    %VAL(CE_PTR),%VAL(CP_PTR),%VAL(PG_PTR),%VAL(SE_PTR),
+     '    %VAL(WG_PTR),%VAL(FIX_PTR),ERROR,*9999)
+        IF(OUTPUT) WRITE(*,'(1X,A)')'global arrays received'
+
+C       read next action code from master
+        IF(FSKREAD(NACTION,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+
+C       loop until all elements are done (NACTION=QUIT_PROCESS)
+        DO WHILE(NACTION.NE.QUIT_PROCESS.AND.NACTION.NE.REREAD_GLOBAL)
+
+C         NACTION is the next element number to process
+          ne=NACTION
+
+          CALL CALC_ELEM_STIFF(OUTPUT,CONNID,ne,nr,nx,
+     '      %VAL(IBT_PTR),%VAL(IDO_PTR),%VAL(INP_PTR),%VAL(NAN_PTR),
+     '      %VAL(NBH_PTR),%VAL(NBJ_PTR),%VAL(NBJF_PTR),%VAL(NFF_PTR),
+     '      %VAL(NGAP_PTR),
+     '      %VAL(NHE_PTR),%VAL(NKEF_PTR),
+     '      %VAL(NMNO_PTR),%VAL(NNF_PTR),%VAL(NPNE_PTR),
+     '      %VAL(NPNY_PTR),%VAL(NRE_PTR),
+     '      %VAL(NVHE_PTR),%VAL(NW_PTR),
+     '      %VAL(NXI_PTR),%VAL(NYNE_PTR),%VAL(NYNP_PTR),
+     '      %VAL(CE_PTR),%VAL(CP_PTR),%VAL(PG_PTR),%VAL(SE_PTR),
+     '      %VAL(WG_PTR),%VAL(FIX_PTR),
+     '      %VAL(FEXT_PTR),%VAL(XE_PTR),%VAL(ZE_PTR),%VAL(ZE1_PTR),
+     '      %VAL(LGE_PTR),%VAL(CG_PTR),%VAL(D_RE_PTR),%VAL(D_RI3_PTR),
+     '      %VAL(D_TG_PTR),%VAL(D_ZG_PTR),%VAL(ES_PTR),%VAL(RE1_PTR),
+     '      %VAL(RE2_PTR),%VAL(RG_PTR),%VAL(XG_PTR),
+     '      %VAL(ZG_PTR),%VAL(ZG1_PTR),ERROR,*9999)
+
+C!!! MPN - Chews up too much CPU when idle and not really necessary
+C ***      Timing loop to prevent hanging processes
+C          IRET=-100
+C          IDLE_TIME=0.d0
+C          CALL GETTIMER(IHANDLE2,ERROR,*1111)
+C          TIME1=TIMER(IHANDLE2,T_INITIALISE)
+C          DO WHILE(IDLE_TIME.LT.MAXTIME.AND.IRET.NE.1)
+C            !check if master has sent anything thru socket
+C            IRET=FSKSELECT(CONNID,0)
+C            IDLE_TIME=TIMER(IHANDLE1,T_ELAPSED)-TIME1
+C          ENDDO
+C
+C          IF(IRET.EQ.1) THEN
+C            !read next action code from master
+C            IF(OUTPUT) WRITE(*,'(1X,A)')'Waiting for action/elem #'
+C            IF(FSKREAD(NACTION,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C          ELSE
+C            WRITE(*,'(1X,A)')'Process timed out (idle too long)'
+C            NACTION=QUIT_PROCESS
+C          ENDIF
+
+C         set NACTION to quit in case an untrapped error occurs
+C         in FSKREAD (in which case NACTION is retured unchanged)
+          NACTION=QUIT_PROCESS
+
+C         read next action code from master
+          IF(OUTPUT) WRITE(*,'(1X,A)')'Waiting for action/elem number'
+          IF(FSKREAD(NACTION,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+
+        ENDDO
+      ENDDO
+
+C     close socket
+      IF(FSKCLOSE(CONNID).EQ.-1) GOTO 9999
+
+      IF(OUTPUT) WRITE(*,'(1X,A,I2)')'closed socket with CONNID=',CONNID
+      STOP
+
+ 9999 IF(OUTPUT) WRITE(*,'(1X,A)') ERROR
+      STOP
+      END
+
+
+      SUBROUTINE ALLOCATE_PARALLEL(
+     '  IBT_PTR,IDO_PTR,INP_PTR,NAN_PTR,NBH_PTR,NBJ_PTR,NBJF_PTR,
+     '  NFF_PTR,NGAP_PTR,NHE_PTR,NHP_PTR,
+     '  NKEF_PTR,NKH_PTR,NMNO_PTR,
+     '  NNF_PTR,NPF_PTR,NPNE_PTR,NPNY_PTR,NRE_PTR,
+     '  NVHE_PTR,NVHP_PTR,NW_PTR,
+     '  NXI_PTR,NYNE_PTR,NYNP_PTR,
+     '  CE_PTR,CP_PTR,FEXT_PTR,PG_PTR,SE_PTR,WG_PTR,
+     '  XE_PTR,ZE_PTR,ZE1_PTR,FIX_PTR,
+     '  LGE_PTR,CG_PTR,D_RE_PTR,D_RI3_PTR,D_TG_PTR,D_ZG_PTR,ES_PTR,
+     '  RE1_PTR,RE2_PTR,RG_PTR,XG_PTR,ZG_PTR,ZG1_PTR,ERROR,*)
+
+C#### Subroutine: ALLOCATE_PARALLEL
+C###  Description:
+C###    ALLOCATE_PARALLEL allocates arrays needed for parallel
+C###    processing of element stiffness matrices
+
+      IMPLICIT NONE
+      INCLUDE 'cmiss$reference:cbfe01.cmn'
+      INCLUDE 'cmiss$reference:geom00.cmn'
+      INCLUDE 'cmiss$reference:mach00.inc'
+!     Parameter List
+      INTEGER*4 IBT_PTR,IDO_PTR,INP_PTR,NAN_PTR,NBH_PTR,NBJ_PTR,
+     '  NBJF_PTR,NFF_PTR,NGAP_PTR,NHE_PTR,NHP_PTR,
+     '  NKEF_PTR,NKH_PTR,NMNO_PTR,
+     '  NNF_PTR,NPF_PTR,NPNE_PTR,NPNY_PTR,NRE_PTR,
+     '  NVHE_PTR,NVHP_PTR,NW_PTR,
+     '  NXI_PTR,NYNE_PTR,NYNP_PTR,
+     '  CE_PTR,CP_PTR,FEXT_PTR,PG_PTR,SE_PTR,WG_PTR,
+     '  XE_PTR,ZE_PTR,ZE1_PTR,FIX_PTR,
+     '  LGE_PTR,CG_PTR,D_RE_PTR,D_RI3_PTR,D_TG_PTR,D_ZG_PTR,ES_PTR,
+     '  RE1_PTR,RE2_PTR,RG_PTR,XG_PTR,ZG_PTR,ZG1_PTR
+      CHARACTER ERROR*(*)
+!     Local Variables
+
+C     Initialise pointers
+      IBT_PTR=0
+      IDO_PTR=0
+      INP_PTR=0
+      NAN_PTR=0
+      NBH_PTR=0
+      NBJ_PTR=0
+      NBJF_PTR=0
+      NFF_PTR=0
+      NGAP_PTR=0
+      NHE_PTR=0
+      NHP_PTR=0
+      NKEF_PTR=0
+      NKH_PTR=0
+      NMNO_PTR=0
+      NNF_PTR=0
+      NPF_PTR=0
+      NPNE_PTR=0
+      NPNY_PTR=0
+      NRE_PTR=0
+      NVHE_PTR=0
+      NVHP_PTR=0
+      NW_PTR=0
+      NXI_PTR=0
+      NYNE_PTR=0
+      NYNP_PTR=0
+      CE_PTR=0
+      CP_PTR=0
+      FEXT_PTR=0
+      PG_PTR=0
+      SE_PTR=0
+      WG_PTR=0
+      XE_PTR=0
+      ZE_PTR=0
+      ZE1_PTR=0
+      FIX_PTR=0
+      LGE_PTR=0 !Vars declared in CMISS that do no need to be passed
+      CG_PTR=0
+      D_RE_PTR=0
+      D_RI3_PTR=0
+      D_TG_PTR=0
+      D_ZG_PTR=0
+      ES_PTR=0
+      RE1_PTR=0
+      RE2_PTR=0
+      RG_PTR=0
+      XG_PTR=0
+      ZG_PTR=0
+      ZG1_PTR=0
+
+C     Allocate integer arrays
+      CALL ALLOCATE_MEMORY(3*NIM*NBFM,1,INTTYPE,IBT_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NKM*NNM*(NIM+1)*NBFM,1,INTTYPE,IDO_PTR,
+     '  MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NNM*NIM*NBFM,1,INTTYPE,INP_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NIM*NAM*NBFM,NBFM,INTTYPE,NAN_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NHM*NCM*NEM,1,INTTYPE,NBH_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NJM*NEM,1,INTTYPE,NBJ_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NJM*NFM,1,INTTYPE,NBJF_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(6*NEM,1,INTTYPE,NFF_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NIM*NBM,1,INTTYPE,NGAP_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NEM,1,INTTYPE,NHE_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NPM*(NRM+1),1,INTTYPE,NHP_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(5*16*6*NBFM,1,INTTYPE,NKEF_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NHM*NPM*NCM*(NRM+1),1,INTTYPE,NKH_PTR,
+     '  MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(2*(1+NOPM)*USE_OPTI,1,INTTYPE,NMNO_PTR,
+     '  MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY((17+1)*6*NBFM,1,INTTYPE,NNF_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(9*NFM,1,INTTYPE,NPF_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NNM*NBFM*NEM,1,INTTYPE,NPNE_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY((6+1)*NYM*(1+NRCM),1,INTTYPE,NPNY_PTR,
+     '  MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NEM,1,INTTYPE,NRE_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NNM*NBFM*NHM*NEM,1,INTTYPE,NVHE_PTR,
+     '  MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NHM*NPM*NCM*(NRM+1),1,INTTYPE,NVHP_PTR,
+     '  MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NEM*2,1,INTTYPE,NW_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY((2*NIM+1)*(1+NEM),1,INTTYPE,NXI_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NAM*NHM*(NRCM+1)*NCM*NEM,1,INTTYPE,NYNE_PTR,
+     '  MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NKM*NVM*NHM*NPM*(NRCM+1)*NCM*NRM,1,INTTYPE,
+     '  NYNP_PTR,MEM_INIT,ERROR,*9999)
+C     Allocate real*8 arrays
+      CALL ALLOCATE_MEMORY(NMM*NEM,1,DPTYPE,CE_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NMM*NPM,1,DPTYPE,CP_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NIFEXTM*NGM*NEM*USE_NONLIN,1,DPTYPE,
+     '  FEXT_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NSM*NUM*NGM*NBM,1,DPTYPE,PG_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NSM*NBFM*NEM,1,DPTYPE,SE_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NGM*NBM,1,DPTYPE,WG_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NSM*NJM,1,DPTYPE,XE_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NSM*NHM,1,DPTYPE,ZE_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NSM*NHM,1,DPTYPE,ZE1_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NYM*NIYFIXM,1,LOGTYPE,FIX_PTR,MEM_INIT,
+     '  ERROR,*9999)
+C     Arrays declared in CMISS that do no need to be passed
+      CALL ALLOCATE_MEMORY(NHM*NSM*NRCM,1,INTTYPE,LGE_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NMM*NGM,1,DPTYPE,CG_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NSM*NHM*NOPM*USE_NONLIN,1,DPTYPE,D_RE_PTR,
+     '  MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NHM*NSM*USE_NONLIN,1,DPTYPE,D_RI3_PTR,
+     '  MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(3*3*NHM*NSM*USE_NONLIN,1,DPTYPE,D_TG_PTR,
+     '  MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NHM*NUM*NHM*NSM*USE_NONLIN,1,DPTYPE,
+     '  D_ZG_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NHM*NSM*NHM*NSM,1,DPTYPE,ES_PTR,MEM_INIT,
+     '  ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NSM*NHM*USE_NONLIN,1,DPTYPE,RE1_PTR,
+     '  MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NSM*NHM*USE_NONLIN,1,DPTYPE,RE2_PTR,
+     '  MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NGM,1,DPTYPE,RG_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NJM*NUM,1,DPTYPE,XG_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NHM*NUM,1,DPTYPE,ZG_PTR,MEM_INIT,ERROR,*9999)
+      CALL ALLOCATE_MEMORY(NHM*NUM,1,DPTYPE,ZG1_PTR,MEM_INIT,
+     '  ERROR,*9999)
+
+      RETURN
+ 9999 ERROR='Socket error in ALLOCATE_PARALLEL'
+      RETURN 1
+      END
+
+
+      SUBROUTINE CALC_ELEM_STIFF(OUTPUT,CONNID,ne,nr,nx,
+     '  IBT,IDO,INP,NAN,NBH,NBJ,NBJF,NFF,NGAP,NHE,
+     '  NKEF,NMNO,NNF,NPNE,NPNY,NRE,
+     '  NVHE,NW,NXI,NYNE,NYNP,
+     '  CE,CP,PG,SE,WG,FIX,
+     '  FEXT,XE,ZE,ZE1,
+     '  LGE,CG,D_RE,D_RI3,D_TG,D_ZG,ES,
+     '  RE1,RE2,RG,XG,YG,ZG,ZG1,ERROR,*)
+
+C#### Subroutine: CALC_ELEM_STIFF
+C###  Description:
+C###    CALC_ELEM_STIFF reads element arrays and variables from master
+C###    process, calculates the element stiffness matrix
+C###    and sends it back to the master process.
+
+      IMPLICIT NONE
+      INCLUDE 'cmiss$reference:fsklib.inc'
+      INCLUDE 'cmiss$reference:geom00.cmn'
+      INCLUDE 'cmiss$reference:mxch.inc'
+C      INCLUDE 'cmiss$reference:opti00.cmn'
+      INCLUDE 'cmiss$reference:time02.cmn'
+!     Parameter List
+      INTEGER CONNID,ne,nx,
+     '  IBT(3,NIM,NBFM),IDO(NKM,NNM,0:NIM,NBFM),INP(NNM,NIM,NBFM),
+     '  NAN(NIM,NAM,NBFM),NBH(NHM,NCM,NEM),NBJ(NJM,NEM),NBJF(NJM,NFM),
+     '  NFF(6,NEM),NGAP(NIM,NBM),NHE(NEM),NKEF(0:4,16,6,NBFM),
+     '  NMNO(1:2,0:NOPM),NNF(0:17,6,NBFM),
+     '  NPNE(NNM,NBFM,NEM),NPNY(0:6,NYM,0:NRCM),NRE(NEM),
+     '  NVHE(NNM,NBFM,NHM,NEM),NW(NEM,3),NXI(-NIM:NIM,0:NEIM,0:NEM),
+     '  NYNE(NAM,NHM,0:NRCM,NCM,NEM),
+     '  NYNP(NKM,NVM,NHM,NPM,0:NRCM,NCM,NRM)
+      REAL*8 CE(NMM,NEM),CP(NMM,NPM),PG(NSM,NUM,NGM,NBM),
+     '  SE(NSM,NBFM,NEM),WG(NGM,NBM),YG(NIYGM,NGM,NEM)
+      CHARACTER ERROR*(*)
+      LOGICAL OUTPUT,FIX(NYM,NIYFIXM)
+C     Element variables to be passed from the master process
+      REAL*8 FEXT(NIFEXTM,NGM,NEM),XE(NSM,NJM),ZE(NSM,NHM),ZE1(NSM,NHM)
+C     Variables required in CMISS routines that do no need to be passed
+C     from the master process
+      INTEGER LGE(NHM*NSM,NRCM)
+      REAL*8 CG(NMM,NGM),
+     '  D_RE(NSM,NHM,NOPM),
+     '  D_RI3(NHM*NSM),
+     '  D_TG(3,3,NHM*NSM),
+     '  D_ZG(NHM,NUM,NHM*NSM),
+     '  ES(NHM*NSM,NHM*NSM),
+     '  RE1(NSM,NHM),
+     '  RE2(NSM,NHM),
+     '  RG(NGM),
+     '  XG(NJM,NUM),
+     '  ZG(NHM,NUM),ZG1(NHM,NUM)
+      LOGICAL ELEM
+!     Local Variables
+      INTEGER IHANDLE,GETNYR,NHST(2),nhs1,nhs2,nr,ny,ny1
+      REAL*8 PROC_TIME,TIME1,TIME2,TIMER
+      CHARACTER ERROR_DUMMY*(MXCH)
+
+      CALL GETTIMER(IHANDLE,ERROR,*1111)
+
+      nr=NRE(ne)
+
+C     read updated element data from master process
+      CALL RECEIVE_DATA(CONNID,nr,nx,FEXT(1,1,ne),XE,ZE,ZE1,ERROR,*9999)
+      IF(OUTPUT) WRITE(*,'(1X,A,I5)')'data received for ne=',ne
+
+      IF(NW(ne,1).GT.0) THEN
+        IF(OUTPUT) WRITE(*,'(1X,A,I5)')'processing ne=       ',ne
+        TIME1=TIMER(IHANDLE,T_INITIALISE)
+
+        CALL MELGE(LGE,NBH(1,1,ne),1,ne,NHE(ne),NHST,
+     '    NPNE(1,1,ne),nr,NVHE(1,1,1,ne),nx,NYNE,NYNP,ERROR,*9999)
+
+        ELEM=.FALSE.
+        DO nhs2=1,NHST(2)
+          ny=IABS(LGE(nhs2,2)) !local variable number
+          ny1=GETNYR(1,NPNY,nr,0,2,ny,NYNE,NYNP) !global variable #
+          IF(.NOT.FIX(ny1,1)) ELEM=.TRUE.
+          DO nhs1=1,NHST(1)
+            ES(nhs1,nhs2)=0.0D0
+          ENDDO
+        ENDDO
+
+        IF(ELEM) THEN
+          CALL ZEES(IBT,IDO,INP,LGE,NAN,NBH(1,1,ne),NBJ(1,ne),
+     '      NBJF,ne,NFF(1,ne),NGAP,NHE(ne),NKEF,NMNO,
+     '      NNF,NPNE,NPNY,nr,NRE,NW(ne,1),nx,NXI,NYNE,NYNP,
+     '      CE(1,ne),CG,CP,D_RE,D_RI3,D_TG,D_ZG,ES,FEXT(1,1,ne),
+     '      PG,RE1,RE2,RG,SE,WG,
+     '      XE,XG,YG,ZE,ZE1,$VAL(0),ZG,ZG1,FIX,ERROR,*9999)
+        ENDIF
+
+        TIME2=TIMER(IHANDLE,T_CPU)
+        PROC_TIME=TIME2-TIME1 !time1 should be zero
+
+        IF(OUTPUT) WRITE(*,'(1X,A,I5)')'finished element ne= ',ne
+        IF(OUTPUT) WRITE(*,'(1X,A,E13.5)')'processing took (secs)',
+     '    PROC_TIME
+
+C       send element stiffness matrix back to master process
+        CALL SEND_RESULT(CONNID,ne,ELEM,LGE,NHST,ES,PROC_TIME,
+     '    ERROR,*9999)
+        IF(OUTPUT) WRITE(*,'(1X,A,I5)')'results sent for ne= ',ne
+        IF(OUTPUT) WRITE(*,'(1X,A)')'******************************'
+
+      ENDIF
+
+      CALL FREETIMER(IHANDLE,ERROR,*1111)
+
+      RETURN
+ 9999 CALL FREETIMER(IHANDLE,ERROR_DUMMY,*1111)
+ 1111 ERROR='Socket error in CALC_ELEM_STIFF'
+      RETURN 1
+      END
+
+
+      SUBROUTINE RECEIVE_ARRAYS(CONNID,IBT,IDO,INP,NAN,NBH,NBJ,NBJF,
+     '  NFF,NGAP,NHE,NHP,NKEF,NKH,NMNO,NNF,NPF,NPNE,NPNY,NRE,NVHE,
+     '  NVHP,NW,NXI,NYNE,NYNP,CE,CP,PG,SE,WG,FIX,ERROR,*)
+
+C#### Subroutine: RECEIVE_ARRAYS
+C###  Description:
+C###    RECEIVE_ARRAYS reads global arrays and variables from master
+C###    process (changes to this code must be reflected in FE00)
+
+      IMPLICIT NONE
+      INCLUDE 'cmiss$reference:fsklib.inc'
+      INCLUDE 'cmiss$reference:geom00.cmn'
+      INCLUDE 'cmiss$reference:loc00.cmn'
+      INCLUDE 'cmiss$reference:loc00.inc'
+      INCLUDE 'cmiss$reference:opti00.cmn'
+!     Parameter List
+      INTEGER CONNID,
+     '  IBT(3,NIM,NBFM),IDO(NKM,NNM,0:NIM,NBFM),INP(NNM,NIM,NBFM),
+     '  NAN(NIM,NAM,NBFM),NBH(NHM,NCM,NEM),NBJ(NJM,NEM),NBJF(NJM,NFM),
+     '  NFF(6,NEM),NGAP(NIM,NBM),NHE(NEM),NHP(NPM,0:NRM),
+     '  NKEF(0:4,16,6,NBFM),NKH(NHM,NPM,NCM,0:NRM),NMNO(1:2,0:NOPM),
+     '  NNF(0:17,6,NBFM),NPF(9,NFM),NPNE(NNM,NBFM,NEM),
+     '  NPNY(0:6,NYM,0:NRCM),NRE(NEM),NVHE(NNM,NBFM,NHM,NEM),
+     '  NVHP(NHM,NPM,NCM,0:NRM),NW(NEM,3),NXI(-NIM:NIM,0:NEIM,0:NEM),
+     '  NYNE(NAM,NHM,0:NRCM,NCM,NEM),
+     '  NYNP(NKM,NVM,NHM,NPM,0:NRCM,NCM,NRM)
+      REAL*8 CE(NMM,NEM),CP(NMM,NPM),PG(NSM,NUM,NGM,NBM),
+     '  SE(NSM,NBFM,NEM),WG(NGM,NBM)
+      CHARACTER ERROR*(*)
+      LOGICAL FIX(NYM,NIYFIXM)
+!     Local Variables
+      INTEGER kk,L,mm,na,nb,nc,ne,nef,nf,ng,nh,ni,nn,np,nr,nrc,nu,nv,ny,
+     '  TEMP_STR_C(18)
+      CHARACTER TEMP_STR*18
+
+C *** Integer Arrays
+      IF(FSKREAD(NHE,SK_LONG_INT,NET(0),CONNID).EQ.-1) GOTO 9999
+      DO nr=0,NRT
+        IF(FSKREAD(NHP(1,nr),SK_LONG_INT,NPT(nr),CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO !nr
+      DO nr=1,NRT
+        IF(FSKREAD(NJ_LOC(NJL_GEOM,0,nr),
+     '    SK_LONG_INT,NET(0),CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      DO nb=1,NBFT
+        DO ni=1,NIT(nb)
+          IF(FSKREAD(IBT(1,ni,nb),SK_LONG_INT,3,CONNID).EQ.-1)
+     '      GOTO 9999
+        ENDDO
+      ENDDO
+      DO nb=1,NBFT
+        DO ni=0,NIT(nb)
+          DO nn=1,NNT(nb)
+            IF(FSKREAD(IDO(1,nn,ni,nb),SK_LONG_INT,NKT(nn,nb),CONNID)
+     '        .EQ.-1) GOTO 9999
+          ENDDO
+        ENDDO
+      ENDDO
+      DO nb=1,NBFT
+        DO ni=1,NIT(nb)
+          IF(FSKREAD(INP(1,ni,nb),SK_LONG_INT,NNT(nb),CONNID).EQ.-1)
+     '      GOTO 9999
+        ENDDO
+      ENDDO
+      DO nb=1,NBFT
+        DO na=1,NAT(nb)
+          IF(FSKREAD(NAN(1,na,nb),SK_LONG_INT,NIT(nb),CONNID).EQ.-1)
+     '      GOTO 9999
+        ENDDO
+      ENDDO
+      DO ne=1,NET(0)
+        DO nc=1,NCM
+          IF(FSKREAD(NBH(1,nc,ne),SK_LONG_INT,NH_LOC(0,0),CONNID)
+     '      .EQ.-1) GOTO 9999
+        ENDDO
+      ENDDO
+      DO ne=1,NET(0)
+        IF(FSKREAD(NBJ(1,ne),SK_LONG_INT,NJ_LOC(0,0,0),CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO nf=1,NFT
+        IF(FSKREAD(NBJF(1,nf),SK_LONG_INT,NJ_LOC(0,0,0),CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO ne=1,NET(0)
+        IF(FSKREAD(NFF(1,ne),SK_LONG_INT,6,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      DO nb=1,NBT
+        IF(FSKREAD(NGAP(1,nb),SK_LONG_INT,NIT(nb),CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO nb=1,NBFT
+        DO mm=1,6
+          DO kk=1,16
+            IF(FSKREAD(NKEF(0,kk,mm,nb),SK_LONG_INT,5,CONNID).EQ.-1)
+     '        GOTO 9999
+          ENDDO
+        ENDDO
+      ENDDO
+      DO nr=0,NRT
+        DO nc=1,NCM
+          DO np=1,NPT(nr)
+            IF(FSKREAD(NKH(1,np,nc,nr),SK_LONG_INT,NHP(np,nr),CONNID)
+     '        .EQ.-1) GOTO 9999
+          ENDDO
+        ENDDO
+      ENDDO !nr
+      IF(USE_OPTI.GT.0) THEN
+        IF(FSKREAD(NMNO(1,0),SK_LONG_INT,1+NTOPTI,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDIF
+      DO nb=1,NBFT
+        DO mm=1,6
+          IF(FSKREAD(NNF(0,mm,nb),SK_LONG_INT,18,CONNID).EQ.-1)
+     '      GOTO 9999
+        ENDDO
+      ENDDO
+      DO nf=1,NFT
+        IF(FSKREAD(NPF(1,nf),SK_LONG_INT,9,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      DO nef=1,MAX(NET(0),NFT)
+        DO nb=1,NBFT
+          IF(FSKREAD(NPNE(1,nb,nef),SK_LONG_INT,NNT(nb),CONNID).EQ.-1)
+     '      GOTO 9999
+        ENDDO
+      ENDDO
+      DO nrc=0,NRCM
+        DO ny=1,NYM
+          IF(FSKREAD(NPNY(0,ny,nrc),SK_LONG_INT,7,CONNID).EQ.-1)
+     '      GOTO 9999
+        ENDDO
+      ENDDO
+      IF(FSKREAD(NRE,SK_LONG_INT,NET(0),CONNID).EQ.-1) GOTO 9999
+      DO nef=1,MAX(NET(0),NFT)
+        DO nb=1,NBFT
+          DO nh=1,NH_LOC(0,0)
+            IF(FSKREAD(NVHE(1,nb,nh,nef),SK_LONG_INT,NNT(nb),CONNID)
+     '        .EQ.-1) GOTO 9999
+          ENDDO
+        ENDDO
+      ENDDO
+      DO nr=0,NRT
+        DO nc=1,NCM
+          DO np=1,NPT(nr)
+            IF(FSKREAD(NVHP(1,np,nc,nr),SK_LONG_INT,NHP(np,nr),CONNID)
+     '        .EQ.-1) GOTO 9999
+          ENDDO
+        ENDDO
+      ENDDO !nr
+      DO mm=1,2
+        IF(FSKREAD(NW(1,mm),SK_LONG_INT,NET(0),CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO ne=1,NET(0)
+        IF(FSKREAD(NXI(-NIM,1,ne),SK_LONG_INT,2*NIM+1,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO ne=1,NET(0)
+        DO nc=1,NCM
+          DO nrc=0,NRCM
+            DO nh=1,NH_LOC(0,0)
+              IF(FSKREAD(NYNE(1,nh,nrc,nc,ne),SK_LONG_INT,NAM,CONNID)
+     '          .EQ.-1) GOTO 9999
+            ENDDO
+          ENDDO !nrc
+        ENDDO
+      ENDDO
+      DO nr=1,NRT
+        DO nc=1,NCM
+          DO nrc=0,NRCM
+            DO np=1,NPT(nr)
+              DO nh=1,NHP(np,nr)
+                DO nv=1,NVHP(nh,np,nc,nr)
+                  IF(FSKREAD(NYNP(1,nv,nh,np,nrc,nc,nr),SK_LONG_INT,
+     '              NKH(nh,np,nc,nr),CONNID).EQ.-1) GOTO 9999
+                ENDDO
+              ENDDO
+            ENDDO
+          ENDDO !nrc
+        ENDDO
+      ENDDO !nr
+
+C *** Real*8 Arrays
+      DO ne=1,NET(0)
+        IF(FSKREAD(CE(1,ne),SK_DOUBLE_FLOAT,NMM,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO np=1,NPT(0)
+        IF(FSKREAD(CP(1,np),SK_DOUBLE_FLOAT,NMM,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO nb=1,NBT
+        DO ng=1,NGT(nb)
+          DO nu=1,NUT(nb)
+            IF(FSKREAD(PG(1,nu,ng,nb),SK_DOUBLE_FLOAT,NST(nb)+NAT(nb),
+     '        CONNID).EQ.-1) GOTO 9999
+          ENDDO
+        ENDDO
+      ENDDO
+      DO nef=1,MAX(NET(0),NFT)
+        DO nb=1,NBFT
+          IF(FSKREAD(SE(1,nb,nef),SK_DOUBLE_FLOAT,NST(nb)+NAT(nb),
+     '      CONNID).EQ.-1) GOTO 9999
+        ENDDO
+      ENDDO
+      DO nb=1,NBT
+        IF(FSKREAD(WG(1,nb),SK_DOUBLE_FLOAT,NGT(nb),CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+
+C *** Logical Arrays
+      DO mm=1,NIYFIXM
+        IF(FSKREAD(FIX(1,mm),SK_LONG_INT,NYM,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+
+C     Receive a flag string to check array transfer was OK
+      IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TEMP_STR_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+      CALL FSKC2F(TEMP_STR,L-1,TEMP_STR_C)
+      IF(TEMP_STR(1:18).NE.'ARRAY TRANSFER OK ') GOTO 9999
+
+      RETURN
+ 9999 ERROR='Socket error in RECEIVE_ARRAYS'
+      RETURN 1
+      END
+
+
+      SUBROUTINE RECEIVE_COMMON(CONNID,nx,ERROR,*)
+
+C#### Subroutine: RECEIVE_COMMON
+C###  Description:
+C###    RECEIVE_COMMON reads common block information from master
+C###    process (changes to this code must be reflected in FE00)
+
+      IMPLICIT NONE
+      INCLUDE 'cmiss$reference:acti01.cmn'
+      INCLUDE 'cmiss$reference:aero00.cmn'
+      INCLUDE 'cmiss$reference:b00.cmn'
+      INCLUDE 'cmiss$reference:b01.cmn'
+      INCLUDE 'cmiss$reference:b12.cmn'
+      INCLUDE 'cmiss$reference:b13.cmn'
+      INCLUDE 'cmiss$reference:b14.cmn'
+      INCLUDE 'cmiss$reference:cmis00.cmn'
+      INCLUDE 'cmiss$reference:diag00.cmn'
+      INCLUDE 'cmiss$reference:disp00.cmn'
+      INCLUDE 'cmiss$reference:four00.cmn'
+      INCLUDE 'cmiss$reference:fsklib.inc'
+      INCLUDE 'cmiss$reference:geom00.cmn'
+      INCLUDE 'cmiss$reference:ipma50.cmn'
+      INCLUDE 'cmiss$reference:ityp00.cmn'
+      INCLUDE 'cmiss$reference:jtyp00.cmn'
+      INCLUDE 'cmiss$reference:ktyp00.cmn'
+      INCLUDE 'cmiss$reference:ktyp50.cmn'
+      INCLUDE 'cmiss$reference:loc00.cmn'
+      INCLUDE 'cmiss$reference:loc00.inc'
+      INCLUDE 'cmiss$reference:lvpr00.cmn'
+      INCLUDE 'cmiss$reference:mxch.inc'
+      INCLUDE 'cmiss$reference:nonl00.cmn'
+      INCLUDE 'cmiss$reference:opti00.cmn'
+      INCLUDE 'cmiss$reference:trac00.cmn'
+!     Parameter List
+      INTEGER CONNID,nx
+      CHARACTER ERROR*(*)
+!     Local Variables
+      INTEGER CSEG_TEMP_C(60),ELEM_NUM_C(10),
+     '  CMISS_C(4),
+     '  DISPLAY_NAME_C(30),EXAMPLES_DIR_C(100),
+     '  IMAGE_NAME_C(100),
+     '  OS_TYPE_C(30),WINDOW_TYPE_C(30),
+     '  i,j,L,nr,
+     '  SUBNAM_C(60),
+     '  SB_C(80),TRSB_C(10),
+     '  TEMP_STR_C(18)
+      CHARACTER TEMP_STR*18
+
+C *** Receive nx from master process
+      IF(FSKREAD(nx,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+
+C *** Read geom00.cmn  (changes to this code must be reflected in FE00)
+C *** NRT must be sent first for other arrays
+      IF(FSKREAD(NRT,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NAM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NBM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NCM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NDM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NEM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NELM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NEPM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NNEPM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NGRSEGM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NE_R_M,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NFM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NF_R_M,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NGM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NHM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NIFEXTM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NIM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NISR_GDM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NISR_GKM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NISR_GKKM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NISR_GQM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NISC_GDM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NISC_GKM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NISC_GKKM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NISC_GQM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NIYM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NIYFIXM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NJM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NKM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NLM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NL_R_M,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NMM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NNM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NOM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NPM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NP_R_M,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NQM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NRM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NSM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NTM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NUM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NVM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NWM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NXM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NYM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NY_R_M,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C PJH 12/6/98 IF(FSKREAD(NZM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NZ_FNY_M,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NZ_GD_M,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NZ_GK_M,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NZ_GKK_M,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NZ_GM_M,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NZ_GMM_M,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NZ_GQ_M,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NBFM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NCOM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NDEM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NIQM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NLCM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NOPM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NORM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NOYM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NPDM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NRCM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NREM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NYOM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NLISTM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NOOPM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NZ_MINOSM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NIMAGEM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NYROWM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NY_TRANSFER_M,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(USE_BEM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(USE_DATA,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(USE_GRAPHICS,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(USE_GRID,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(USE_LUNG,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(USE_MINOS,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(USE_NLSTRIPE,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(USE_NONLIN,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(USE_NPSOL,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(USE_OPTI,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(USE_SPARSE,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(USE_TRANSFER,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NBT,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NBFT,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NCT(0,nx),SK_LONG_INT,NRT+1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NDT,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NET(0),SK_LONG_INT,NRT+1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NFT,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NJT,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NLT,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      DO nr=0,NRT
+        IF(FSKREAD(NOT(1,1,nr,nx),SK_LONG_INT,2,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO !nr
+      IF(FSKREAD(NPT(0),SK_LONG_INT,NRT+1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NQT,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NXT,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      DO j=1,4
+        IF(FSKREAD(NYT(0,j,nx),SK_LONG_INT,3,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      IF(FSKREAD(NZT(1,nx),SK_LONG_INT,4,CONNID).EQ.-1) GOTO 9999
+      DO nr=0,NRT
+        IF(FSKREAD(NZZT(1,nr,nx),SK_LONG_INT,4,CONNID).EQ.-1) GOTO 9999
+      ENDDO !nr
+      IF(FSKREAD(NPDT,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NABTYP,SK_LONG_INT,NBT,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NAT,SK_LONG_INT,NBT,CONNID).EQ.-1) GOTO 9999
+      DO i=0,20
+        IF(FSKREAD(NBASEF(1,i),SK_LONG_INT,20,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      IF(FSKREAD(NBI,SK_LONG_INT,NBT,CONNID).EQ.-1) GOTO 9999
+      DO i=1,NBT
+        IF(FSKREAD(NFBASE(1,i),SK_LONG_INT,2,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      IF(FSKREAD(NFE,SK_LONG_INT,NBT,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NGT,SK_LONG_INT,NBT,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NIT,SK_LONG_INT,NBT,CONNID).EQ.-1) GOTO 9999
+      DO i=1,NBT
+        IF(FSKREAD(NKT(0,i),SK_LONG_INT,19,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      IF(FSKREAD(NLE,SK_LONG_INT,NBT,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NNT,SK_LONG_INT,NBT,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NST,SK_LONG_INT,NBT,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NUT,SK_LONG_INT,NBT,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NBC,SK_LONG_INT,NBT,CONNID).EQ.-1) GOTO 9999
+      DO i=1,NBT
+        IF(FSKREAD(NBSC(1,i),SK_LONG_INT,4,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      IF(FSKREAD(NBCD,SK_LONG_INT,NBT,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NMGT,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+
+C *** Read acti01.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(NTACTV,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(DEL_T,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TV_SLO,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(YIELDR,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(SNLPA,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(ACOEFF,SK_DOUBLE_FLOAT,3,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(ALFA,SK_DOUBLE_FLOAT,3,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TIME,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(DTIME,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TBDRY,SK_DOUBLE_FLOAT,100,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(Tref,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(T0_beta,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(Ca_c50,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(Ca_h,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(Ca_max,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+
+C *** Read aero00.cmn  (changes to this code must be reflected in FE00)
+      DO i=1,2
+        IF(FSKREAD(NL_AERO(0,i),SK_LONG_INT,101,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO i=1,2
+        IF(FSKREAD(NL_WAKE(0,i),SK_LONG_INT,101,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO i=1,2
+        IF(FSKREAD(NL_EXIT(0,i),SK_LONG_INT,101,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO i=1,2
+        IF(FSKREAD(NE_AERO(0,i),SK_LONG_INT,101,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO i=1,2
+        IF(FSKREAD(NE_WAKE(0,i),SK_LONG_INT,101,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO i=1,2
+        IF(FSKREAD(NP_WAKE(0,i),SK_LONG_INT,101,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      IF(FSKREAD(NP_ENTRY(0),SK_LONG_INT,31,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NB_AERO_PRESS,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NP_aero_LE,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NP_aero_TE1,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NP_aero_TE2,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(FLUID_DENSITY,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(REF_VELOC,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(TOT_DRAG,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(TOT_LIFT,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(CIRCULATION,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      DO i=1,20
+        IF(FSKREAD(PRESS_DIFF_AERO(1,I),SK_DOUBLE_FLOAT,25,CONNID)
+     '    .EQ.-1) GOTO 9999
+      ENDDO
+      IF(FSKREAD(PRESS_DIFF_WAKE,SK_DOUBLE_FLOAT,25,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(AERO_PERIM,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(LIFT_COEFF,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(TE_VELOC_DIFF,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(dPHI_resid,SK_DOUBLE_FLOAT,25,CONNID).EQ.-1)
+     '  GOTO 9999
+
+C *** Read b00.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(IMIN,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(IMAX,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(PI,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(RMIN,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(RMAX,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(RDELTA,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+
+C *** Read b01.cmn   (changes to this code must be reflected in FE00)
+      IF(FSKREAD(IVDU,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(IFILE,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(IO1,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(IO2,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(IO3,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(IO4,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(DOP,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+
+C *** Read b12.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(BINTIMEFILE,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(DT,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TINCR,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(T0,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(T1,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TFINISH,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(THETA,SK_DOUBLE_FLOAT,3,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TOLFAC,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TSTART,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(DIFF_INTERVAL,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(T_RESTART,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+
+C *** Read b13.cmn  (changes to this code must be reflected in FE00)
+      DO nr=1,NRT
+        DO i=1,12
+          IF(FSKREAD(ILP(1,i,nr,nx),SK_LONG_INT,35,CONNID).EQ.-1)
+     '      GOTO 9999
+        ENDDO !i
+      ENDDO !nr
+      DO nr=1,NRT
+        IF(FSKREAD(ILT(1,nr,nx),SK_LONG_INT,12,CONNID).EQ.-1) GOTO 9999
+      ENDDO !nr
+      IF(FSKREAD(IMT,SK_LONG_INT,12,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NGP,SK_LONG_INT,12,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NGPP,SK_LONG_INT,4,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NMP,SK_LONG_INT,12,CONNID).EQ.-1) GOTO 9999
+      DO i=1,5
+        IF(FSKREAD(NMPP(1,i),SK_LONG_INT,12,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      IF(FSKREAD(NLP,SK_LONG_INT,12,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NVE,SK_LONG_INT,12,CONNID).EQ.-1) GOTO 9999
+      DO i=1,12
+        DO j=1,6
+          IF(FSKREAD(NHT40(1,j,i),SK_LONG_INT,3,CONNID).EQ.-1)
+     '      GOTO 9999
+        ENDDO
+      ENDDO
+      DO i=1,6
+        IF(FSKREAD(NHT50(1,i),SK_LONG_INT,3,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      DO i=1,12
+        IF(FSKREAD(NHV(1,i),SK_LONG_INT,6,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      DO i=1,12
+        IF(FSKREAD(NMB(1,i,nx),SK_LONG_INT,35,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      DO i=1,5
+        IF(FSKREAD(NTPP(1,i),SK_LONG_INT,12,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      DO i=1,12
+        IF(FSKREAD(IT(1,i),SK_LONG_INT,3,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+
+C *** Read b14.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(FOCUS,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+
+C *** Read cbdi02.cmn
+C!!!  Don't need to read this common block
+
+C *** Read cmis00.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(CONNID1,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(CONNID2,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NUM_LIBRARY,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(PORT1,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(PORT2,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(CMISS_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+      CALL FSKC2F(CMISS,L-1,CMISS_C)
+      IF(FSKREAD(USE_SOCKET,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(USE_SOCKET_DUMMY,SK_LONG_INT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(ECHO_OUTPUT,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+
+C *** Read ctrl00.cmn  (changes to this code must be reflected in FE00)
+C!!!  Don't need to read this common block
+
+C *** Read diag00.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(NT_SUB,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NUM_STACK,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      DO i=1,NT_SUB
+        IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(SUBNAM_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+        CALL FSKC2F(SUBNAM(I),L-1,SUBNAM_C)
+      ENDDO
+      IF(FSKREAD(ALLSUB,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(DIAGNO,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(DOP_STACK,SK_LONG_INT,MX_DOP_STACK,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(FROMSUB,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+
+C *** Read disp00.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(EXAMPLES_DIR_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+      CALL FSKC2F(EXAMPLES_DIR,L-1,EXAMPLES_DIR_C)
+      IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(IMAGE_NAME_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+      CALL FSKC2F(IMAGE_NAME,L-1,IMAGE_NAME_C)
+      IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(OS_TYPE_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+      CALL FSKC2F(OS_TYPE,L-1,OS_TYPE_C)
+      IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(WINDOW_TYPE_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+      CALL FSKC2F(WINDOW_TYPE,L-1,WINDOW_TYPE_C)
+
+C *** Read four00.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(NPPF,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(OMEGA,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+
+C not needed for parallel proc
+C *** Read inout00.cmn  (changes to this code must be reflected in FE00)
+C      IF(FSKREAD(IDATA(0),SK_LONG_INT,1+IOIMX,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(IDEFLT,SK_LONG_INT,IOIMX,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(IZERO,SK_LONG_INT,IOIMX,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(IONE,SK_LONG_INT,IOIMX,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(IOCM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(IOAM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(IOLM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(IOIM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(IORM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(RDATA,SK_DOUBLE_FLOAT,IORMX,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(RDEFLT,SK_DOUBLE_FLOAT,IORMX,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(RZERO,SK_DOUBLE_FLOAT,IORMX,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(RONE,SK_DOUBLE_FLOAT,IORMX,CONNID).EQ.-1) GOTO 9999
+C      DO i=1,IOAMX
+C        IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C        IF(FSKREAD(ADATA_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+C        CALL FSKC2F(ADATA(I),L-1,ADATA_C)
+C      ENDDO
+C      DO i=1,IOAMX
+C        IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C        IF(FSKREAD(ADEFLT_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+C        CALL FSKC2F(ADEFLT(I),L-1,ADEFLT_C)
+C      ENDDO
+C      DO i=1,IOAMX
+C        IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C        IF(FSKREAD(AYES_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+C        CALL FSKC2F(AYES(I),L-1,AYES_C)
+C      ENDDO
+C      DO i=1,IOAMX
+C        IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C        IF(FSKREAD(ANO_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+C        CALL FSKC2F(ANO(I),L-1,ANO_C)
+C      ENDDO
+C      DO i=1,IOCMX
+C        IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C        IF(FSKREAD(CDATA_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+C        CALL FSKC2F(CDATA(I),L-1,CDATA_C)
+C      ENDDO
+C      DO i=1,IOCMX
+C        IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C        IF(FSKREAD(CDEFLT_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+C        CALL FSKC2F(CDEFLT(I),L-1,CDEFLT_C)
+C      ENDDO
+C      DO i=1,IOCMX
+C        IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C        IF(FSKREAD(CBLANK_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+C        CALL FSKC2F(CBLANK(I),L-1,CBLANK_C)
+C      ENDDO
+C      IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(FORMAT_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+C      CALL FSKC2F(FORMAT,L-1,FORMAT_C)
+C      IF(FSKREAD(LDATA,SK_LONG_INT,IOLMX,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(LDEFLT,SK_LONG_INT,IOLMX,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(LTRUE,SK_LONG_INT,IOLMX,CONNID).EQ.-1) GOTO 9999
+C      IF(FSKREAD(LFALSE,SK_LONG_INT,IOLMX,CONNID).EQ.-1) GOTO 9999
+
+C *** Read ipma50.cmn  (changes to this code must be reflected in FE00)
+C not needed for parallel proc
+C      DO i=1,3
+C        DO j=1,3
+C          IF(FSKREAD(IMAT5(1,j,i),SK_LONG_INT,5,CONNID).EQ.-1)
+C     '       GOTO 9999
+C        ENDDO
+C      ENDDO
+      IF(FSKREAD(IL_thickness,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(IL_sarcomere,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(IL_time_delay,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(IL_fluid_conductivity,SK_LONG_INT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+C not needed for parallel proc
+C      DO i=1,3
+C        DO j=1,3
+C          DO k=1,5
+C            IF(FSKREAD(RMAT5(1,k,j,i),SK_DOUBLE_FLOAT,35,CONNID).EQ.
+C     '        -1) GOTO 9999
+C          ENDDO
+C        ENDDO
+C      ENDDO
+C      DO i=1,3
+C        DO j=1,3
+C          DO k=1,5
+C            DO m=1,35
+C              IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+C              IF(FSKREAD(CMAT5_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+C              CALL FSKC2F(CMAT5(m,k,j,i),L-1,CMAT5_C)
+C            ENDDO
+C          ENDDO
+C        ENDDO
+C      ENDDO
+
+C *** Read ityp00.cmn  (changes to this code must be reflected in FE00)
+      DO nr=1,NRT
+        IF(FSKREAD(ITYP1(nr,nx),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP2(nr,nx),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP3(nr,nx),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP4(nr,nx),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP5(nr,nx),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP6(nr,nx),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP7(nr,nx),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP8(nr,nx),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP9(nr,nx),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP10(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP11(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP12(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP13(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP14(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(ITYP15(nr,nx),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      ENDDO !nr
+
+C *** Read jtyp00.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(JTYP1,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP2A,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP2B,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP2C,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP3,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP4,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP5,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP6,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP7,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP8,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP9,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP10,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP11,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP12,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP13,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP14,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP15,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP16,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP17,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(JTYP18,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+
+C *** Read ktyp00.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(KTYP1,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP2,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP3,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP4,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP5,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP6,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP7,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP8,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP9,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP10,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP11,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP12,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP13,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP14,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP15,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP16,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP17,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP18,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP19,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP1A,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP1B,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP1C,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP1D,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP1E,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP20,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP21,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP22,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP23,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP24,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP25,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP26,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP27,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP28,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP29,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP3_equa(nx),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP3_init(nx),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(KTYP3_mate(nx),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+
+C *** Read ktyp50.cmn  (changes to this code must be reflected in FE00)
+      DO nr=1,NRT
+        IF(FSKREAD(KTYP50(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(KTYP51(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(KTYP52(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(KTYP53(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(KTYP54(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(KTYP55(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(KTYP56(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(KTYP57(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(KTYP58(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(KTYP59(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(KTYP5A(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(KTYP5B(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(KTYP5C(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(KTYP5D(nr),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      ENDDO !nr
+
+C *** Read loc00.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(NJ_LOC(0,0,0),SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      DO nr=1,NRT
+        DO i=0,NJ_LOC_MX
+          IF(FSKREAD(NJ_LOC(0,i,nr),SK_LONG_INT,4,CONNID).EQ.-1)
+     '      GOTO 9999
+        ENDDO
+      ENDDO !nr
+      DO i=1,2
+        IF(FSKREAD(NJ_TYPE(1,i),SK_LONG_INT,3*NJ_LOC_MX,
+     '    CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      DO i=0,9
+        IF(FSKREAD(NH_LOC(0,i),SK_LONG_INT,1+NH_LOC_MX,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO i=1,2
+        IF(FSKREAD(NH_TYPE(1,i),SK_LONG_INT,19,CONNID).EQ.-1)
+     '     GOTO 9999
+      ENDDO
+      IF(FSKREAD(NX_CLASS,SK_LONG_INT,9,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NX_LIST(0),SK_LONG_INT,10,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NX_LOCKS,SK_LONG_INT,9,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NX_TYPE,SK_LONG_INT,9,CONNID).EQ.-1) GOTO 9999
+
+C *** Read lvpr00.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(NRCAVITY,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(PCAVITY,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(VCAVITY,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(VUNDEF,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(VREF,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(VINCR,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(VPREV,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TOPEN,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(CARTERY,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(RARTERY,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+
+C *** Read nonl00.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(NOSTEP,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+
+C *** Read opti00.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(NTOPTI,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NTCNTR,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NT_RES,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NRAELE,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NTHELE,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      DO i=1,2
+        IF(FSKREAD(NPJOIN(0,I),SK_LONG_INT,101,CONNID).EQ.-1) GOTO 9999
+      ENDDO
+      DO i=1,2
+        DO j=1,100
+          IF(FSKREAD(NPRAD(-1,J,I),SK_LONG_INT,12,CONNID).EQ.-1)
+     '      GOTO 9999
+        ENDDO
+      ENDDO
+      IF(FSKREAD(NPSHARE(0),SK_LONG_INT,11,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(CONSTRAINT_TYPE,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(DBGLEV,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(ISEG_TEMP,SK_LONG_INT,2000,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(N_OPTI,SK_LONG_INT,4,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(IPDLEV,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(IPPLEV,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(IPVLEV,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(ISRCCV,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(ISROCV,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(ISPCCV,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(ISPOCV,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(ITERLM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(MIITLM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(MJITLM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(FUNC,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NLFTOL,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(THETA_SAT,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(OPTTOL,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(LINEMAX,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(CDMIN,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(CDMAX,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(CONSTRAINT_VALUE,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1)
+     '  GOTO 9999
+      IF(FSKREAD(NPMIN,SK_DOUBLE_FLOAT,3,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NPMAX,SK_DOUBLE_FLOAT,3,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(UPPER_BOUND,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(LNSTOL,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(DIFFER,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      DO i=1,2000
+        IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(CSEG_TEMP_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+        CALL FSKC2F(CSEG_TEMP(I),L-1,CSEG_TEMP_C)
+      ENDDO
+      IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(ELEM_NUM_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+      CALL FSKC2F(ELEM_NUM,L-1,ELEM_NUM_C)
+      IF(FSKREAD(SPARSEJAC,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(SUMMFILE,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(WARMST,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+
+C *** Read time02.cmn
+C!!!  Don't need to read this common block
+
+C *** Read trac00.cmn  (changes to this code must be reflected in FE00)
+      IF(FSKREAD(NOLV,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NOSB,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NOSBLV,SK_LONG_INT,MXLV,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NOSBSM,SK_LONG_INT,M1SB,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NTLV,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NTSB,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NXLV,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(NXSB,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TMST,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TMEL,SK_DOUBLE_FLOAT,MXLV,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TMELSM,SK_DOUBLE_FLOAT,M1SB,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TMEN,SK_DOUBLE_FLOAT,MXLV,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TMTLSM,SK_DOUBLE_FLOAT,M1SB,CONNID).EQ.-1) GOTO 9999
+      DO i=1,M1SB
+        IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+        IF(FSKREAD(SB_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+        CALL FSKC2F(SB(I),L-1,SB_C)
+      ENDDO
+      IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TRSB_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+      CALL FSKC2F(TRSB,L-1,TRSB_C)
+      IF(FSKREAD(TR01,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TR02,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TR03,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TR04,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+
+C     Receive a flag string to check common block transfer was OK
+      IF(FSKREAD(L,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKREAD(TEMP_STR_C,SK_CHAR,L,CONNID).EQ.-1) GOTO 9999
+      CALL FSKC2F(TEMP_STR,L-1,TEMP_STR_C)
+      IF(TEMP_STR(1:18).NE.'COMMON TRANSFER OK') GOTO 9999
+
+      RETURN
+ 9999 ERROR='Socket error in RECEIVE_COMMON'
+      RETURN 1
+      END
+
+
+      SUBROUTINE RECEIVE_DATA(CONNID,nr,nx,FEXT,XE,ZE,ZE1,ERROR,*)
+
+C#### Subroutine: RECEIVE_DATA
+C###  Description:
+C###    RECEIVE_DATA Reads new element data from master process
+C###    (changes to this code must be reflected in FE00)
+
+      IMPLICIT NONE
+      INCLUDE 'cmiss$reference:fsklib.inc'
+      INCLUDE 'cmiss$reference:geom00.cmn'
+      INCLUDE 'cmiss$reference:loc00.cmn'
+      INCLUDE 'cmiss$reference:loc00.inc'
+!     Parameter List
+      INTEGER CONNID,nr,nx
+      REAL*8 FEXT(NIFEXTM,NGM),XE(NSM,NJM),ZE(NSM,NHM),ZE1(NSM,NHM)
+      CHARACTER ERROR*(*)
+!     Local Variables
+      INTEGER ng,nhx,nj,njj1,njj2
+
+      DO ng=1,NGM
+        IF(FSKREAD(FEXT(1,ng),SK_DOUBLE_FLOAT,NIFEXTM,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO njj1=1,3
+        DO njj2=1,NJ_LOC(njj1,0,nr)
+          nj=NJ_LOC(njj1,njj2,nr)
+          IF(FSKREAD(XE(1,nj),SK_DOUBLE_FLOAT,NSM,CONNID).EQ.-1)
+     '      GOTO 9999
+        ENDDO !njj2
+      ENDDO !njj1
+      DO nhx=1,NH_LOC(0,nx)
+        IF(FSKREAD(ZE(1,nhx),SK_DOUBLE_FLOAT,NSM,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO !nhx
+      DO nhx=1,NH_LOC(0,nx)
+        IF(FSKREAD(ZE1(1,nhx),SK_DOUBLE_FLOAT,NSM,CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO !nhx
+
+      RETURN
+ 9999 ERROR='Socket error in RECEIVE_DATA'
+      RETURN 1
+      END
+
+
+      SUBROUTINE SEND_RESULT(CONNID,ne,ELEM,LGE,NHST,ES,PROC_TIME,
+     '  ERROR,*)
+
+C#### Subroutine: SEND_RESULT
+C###  Description:
+C###    SEND_RESULT sends results (ie element stiffness matrix etc)
+C###    back to master process (changes to this code must be
+C###    reflected in FE00)
+
+      IMPLICIT NONE
+      INCLUDE 'cmiss$reference:geom00.cmn'
+      INCLUDE 'cmiss$reference:fsklib.inc'
+!     Parameter List
+      INTEGER CONNID,LGE(NHM*NSM,NRCM),ne,NHST(*)
+      REAL*8 ES(NHM*NSM,NHM*NSM),PROC_TIME
+      CHARACTER ERROR*(*)
+      LOGICAL ELEM
+!     Local Variables
+      INTEGER nhs,nrc
+
+      IF(FSKWRITE(ne,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKWRITE(ELEM,SK_LONG_INT,1,CONNID).EQ.-1) GOTO 9999
+      IF(FSKWRITE(NHST,SK_LONG_INT,2,CONNID).EQ.-1) GOTO 9999
+      DO nrc=1,NRCM
+        IF(FSKWRITE(LGE(1,nrc),SK_LONG_INT,NHST(1),CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      DO nhs=1,NHST(2)
+        IF(FSKWRITE(ES(1,nhs),SK_DOUBLE_FLOAT,NHST(1),CONNID).EQ.-1)
+     '    GOTO 9999
+      ENDDO
+      IF(FSKWRITE(PROC_TIME,SK_DOUBLE_FLOAT,1,CONNID).EQ.-1) GOTO 9999
+
+      RETURN
+ 9999 ERROR='Socket error in SEND_RESULT'
+      RETURN 1
+      END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,173 @@
+# -*- Makefile -*-
+#
+# For use with GNU make.
+
+#-----------------------------------------------------------------------------
+# Makefile for building the Umfpack 4.0 solver library.
+#
+# Original by Stuart Norris 2002-08-26
+# Changes:
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Set the Operating System name, Machine name, and flags as to whether the
+# code is compiled with Optimisation, Debug, or MultiProcessor flags.
+#-----------------------------------------------------------------------------
+ifndef SYSNAME
+  SYSNAME := $(shell uname)
+  ifeq ($(SYSNAME),)
+    $(error error with shell command uname)
+  endif
+endif
+
+ifndef NODENAME
+  NODENAME := $(shell uname -n)
+  ifeq ($(NODENAME),)
+    $(error error with shell command uname -n)
+  endif
+endif
+
+ifndef DEBUG
+  ifndef OPT
+    OPT := false
+  endif
+  ifeq ($(OPT),false)
+    DEBUG = true
+  else
+    DEBUG = false
+  endif
+endif
+
+#-----------------------------------------------------------------------------
+# Set suffixes used in naming libraries.
+#-----------------------------------------------------------------------------
+ifeq ($(OPT),false)
+  SUFFIX = -debug
+else
+  SUFFIX = -opt
+endif
+
+#-----------------------------------------------------------------------------
+# Set options for each platform. Currently AIX, IRIX, OSF and Linux
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# AIX Options
+#-----------------------------------------------------------------------------
+ifeq ($(SYSNAME),AIX)
+
+  ifndef ABI
+    ABI = 32
+  endif
+
+  ifeq ($(DEBUG),false)
+    OPT_FLAGS = -O3
+  else
+    OPT_FLAGS = -g
+  endif
+
+  CC     = xlc
+  AR     = ar
+  CFLAGS = $(OPT_FLAGS) -q$(ABI)
+  AFLAGS = -rv -X $(ABI)
+  DIRNAM = aix-$(ABI)
+  RANLIB = ranlib
+
+  # 1: with the vendor-supplied BLAS.  This is the default.
+  CONFIG = -DNCBLAS -bmaxdata:2000000000
+  LIB = -lessl -lm
+endif
+
+#-----------------------------------------------------------------------------
+# SGI Options
+#-----------------------------------------------------------------------------
+ifeq ($(SYSNAME:IRIX%=),)
+
+  ifndef ABI
+    ABI = n32
+  endif
+
+  ifndef MIPS
+    # Using mips3 for n32 versions on esu* machines so they will run on Indies.
+    MIPS = 4
+    ifeq ($(NODENAME:esu%=),)
+      ifeq ($(ABI),n32)
+        ifneq ($(DEBUG),false)
+          MIPS = 3
+        endif
+      endif
+    endif
+  endif
+
+  ifeq ($(DEBUG),false)
+    OPT_FLAGS = -O3 -OPT:alias=RESTRICT
+  else
+    OPT_FLAGS = -O0 -g
+  endif
+
+  CC     = cc
+  AR     = ar
+  CFLAGS = $(OPT_FLAGS) -mips$(MIPS) -$(ABI)
+  AFLAGS = -rvf
+  DIRNAM = mips$(MIPS)-$(ABI)
+  RANLIB = echo
+
+  # 1: Default: with 32-bit int's and long's, and the 32-bit SCSL BLAS
+  CONFIG = -DNCBLAS
+  LIB = -lscs -lm
+endif
+
+#-----------------------------------------------------------------------------
+# Linux Options: use g77, or the native Digital and Intel compilers.
+#-----------------------------------------------------------------------------
+ifeq ($(SYSNAME),Linux)
+
+  ifndef ABI
+    ABI = $(shell uname -m)
+    ifeq ($(ABI),)
+      $(error error with shell command uname -m)
+    endif
+
+    ifneq ($(ABI,%86=),$(ABI))
+      ABI := 86
+    endif
+  endif
+
+  ifeq ($(DEBUG),false)
+    OPT_FLAGS = -O3
+  else
+    OPT_FLAGS = -O0 -g
+  endif
+
+  CC     = gcc
+  AR     = ar
+  AFLAGS = -rvf
+  CFLAGS = $(OPT_FLAGS) -ansi -pedantic -W -Wall -Wno-parentheses -Wshadow\
+           -Wcast-align -Winline -Wstrict-prototypes -fPIC
+  DIRNAM = linux$(ABI)
+  RANLIB = ranlib
+
+  # 1: with no BLAS (this will be slow)
+  # CONFIG = -DNBLAS
+  # LIB = -lm
+
+  # 2: with the C-BLAS
+  CONFIG = -DNCBLAS
+  LIB = -L$(HOME)/lib -lblas -lf2c -lm
+endif
+
+#-------------------------------------------------------------------------------
+# For compiling the MATLAB mexFunction.
+#-------------------------------------------------------------------------------
+
+MEX = mex -inline -O
+#UMFPACKMEX = umfpack
+
+# If you do not have MATLAB, uncomment this line:
+UMFPACKMEX = 
+
+#-----------------------------------------------------------------------------
+# End of initialisation: set targets and rules.
+#-----------------------------------------------------------------------------
+
+LIBUMF = libumfpack-4.0-$(DIRNAM)$(SUFFIX).a

@@ -1,0 +1,5 @@
+! ptr01.cmn
+      INTEGER*4
+     '     NPE_PTR
+      COMMON /PTR01I4/
+     '     NPE_PTR

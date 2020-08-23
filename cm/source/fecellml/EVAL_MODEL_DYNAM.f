@@ -1,0 +1,49 @@
+      SUBROUTINE EVAL_MODEL_DYNAM(ICQS,RCQS,RHSROUTINE,VARIANT,YQS,
+     &  ERROR,*)
+
+C#### Subroutine: EVAL_MODEL_DYNAM
+C###  Description:
+C###    EVAL_MODEL_DYNAM evalulates a math model
+
+      IMPLICIT NONE
+      INCLUDE 'mxch.inc'
+      INCLUDE 'cbdi02.cmn'
+      INCLUDE 'cbdi10.cmn'
+      INCLUDE 'cell02.cmn'
+      INCLUDE 'cellml.cmn'
+      INCLUDE 'cell_reserved.inc'
+      INCLUDE 'geom00.cmn'
+      INCLUDE 'ptr00.cmn'
+!     Parameter List
+      INTEGER ICQS(NQIM),VARIANT
+      REAL*8 RCQS(NQRM),YQS(NIQSM)
+      EXTERNAL RHSROUTINE
+      CHARACTER ERROR*(*)
+!     Local Variables
+      INTEGER ERR,SIZES(11)
+      REAL*8 DY(500),TIME(2)
+
+      CALL ENTERS('EVAL_MODEL_DYNAM',*9999)
+
+C DMAL 11 March 2004: Calling RHSROUTINE to evaluate generated maths model
+      ERR=0
+      CALL RHSROUTINE(TIME,
+     &  YQS(CELL_STATE_OFFSET(VARIANT)),DY,
+     &  ICQS(CELL_CONTROL_OFFSET(VARIANT)),
+     &  ICQS(CELL_MODEL_OFFSET(VARIANT)),
+     &  SIZES,ICQS(CELL_VARIANT_OFFSET),
+     &  YQS(CELL_DERIVED_OFFSET(VARIANT)),
+     &  RCQS(CELL_PARAMETERS_OFFSET(VARIANT)),
+     &  RCQS(CELL_PROTOCOL_OFFSET(VARIANT)),
+     &  ICQS(CELL_AII_OFFSET(VARIANT)),
+     &  ICQS(CELL_AIO_OFFSET(VARIANT)),
+     &  RCQS(CELL_ARI_OFFSET(VARIANT)),
+     &  RCQS(CELL_ARO_OFFSET(VARIANT)),ERR)
+
+      CALL EXITS('EVAL_MODEL_DYNAM')
+      RETURN
+ 9999 CALL ERRORS('EVAL_MODEL_DYNAM',ERROR)
+      CALL EXITS('EVAL_MODEL_DYNAM')
+      RETURN 1
+      END
+

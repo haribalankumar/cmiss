@@ -1,0 +1,7 @@
+
+@STATIC_CHAR_LIBPERL_INTERPRETERS@
+
+static struct Interpreter_library_strings interpreter_strings[] = {
+@PERL_INTERPRETER_LIBRARY_STRINGS@
+};
+

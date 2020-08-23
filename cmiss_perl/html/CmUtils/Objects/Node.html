@@ -1,0 +1,93 @@
+<HTML>
+<HEAD>
+<TITLE>Defines a Node, which is a point with Field values defined by a FieldSet.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aObjects%3a%3aNode">CmUtils::Objects::Node</A></LI>
+<LI><A HREF="#Node%20structure">Node structure</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#CHANGES">CHANGES</A></LI>
+<LI><A HREF="#METHODS">METHODS</A></LI>
+<UL>
+<LI><A HREF="#new()"><B>new()</B></A></LI>
+<LI><A HREF="#copy()"><B>copy()</B></A></LI>
+<LI><A HREF="#name(%5bstring%2fnumber%5d)"><B>name([string/number])</B></A></LI>
+<LI><A HREF="#fieldSet(%5bFieldSet%5d)"><B>fieldSet([FieldSet])</B></A></LI>
+<LI><A HREF="#addValues(number(s))"><B>addValues(number(s))</B></A></LI>
+<LI><A HREF="#addStrings(number(s))"><B>addStrings(number(s))</B></A></LI>
+<LI><A HREF="#clearValues()"><B>clearValues()</B></A></LI>
+<LI><A HREF="#setValues()"><B>setValues()</B></A></LI>
+<LI><A HREF="#getValues()"><B>getValues()</B></A></LI>
+<LI><A HREF="#getValuesHash()"><B>getValuesHash()</B></A></LI>
+<LI><A HREF="#value(index%2c%5bvalue%5d)"><B>value(index,[value])</B></A></LI>
+<LI><A HREF="#list(%5bFH%5d)"><B>list([FH])</B></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aObjects%3a%3aNode">CmUtils::Objects::Node</A></H1>
+
+<P>Defines a Node, which is a point with Field values defined by a FieldSet.</P><H1><A NAME="Node%20structure">Node structure</A></H1>
+<DL><DT><A NAME="NAME">NAME</A></DT>
+<DD>
+Name of the Node</DD>
+<DT><A NAME="FIELDSET">FIELDSET</A></DT>
+<DD>
+The FieldSet, used by this Node, which describes the nature of the values stored</DD>
+<DT><A NAME="VALUES">VALUES</A></DT>
+<DD>
+A list of values as defined by the FieldSet</DD>
+</DL>
+<H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>0.6 (20 February 2001)
+0.7 (08 August 2001)</P><H1><A NAME="CHANGES">CHANGES</A></H1>
+
+<P>version 0.6:
+- added values structure</P>
+<P>version 0.7:
+- added addStrings() method to handle string values JMB</P><H1><A NAME="METHODS">METHODS</A></H1>
+<H2><A NAME="new()"><B>new()</B></A></H2>
+
+<P>Returns a new Node.</P><H2><A NAME="copy()"><B>copy()</B></A></H2>
+
+<P>Returns an identical copy of an existing Node.</P><H2><A NAME="name(%5bstring%2fnumber%5d)"><B>name([string/number])</B></A></H2>
+
+<P>Optional argument is name for Node.  Returns the name of the Node.</P><H2><A NAME="fieldSet(%5bFieldSet%5d)"><B>fieldSet([FieldSet])</B></A></H2>
+
+<P>Optional argument defines the FieldSet for Node.  Returns the FieldSet
+of the Node.</P><H2><A NAME="addValues(number(s))"><B>addValues(number(s))</B></A></H2>
+
+<P>Adds a list of values to the Nodal value array.  Returns the last defined index
+of the values.</P><H2><A NAME="addStrings(number(s))"><B>addStrings(number(s))</B></A></H2>
+
+<P>Adds a list of strings to the Nodal value array. Returns the last defined index
+of the values.</P><H2><A NAME="clearValues()"><B>clearValues()</B></A></H2>
+
+<P>Clears the list of values of the Node.</P><H2><A NAME="setValues()"><B>setValues()</B></A></H2>
+
+<P>Sets the list of values of the Node (clears, then adds the new values).</P><H2><A NAME="getValues()"><B>getValues()</B></A></H2>
+
+<P>Returns an array of the values of the Node.</P><H2><A NAME="getValuesHash()"><B>getValuesHash()</B></A></H2>
+
+<P>Returns the values of the Node in a hash format.
+Hash of field names
+  Hash of component names
+    Array of versions
+      Hash of
+        Value
+        Array of derivatives (if derivs are defined)</P>
+<P>$node-&gt;{fieldname}{componentname}[versionnumber]{value}
+$node-&gt;{fieldname}{componentname}[versionnumber]{derivatives}[derivnumber]
+e.g.</P>
+<PRE>  $node = $group-&gt;getNode(5)-&gt;getValuesHash();
+  print $node-&gt;{coordinates}{x}[0]{value};
+  @ver3derivs = @{$node-&gt;{coordinates}{z}[3]{derivatives}};</PRE>
+<H2><A NAME="value(index%2c%5bvalue%5d)"><B>value(index,[value])</B></A></H2>
+
+<P>Setting and/or returning a single value of a Node by index.</P><H2><A NAME="list(%5bFH%5d)"><B>list([FH])</B></A></H2>
+
+<P>List the contents of this Node to the filehandle <I>FH</I> (default to STDOUT).
+Set the &quot;verbose&quot; flag ($s-&gt;verbose(1)) to see extended information.</P>
+</BODY>
+</HTML>

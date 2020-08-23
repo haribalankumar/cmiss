@@ -1,0 +1,119 @@
+<HTML>
+<HEAD>
+<TITLE>cmCombine</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aCmCombine">CmUtils::CmCombine</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#USAGE">USAGE</A></LI>
+<LI><A HREF="#SYNOPSIS%20of%20cmCombine">SYNOPSIS of cmCombine</A></LI>
+<LI><A HREF="#DESCRIPTION">DESCRIPTION</A></LI>
+<LI><A HREF="#SUBROUTINES">SUBROUTINES</A></LI>
+<UL>
+<LI><A HREF="#cmCombine"><B>cmCombine</B></A></LI>
+<LI><A HREF="#combineExdata"><B>combineExdata</B></A></LI>
+<LI><A HREF="#combineIpdata"><B>combineIpdata</B></A></LI>
+<LI><A HREF="#combineExnode"><B>combineExnode</B></A></LI>
+<LI><A HREF="#combineIpnode"><B>combineIpnode</B></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aCmCombine">CmUtils::CmCombine</A></H1>
+
+<P>cmCombine - combines several CMISS format files into one</P><H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>1.0 (28 February 2001)</P><H1><A NAME="USAGE">USAGE</A></H1>
+
+<P>The routines in this package can be called in several ways.</P>
+<P>1/  From the shell prompt, call as cmCombine, or one of the aliases for
+specific filetypes. Prefix options with '-'. e.g.</P>
+<PRE>    cmCombine -output file.ipdata old*ipdata        # creates file.ipdata</PRE>
+
+<P>2/  From a Perl script, or from inside CMISS, load this module (with optional
+flags): </P>
+<PRE>    use CmUtils::CmCombine;                           # loads cmCombine()
+    use CmUtils::CmCombine qw(:all);                  # loads all routines
+    use CmUtils::CmCombine qw(:combineExnode);        # combineExnode()</PRE>
+
+<P>Options and filenames can then be specified in several ways.</P>
+<P>a)  as a string equivalent to a command line</P>
+<PRE>    combineExnode(&quot;-renumber -output file.exnode file1.exnode file2.exnode&quot;); 
+    # create file.exnode</PRE>
+
+<P>b)  as options and filenames</P>
+<PRE>    cmCombine(&quot;-output&quot;,&quot;file.ipdata&quot;,@ipfiles);</PRE>
+
+<P>c)  as a hash array of options, followed by a list of files</P>
+<PRE>    $options-&gt;{-renumber} = 1;
+    $options-&gt;{-offset} = 1000;
+    $options-&gt;{-reduce} = 5;
+    $options-&gt;{-output} = &quot;newfile.exnode&quot;;
+    cmCombine($options, @files);</PRE>
+
+<PRE>    $options = {-output =&gt; $newfile};
+    combineIpdata($options, @ipfiles);</PRE>
+<H1><A NAME="SYNOPSIS%20of%20cmCombine">SYNOPSIS of cmCombine</A></H1>
+<DL><DT><A NAME="cmCombine"><B>cmCombine</B></A></DT>
+<DD>
+[<B>-help</B>]
+[<B>-man</B>]
+[<B>-verbose</B>]
+[<B>-name</B>&nbsp;<I>GroupName</I>]
+[<B>-format</B>&nbsp;<I>format</I>]
+[<B>-renumber</B>&nbsp;[<B>-offset</B>&nbsp;<I>Offset</I>]]
+[<B>-output</B>&nbsp;<I>FileName</I>]
+[<B>-reduce</B>&nbsp;<I>Number</I>]
+<I>filename(s)</I></DD>
+</DL>
+<DL><DT><A NAME="-help"><B>-help</B></A></DT>
+<DD>
+</DD>
+<DT><A NAME="-man"><B>-man</B></A></DT>
+<DD>
+</DD>
+<DT><A NAME="-verbose"><B>-verbose</B></A></DT>
+<DD>
+</DD>
+<DT><A NAME="-name%20GroupName"><B>-name</B>&nbsp;<I>GroupName</I></A></DT>
+<DD>
+New group name to give file.</DD>
+<DT><A NAME="-format%20format"><B>-format</B>&nbsp;<I>format</I></A></DT>
+<DD>
+File format.  Automatically determined from filename if not specified.</DD>
+<DT><A NAME="-renumber"><B>-renumber</B></A></DT>
+<DD>
+Renumber nodes sequentially.</DD>
+<DT><A NAME="-offset%20Offset"><B>-offset</B>&nbsp;<I>Offset</I></A></DT>
+<DD>
+Start numbering from <I>Offset</I>+1.</DD>
+<DT><A NAME="-output%20FileName"><B>-output</B>&nbsp;<I>FileName</I></A></DT>
+<DD>
+New filename - otherwise prints to STDOUT.</DD>
+<DT><A NAME="-reduce%20Number"><B>-reduce</B>&nbsp;<I>Number</I></A></DT>
+<DD>
+Reduce points by a factor. (2=&gt; every other point etc)</DD>
+<DT><A NAME="filename(s)"><I>filename(s)</I></A></DT>
+<DD>
+File(s) to combine.  Must specify at least one file.</DD>
+</DL>
+<H1><A NAME="DESCRIPTION">DESCRIPTION</A></H1>
+
+<P><B>cmCombine</B> combines a set of CMISS format files into a single file.  All
+files must be of the same format.
+If the option <I>renumber</I> is used, then nodes are sequentially renumbered, 
+from <I>offset</I> or zero.
+A new group name can be given with the <I>name</I> option.
+The <I>reduce</I> option allows a specified reduction in the data.</P><H1><A NAME="SUBROUTINES">SUBROUTINES</A></H1>
+
+<P>The following subroutines are available if cmCombine is used as a module.
+Parameters may include an <I>options</I> hash, followed by a list of filenames.</P>
+<PRE>  cmCombine($options, @files);</PRE>
+<H2><A NAME="cmCombine"><B>cmCombine</B></A></H2>
+<H2><A NAME="combineExdata"><B>combineExdata</B></A></H2>
+<H2><A NAME="combineIpdata"><B>combineIpdata</B></A></H2>
+<H2><A NAME="combineExnode"><B>combineExnode</B></A></H2>
+<H2><A NAME="combineIpnode"><B>combineIpnode</B></A></H2>
+
+</BODY>
+</HTML>

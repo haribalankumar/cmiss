@@ -1,0 +1,73 @@
+===============================================================================
+README                                                boxmg-1.6.4 (2004/03/10)
+===============================================================================
+
+  ***************************************************************************
+
+                      THIS IS NOT A PUBLIC RELEASE! 
+
+            COPYRIGHT JOEL DENDY and DAVID MOULTON (1999-2004).
+  
+  (see the LICENSE file in this distribution)
+  **************************************************************************
+
+
+         Black Box Multigrid for (2D and 3D) Symmetric Problems
+
+
+     This package contains a version of Black Box Multigrid for
+  symmetric 2D problems [1,2] that has been tested on a wide variety
+  of machines.  The codes are suitable for 9-point discretizations of
+  elliptic PDEs.  Specifically there are two versions of Black Box
+  Multigrid for 2D problems in this package.  The first, which is
+  dicussed in detail in [1], is suitable for 9-point discretizations
+  of elliptic PDEs with combinations of Dirichlet, Neumann and Robin
+  boundary conditions (i.e., positive definite matrices).  The second
+  [2], accomodates 9-point discretizations of elliptic PDEs that
+  generate a semi-definite matrix (e.g., periodic boundary
+  conditions).  In both cases the user is only required to provide the
+  fine-grid stencil, the discrete right hand side and an initial
+  guess. The code generates all coarse-grid and intergrid transfer
+  operators.
+
+     Also this package contains a version of Black Box Multigrid for
+  symmetric 3D problems [3] that hasn't been tested much yet.  It was
+  developed on the CRAY-YMP and has barely seen the light of day
+  since.  This is the first alpha release to merge the 3D code with
+  the more widely tested 2D code (which is used for plane relaxation)
+  and is part of an ongoing port/update of this code.  It is suitable
+  for 7-, 15- and 27-point discretizations of second order
+  self-adjoint elliptic PDEs on logically rectangular grids (e.g.,
+  tensor product grids).  It is possible to treat both vertex- and
+  cell-based discretizations provided the underlying structure is
+  consistent with a logically rectangular grid.
+
+     There should be very little trouble in porting this set of codes
+  to differnt platforms.  Current configuration includes Linux/Intel
+  Linux/Alpha, IRIX/R10K and Solaris/UltraSparc.
+
+  ------------
+  Feedback:
+  ------------
+
+  Please send feedback, complaints, bug fixes etc. to David Moulton 
+  via e-mail at moulton@lanl.gov.
+
+  ------------
+  References:
+  ------------
+
+  [1] J. E. Dendy, Jr., "Black Box Multigrid", J. Comput. Phys.,
+      48, 366, (1982).
+
+  [2] J. E. Dendy, Jr., "Black Box Multigrid for Periodic and 
+      Singular Problems", Appl. Math. and Comput., 23, 1, (1988).
+
+  [3] J. E. Dendy, Jr., "Two Multigrid Methods for Three-Dimensional
+      Problems with Discontinuous and Anisotropic Coefficients", 
+      SIAM J. Sci. Stat. Comp., Vol. 8, No. 2, pp. 673-685, (1987).
+ 
+ **********************************************************************
+
+===============================================================================
+

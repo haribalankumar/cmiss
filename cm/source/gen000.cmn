@@ -1,0 +1,4 @@
+!  gen000.cmn
+      LOGICAL FIRSTS(9)
+      COMMON /GEN000L/ FIRSTS
+

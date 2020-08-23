@@ -1,0 +1,129 @@
+#!/bin/sh
+#
+#  Script to build all the relevent libraries for the current
+#  platform. The system type is found using uname, and then 
+#  the libraries are built.
+#
+
+UNAME=`uname`
+MAKE=gmake
+
+# Using the -test flag will run the script without running the 
+# make commands. This is a good way to test that the correct
+# versions will get built.
+if [ "$1" = "-test" ]
+then
+  checkopt=1
+else
+  checkopt=0
+fi
+
+case $UNAME in
+  #
+  # Linux
+  #
+  "Linux")
+    BLURB="Building for a Linux platform"
+    OPT_LIST="false true"
+    ABI_LIST="null"
+    MP_LIST="false"
+    ;;
+
+  #
+  # IBM/AIX
+  #
+  "AIX")
+    BLURB="Building for an IBM AIX Platform"
+    OPT_LIST="false true"
+    ABI_LIST="32 64"
+    MP_LIST="false true"
+    ;;
+
+  #
+  # SGI/IRIX 32 bit
+  #
+  "IRIX")
+    BLURB="Building for an IRIX box"
+    OPT_LIST="false true"
+    ABI_LIST="n32"
+    MP_LIST="false"
+    ;;
+
+  #
+  # SGI/IRIX 64 bit
+  #
+  "IRIX64")
+    BLURB="Building for an IRIX 64 box"
+    OPT_LIST="false true"
+    ABI_LIST="n32 64"
+    MP_LIST="false true"
+    ;;
+
+  #
+  # Digital/OSF1
+  #
+  "OSF1")
+    BLURB="Building for a DEC Alpha"
+    OPT_LIST="false true"
+    ABI_LIST="null"
+    MP_LIST="false"
+    ;;
+
+  #
+  # Darwin
+  #
+  "Darwin")
+    BLURB="Building for a Darwin platform"
+    OPT_LIST="false true"
+    ABI_LIST="null"
+    MP_LIST="false"
+    MAKE=make
+    ;;
+  #
+  # Unknown
+  #
+  *)
+    echo "Unknown platform"
+    exit -1
+    ;;
+esac
+
+echo $BLURB
+
+for MP in $MP_LIST
+do
+  MP_FLAG=MP=$MP
+
+  for ABI in $ABI_LIST
+  do
+    if [ "$ABI" = "null" ]
+    then
+      ABI_FLAG=
+    else
+      ABI_FLAG=ABI=$ABI
+    fi
+
+    for OPT in $OPT_LIST
+    do
+      OPT_FLAG=OPT=$OPT
+
+      if [ $checkopt -eq 1 ]
+      then
+        echo $MAKE clean
+        echo $MAKE $ABI_FLAG $OPT_FLAG $MP_FLAG 
+      else
+        $MAKE clean
+        $MAKE $ABI_FLAG $OPT_FLAG $MP_FLAG 
+      fi
+    done
+  done
+done
+
+if [ $checkopt -eq 1 ]
+then
+  echo $MAKE clean
+else
+  $MAKE clean
+fi
+
+echo "Done!"

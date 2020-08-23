@@ -1,0 +1,54 @@
+! time_variable.cmn
+
+C *** Information required to use time variables.
+C *** Created: 9 August 1999 - David Nickerson
+
+      INTEGER MAX_TIME_VARIABLES,MAX_TIME_VARIABLE_NODES,
+     '  MAX_TIME_VARIABLE_NAME
+      PARAMETER(MAX_TIME_VARIABLES      = 5) !max number of time vars
+      PARAMETER(MAX_TIME_VARIABLE_NODES = 10)!max number of nodes/var
+      PARAMETER(MAX_TIME_VARIABLE_NAME  = 20)!max name length
+
+      INTEGER TV_LINEAR_LAGRANGE,TV_QUADRATIC_LAGRANGE,
+     '  TV_CUBIC_LAGRANGE,TV_CUBIC_HERMITE
+      PARAMETER(TV_LINEAR_LAGRANGE    = 1)
+      PARAMETER(TV_QUADRATIC_LAGRANGE = 2)
+      PARAMETER(TV_CUBIC_LAGRANGE     = 3)
+      PARAMETER(TV_CUBIC_HERMITE      = 4)
+
+      !gives the number of nodes per element for a given basis
+      INTEGER TV_NODES_PER_ELEMENT(4)
+      DATA TV_NODES_PER_ELEMENT /2, !Linear Lagrange
+     '                           3, !Quadratic Lagrange
+     '                           4, !Cubic Lagrange
+     '                           2/ !Cubic Hermite
+
+      INTEGER TV_BASIS(MAX_TIME_VARIABLES),!cmiss basis number
+     '  TV_BASIS_TYPES(MAX_TIME_VARIABLES),!time var basis number
+     '  TV_NUM_ELEMS(MAX_TIME_VARIABLES),  !number of elements in a var
+     '  TV_NUM_VARIABLES                   !the number of vars defined
+
+      !DPN 24 August 1999 - temporary, just testing if this can work
+      !TV_BC_SET(0,0) is the number of variables with described by tvs
+      !TV_BC_SET(niqs,0) is the variable number
+      !TV_BC_SET(niqs,nq) is the tv number used for variable niqs at
+      !  grid pt nq - equals 0 if not using a time variable at that nq
+      !Convert the name given by the user to a variable number to save
+      !doing this millions of times in GET_TV_VALUE_AT_TIME
+      !INTEGER TV_BC_SET(0:10,0:5) !10 is max no. of vars can have tv
+                                  !5 is the max no of grid points (NQM)
+      CHARACTER*1 PERIODIC
+      COMMON /TIME_VARIABLEI/ TV_BASIS,TV_BASIS_TYPES,TV_NUM_ELEMS,
+     '  TV_NUM_VARIABLES,PERIODIC
+
+      REAL*8 TV_NODE_COORDS(MAX_TIME_VARIABLES,MAX_TIME_VARIABLE_NODES),
+     '  TV_NODE_DERIVS(MAX_TIME_VARIABLES,MAX_TIME_VARIABLE_NODES),
+     '  TV_NODE_SFS(MAX_TIME_VARIABLES,MAX_TIME_VARIABLE_NODES),
+     '  TV_NODE_TIMES(MAX_TIME_VARIABLES,MAX_TIME_VARIABLE_NODES),
+     '  TV_START_TIME(MAX_TIME_VARIABLES),
+     '  TV_END_TIME(MAX_TIME_VARIABLES)
+      COMMON /TIME_VARIABLER/ TV_NODE_COORDS,TV_NODE_DERIVS,
+     '  TV_NODE_SFS,TV_NODE_TIMES,TV_START_TIME,TV_END_TIME
+
+      CHARACTER TV_NAMES(MAX_TIME_VARIABLES)*(MAX_TIME_VARIABLE_NAME)
+      COMMON /TIME_VARIABLEC/ TV_NAMES

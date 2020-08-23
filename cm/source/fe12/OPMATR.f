@@ -1,0 +1,192 @@
+      SUBROUTINE OPMATR(ISC_GD,ISC_GK,ISC_GKK,ISC_GM,ISC_GMM,ISC_GQ,
+     '  ISIZE_MFI,ISIZE_PHI,ISIZE_TBH,ISR_GD,
+     '  ISR_GK,ISR_GKK,ISR_GM,ISR_GMM,
+     '  ISR_GQ,LD_NP,NRLIST,nx,ROWLIST,GD,GK,GKK,GM,GMM,GQ,GR,GRR,
+     '  MFI,PHI,PHI_H,
+     '  PHI_H_EXACT,T_BH,T_BH_INV,ZCROSSING,YP,INOUTTYPE,ALLROWS,
+     '  ERROR,*)
+
+C#### Subroutine: OPMATR
+C###  Description:
+C###    OPMATR outputs matrix.
+
+      IMPLICIT NONE
+      INCLUDE 'cbdi02.cmn'
+      INCLUDE 'geom00.cmn'
+      INCLUDE 'ktyp00.cmn'
+      INCLUDE 'matr00.cmn'
+      INCLUDE 'matr00.inc'
+      INCLUDE 'solv00.cmn'
+!     Parameter List
+      INTEGER ISC_GD(NISC_GDM),ISC_GK(NISC_GKM),ISC_GKK(NISC_GKKM),
+     '  ISC_GM(NISC_GMM),ISC_GMM(NISC_GMMM),ISC_GQ(NISC_GQM),
+     '  ISIZE_MFI(3),
+     '  ISIZE_PHI(2),ISIZE_TBH(2),ISR_GD(NISR_GDM),ISR_GK(NISR_GKM),
+     '  ISR_GKK(NISR_GKKM),ISR_GMM(NISR_GMMM),ISR_GM(NISR_GMM),
+     '  ISR_GQ(NISR_GQM),LD_NP(NDM),NRLIST(0:NRM),nx,ROWLIST(0:*)
+      REAL*8 GD(NZ_GD_M),GK(NZ_GK_M),GKK(NZ_GKK_M),GM(NZ_GM_M),
+     '  GMM(NZ_GMM_M),GQ(NZ_GQ_M),GR(NYROWM),
+     '  GRR(NOM),PHI(NY_TRANSFER_M,NTSM),MFI(NDM,NTSM,3),
+     '  PHI_H(NY_TRANSFER_M,NTSM),
+     '  PHI_H_EXACT(NY_TRANSFER_M,NTSM),
+     '  T_BH(NY_TRANSFER_M,NY_TRANSFER_M),
+     '  T_BH_INV(NY_TRANSFER_M,NY_TRANSFER_M),YP(NYM,NIYM),
+     '  ZCROSSING(NY_TRANSFER_M,NTSM)
+      CHARACTER ERROR*(*),INOUTTYPE*(*)
+      LOGICAL ALLROWS
+
+!     Local Variables
+      INTEGER ISC_DUMMY(1),ISR_DUMMY(1),matr,nc,nj,nomatr,
+     '  no_nrlist,novect,nr,NZ_DUMMY,vect,NYTT,SPAR_TEMP
+
+      CALL ENTERS('OPMATR',*9999)
+      WRITE(OP_STRING,'('' Problem class nx='',I1)') nx
+      CALL WRITES(IOFI,OP_STRING,ERROR,*9999)
+
+      SPAR_TEMP=-1
+
+      DO nomatr=1,MATRLIST(0)
+        matr=MATRLIST(nomatr)
+        WRITE(OP_STRING,'(/'' Matrix '',A11,'':'')') MATRNAME(matr)
+        CALL WRITES(IOFI,OP_STRING,ERROR,*9999)
+        IF(matr.EQ.MATR_GK) THEN
+          CALL IO_MATRIX('WRITE','TERM',ISC_GK,ISR_GK,IOFI,NYT(1,1,nx),
+     '      NYT(2,1,nx),NYROWM,NZT(1,nx),NYROWM,NYROWM,NZ_GK_M,
+     '      ROWLIST,KTYP24,GK,'ASCII ',
+     '      INOUTTYPE,ALLROWS,ERROR,*9999)
+        ELSE IF(matr.EQ.MATR_GQ) THEN
+          CALL IO_MATRIX('WRITE','TERM',ISC_GQ,ISR_GQ,IOFI,NYT(1,2,nx),
+     '      NYT(2,2,nx),NYROWM,NZT(2,nx),NYROWM,NYROWM,NZ_GQ_M,
+     '      ROWLIST,KTYP24,GQ,'ASCII ',
+     '      INOUTTYPE,ALLROWS,ERROR,*9999)
+        ELSE IF(matr.EQ.MATR_GD) THEN
+          CALL IO_MATRIX('WRITE','TERM',ISC_GD,ISR_GD,IOFI,NYT(1,3,nx),
+     '      NYT(2,3,nx),NYROWM,NZT(3,nx),NYROWM,NYROWM,NZ_GD_M,
+     '      ROWLIST,KTYP24,GD,'ASCII ',
+     '      INOUTTYPE,ALLROWS,ERROR,*9999)
+        ELSE IF(matr.EQ.MATR_GM) THEN
+          CALL IO_MATRIX('WRITE','TERM',ISC_GM,ISR_GM,IOFI,NYT(1,4,nx),
+     '      NYT(2,4,nx),NYROWM,NZT(4,nx),NYROWM,NYROWM,NZ_GM_M,
+     '      ROWLIST,KTYP24,GM,'ASCII ',
+     '      INOUTTYPE,ALLROWS,ERROR,*9999)
+        ELSE IF(matr.EQ.MATR_GKK) THEN
+          DO no_nrlist=1,NRLIST(0)
+            nr=NRLIST(no_nrlist)
+            WRITE(OP_STRING,'('' Region '',I2)') nr
+            CALL IO_MATRIX('WRITE','TERM',ISC_GKK,ISR_GKK,IOFI,
+     '        NOT(1,1,nr,nx),NOT(2,1,nr,nx),NOM,NZZT(1,nr,nx),
+     '        NOM,NOM,NZ_GKK_M,ROWLIST,
+     '        SPARSEGKK(nx),GKK,'ASCII ',INOUTTYPE,ALLROWS,ERROR,*9999)
+          ENDDO !no_nrlist (nr)
+        ELSE IF(matr.EQ.MATR_GMM) THEN
+          DO no_nrlist=1,NRLIST(0)
+            nr=NRLIST(no_nrlist)
+            WRITE(OP_STRING,'('' Region '',I2)') nr
+            CALL IO_MATRIX('WRITE','TERM',ISC_GMM,ISR_GMM,IOFI,
+     '        NOT(1,4,nr,nx),NOT(2,4,nr,nx),NOM,NZZT(4,nr,nx),
+     '        NOM,NOM,NZ_GMM_M,ROWLIST,
+     '        SPARSEGKK(nx),GMM,'ASCII ',INOUTTYPE,ALLROWS,ERROR,*9999)
+          ENDDO !no_nrlist (nr)
+        ELSE IF(matr.EQ.MATR_YP) THEN
+          NYTT=0
+          DO nc=1,NCT(1,nx)
+            NYTT=NYTT+NYT(1,nc,nx)
+          ENDDO !nc
+          CALL IO_MATRIX('WRITE','TERM',ISC_DUMMY,ISR_DUMMY,IOFI,NYTT,
+     '      NIYM,NYM,NZ_DUMMY,NYM,NIYM,NZ_DUMMY,
+     '      ROWLIST,SPAR_TEMP,YP,'ASCII ',
+     '      INOUTTYPE,ALLROWS,ERROR,*9999)
+        ELSE IF(matr.EQ.MATR_T_BH) THEN
+          CALL IO_MATRIX('WRITE','TERM',ISC_DUMMY,ISR_DUMMY,IOFI,
+     '      ISIZE_TBH(1),ISIZE_TBH(2),NY_TRANSFER_M,
+     '      NZ_DUMMY,NY_TRANSFER_M,NY_TRANSFER_M,NZ_DUMMY,
+     '      ROWLIST,SPAR_TEMP,
+     '      T_BH,'ASCII',INOUTTYPE,ALLROWS,ERROR,*9999)
+        ELSE IF(matr.EQ.MATR_T_BH_INV) THEN
+          CALL IO_MATRIX('WRITE','TERM',ISC_DUMMY,ISR_DUMMY,IOFI,
+     '      ISIZE_TBH(2),ISIZE_TBH(1),NY_TRANSFER_M,
+     '      NZ_DUMMY,NY_TRANSFER_M,NY_TRANSFER_M,NZ_DUMMY,
+     '      ROWLIST,SPAR_TEMP,
+     '      T_BH_INV,'ASCII',INOUTTYPE,ALLROWS,ERROR,*9999)
+        ELSE IF(matr.EQ.MATR_PHI) THEN
+          CALL IO_MATRIX('WRITE','TERM',ISC_DUMMY,ISR_DUMMY,IOFI,
+     '      ISIZE_PHI(1),ISIZE_PHI(2),NY_TRANSFER_M,
+     '      NZ_DUMMY,NY_TRANSFER_M,NY_TRANSFER_M,NZ_DUMMY,ROWLIST,
+     '      SPAR_TEMP,PHI,'ASCII',INOUTTYPE,ALLROWS,ERROR,*9999)
+        ELSE IF(matr.EQ.MATR_ZCROSSING) THEN
+          CALL IO_MATRIX('WRITE','TERM',ISC_DUMMY,ISR_DUMMY,IOFI,
+     '      ISIZE_TBH(1),ISIZE_PHI(2),NY_TRANSFER_M,
+     '      NZ_DUMMY,NY_TRANSFER_M,NY_TRANSFER_M,NZ_DUMMY,ROWLIST,
+     '      SPAR_TEMP,ZCROSSING,'ASCII',INOUTTYPE,ALLROWS,ERROR,*9999)
+        ELSE IF(matr.EQ.MATR_PHI_H) THEN
+          CALL IO_MATRIX('WRITE','TERM',ISC_DUMMY,ISR_DUMMY,IOFI,
+     '      ISIZE_TBH(2),ISIZE_PHI(2),NY_TRANSFER_M,
+     '      NZ_DUMMY,NY_TRANSFER_M,NY_TRANSFER_M,NZ_DUMMY,ROWLIST,
+     '      SPAR_TEMP,PHI_H,'ASCII',INOUTTYPE,ALLROWS,ERROR,*9999)
+        ELSE IF(matr.EQ.MATR_PHI_H_EXACT) THEN
+          CALL IO_MATRIX('WRITE','TERM',ISC_DUMMY,ISR_DUMMY,IOFI,
+     '      ISIZE_TBH(2),ISIZE_PHI(2),NY_TRANSFER_M,
+     '      NZ_DUMMY,NY_TRANSFER_M,NY_TRANSFER_M,NZ_DUMMY,ROWLIST,
+     '      SPAR_TEMP,PHI_H_EXACT,'ASCII',INOUTTYPE,ALLROWS,
+     '      ERROR,*9999)
+        ELSEIF(matr.EQ.MATR_MFI) THEN
+          IF(ISIZE_MFI(3).LE.0) THEN
+            OP_STRING(1)=' No MFI information to output '
+            CALL WRITES(IOOP,OP_STRING,ERROR,*9999)
+            OP_STRING(1)=' '
+            CALL WRITES(IOOP,OP_STRING,ERROR,*9999)
+          ELSE
+            DO nj=1,ISIZE_MFI(3)
+              WRITE(OP_STRING,'(/'' Component Number '',I1)') nj
+              CALL WRITES(IOFI,OP_STRING,ERROR,*9999)
+
+              CALL IO_MATRIX('WRITE','TERM',ISC_DUMMY,ISR_DUMMY,IOFI,
+     '          ISIZE_MFI(1),ISIZE_MFI(2),NDM,
+     '          NZ_DUMMY,NDM,NTSM,NZ_DUMMY,ROWLIST,
+     '          SPAR_TEMP,MFI(1,1,nj),'ASCII',INOUTTYPE,ALLROWS,
+     '          ERROR,*9999)
+            ENDDO
+          ENDIF
+C        ELSE IF(matr.EQ.MATR_LD_NP) THEN
+C          CALL IO_MATRIX('WRITE','TERM',ISC_DUMMY,ISR_DUMMY,IOFI,
+C     &      ISIZE_TBH(2),ISIZE_PHI(2),NY_TRANSFER_M,NZ_DUMMY,
+C     &      NY_TRANSFER_M,NY_TRANSFER_M,NZ_DUMMY,ROWLIST,SPAR_TEMP,
+C     &      LD_NP,'ASCII',INOUTTYPE,ALLROWS,ERROR,*9999)
+        ELSE
+          ERROR='Unknown matrix type'
+          GOTO 9999
+        ENDIF
+      ENDDO !nomatr
+
+      IF(INOUTTYPE(1:6).EQ.'ARRAYS'.OR.
+     '  INOUTTYPE(1:9).EQ.'ALL_INOUT') THEN
+        DO novect=1,VECTLIST(0)
+          vect=VECTLIST(novect)
+          WRITE(OP_STRING,'(/'' Vector '',A3,'':'')') MATRNAME(vect)
+          CALL WRITES(IOFI,OP_STRING,ERROR,*9999)
+          IF(vect.EQ.MATR_GR) THEN
+            CALL IO_VECTOR('WRITE','TERM',IOFI,NYT(1,1,nx),
+     '        GR,NYROWM,'ASCII ',INOUTTYPE,ERROR,*9999)
+          ELSE IF(vect.EQ.MATR_GRR) THEN
+            DO no_nrlist=1,NRLIST(0)
+              nr=NRLIST(no_nrlist)
+              WRITE(OP_STRING,'('' Region '',I2)') nr
+              CALL IO_VECTOR('WRITE','TERM',IOFI,NOT(1,1,nr,nx),
+     '          GRR,NOM,'ASCII ',INOUTTYPE,ERROR,*9999)
+            ENDDO !no_nrlist (nr)
+          ELSE IF(vect.EQ.MATR_LD_NP) THEN
+            CALL IO_VECTOR_INT('WRITE','TERM',IOFI,NDM,
+     '        LD_NP,NDM,'ASCII ',INOUTTYPE,ERROR,*9999)
+          ENDIF
+        ENDDO !novect
+      ENDIF
+
+      CALL EXITS('OPMATR')
+      RETURN
+ 9999 CALL ERRORS('OPMATR',ERROR)
+      CALL EXITS('OPMATR')
+      RETURN 1
+      END
+
+
+

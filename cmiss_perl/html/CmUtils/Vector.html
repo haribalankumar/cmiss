@@ -1,0 +1,75 @@
+<HTML>
+<HEAD>
+<TITLE>Provides simple 3d vector functionality including, addition, subtraction,
+scalar multiplication, cross product, norm, plot(print)  
+and converting to a perl list.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aVector">CmUtils::Vector</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#new(array)"><B>new(array)</B></A></LI>
+<LI><A HREF="#list()"><B>list()</B></A></LI>
+<LI><A HREF="#myprint()"><B>myprint()</B></A></LI>
+<LI><A HREF="#myadd"><B>myadd</B></A></LI>
+<LI><A HREF="#mymult"><B>mymult</B></A></LI>
+<LI><A HREF="#mydiv"><B>mydiv</B></A></LI>
+<LI><A HREF="#mysub"><B>mysub</B></A></LI>
+<LI><A HREF="#crossp(%24v1%2c%24v2)"><B>crossp($v1,$v2)</B></A></LI>
+<LI><A HREF="#dotp(%24v1%2c%24v2)"><B>dotp($v1,$v2)</B></A></LI>
+<LI><A HREF="#norm(%24v1)"><B>norm($v1)</B></A></LI>
+<LI><A HREF="#length()"><B>length()</B></A></LI>
+<LI><A HREF="#plot()"><B>plot()</B></A></LI>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aVector">CmUtils::Vector</A></H1>
+
+<P>Provides simple 3d vector functionality including, addition, subtraction,
+scalar multiplication, cross product, norm, plot(print)  
+and converting to a perl list.</P><H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>1.00 (23 October 2002)</P><H1><A NAME="new(array)"><B>new(array)</B></A></H1>
+
+<P>Constructor to create a new Vector object.  Takes an array of
+3 numbers to populate the vector coordinates.</P>
+<PRE>    $v1 = new CmUtils::Vector( @array );
+    $v2 = new CmUtils::Vector( (1,2,3) );</PRE>
+<H1><A NAME="list()"><B>list()</B></A></H1>
+
+<P>Returns the vector components as an array</P>
+<PRE>    @array = $v1-&gt;list();</PRE>
+<H1><A NAME="myprint()"><B>myprint()</B></A></H1>
+
+<P>Evaluates the vector in a string context;</P>
+<PRE>    @v1-&gt;myprint();</PRE>
+<H1><A NAME="myadd"><B>myadd</B></A></H1>
+
+<P>Implementation of vector addition for overloaded operator +</P><H1><A NAME="mymult"><B>mymult</B></A></H1>
+
+<P>Implementation of vector scalar multiplication for overloaded operator *</P><H1><A NAME="mydiv"><B>mydiv</B></A></H1>
+
+<P>Implementation of vector scalar division for overloaded operator /</P><H1><A NAME="mysub"><B>mysub</B></A></H1>
+
+<P>Implementation of vector subtraction for overloaded operator -</P><H1><A NAME="crossp(%24v1%2c%24v2)"><B>crossp($v1,$v2)</B></A></H1>
+
+<P>Returns the vector cross product of two vectors</P>
+<PRE>    $v3 = crossp($v1,$v2);</PRE>
+<H1><A NAME="dotp(%24v1%2c%24v2)"><B>dotp($v1,$v2)</B></A></H1>
+
+<P>Returns the vector dot product of two vectors</P>
+<PRE>    $v3 = dotp($v1,$v2);</PRE>
+<H1><A NAME="norm(%24v1)"><B>norm($v1)</B></A></H1>
+
+<P>Returns the norm of a vector</P>
+<PRE>    $norm = norm($v1);</PRE>
+<H1><A NAME="length()"><B>length()</B></A></H1>
+
+<P>Returns the length of a vector</P>
+<PRE>    $length = $v1-&gt;length;</PRE>
+<H1><A NAME="plot()"><B>plot()</B></A></H1>
+
+<P>Prints out the vector components, useful in debugging</P>
+<PRE>    @v1-&gt;plot();</PRE>
+
+</BODY>
+</HTML>

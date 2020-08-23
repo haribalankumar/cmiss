@@ -1,0 +1,4 @@
+!  time01.cmn
+      INTEGER HIST_file_intervals,NODE_BC_time(0:99)
+      COMMON /TIME01I/ HIST_file_intervals,NODE_BC_time
+

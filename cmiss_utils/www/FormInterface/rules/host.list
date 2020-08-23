@@ -1,0 +1,24 @@
+hostname: hpc1
+username: norris
+os: aix
+ncpu: 32
+home-directory: /home/soe/norris/webcmiss
+
+hostname: hpc2
+username: norris
+os: irix_64
+ncpu: 16
+home-directory: /dept/eng_sci/norris/webcmiss
+
+hostname: esu35
+username: norris
+os: irix_64
+ncpu: 2
+home-directory: /usr/people/norris/webcmiss
+
+hostname: esu51
+username: norris
+os: irix_32
+ncpu: 1
+home-directory: /usr/people/norris/webcmiss
+

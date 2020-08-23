@@ -1,0 +1,14 @@
+      BLOCK DATA BDTR
+
+      IMPLICIT NONE
+      INCLUDE 'trac00.cmn'
+
+      DATA TR01/.TRUE./,TR02/.TRUE./
+      DATA NOLV/0/,NOSB/0/,NTLV/0/,NTSB/0/,NXLV/MXLV/,NXSB/MXSB/
+      DATA NOSBSM/M1SB*0.0D0/
+      DATA TMELSM/M1SB*0.0D0/
+      DATA TMTLSM/M1SB*0.0D0/
+      DATA SB/MXSB*'      ','??????'/
+      END
+
+

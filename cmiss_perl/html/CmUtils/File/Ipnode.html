@@ -1,0 +1,87 @@
+<HTML>
+<HEAD>
+<TITLE>Routines for reading and writing ipnode files.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aFile%3a%3aIpnode">CmUtils::File::Ipnode</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#CHANGES">CHANGES</A></LI>
+<LI><A HREF="#SUBROUTINES">SUBROUTINES</A></LI>
+<UL>
+<LI><A HREF="#readIpnode"><B>readIpnode</B></A></LI>
+<LI><A HREF="#writeIpnode"><B>writeIpnode</B></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aFile%3a%3aIpnode">CmUtils::File::Ipnode</A></H1>
+
+<P>Routines for reading and writing <I>ipnode</I> files.</P><H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>0.5 (12 October 2000)
+0.6 (08 August 2001)
+0.7 (11 December 2003)</P><H1><A NAME="CHANGES">CHANGES</A></H1>
+
+<P>version 0.6
+- added necessary field validity check for writing Ipnode files JMB </P>
+<P>version 0.7
+- GBS moved CMISS::File:: routines to CmUtils::File:: and CmUtils::Objects::</P><H1><A NAME="SUBROUTINES">SUBROUTINES</A></H1>
+<H2><A NAME="readIpnode"><B>readIpnode</B></A></H2>
+<DL><DT><A NAME="PARAMETERS">PARAMETERS</A></DT>
+<DD>
+(filename)</DD>
+<DT><A NAME="USAGE">USAGE</A></DT>
+<DD>
+
+<PRE>  $group = readIpnode(&quot;newfile&quot;);</PRE>
+</DD>
+<DT><A NAME="FUNCTION">FUNCTION</A></DT>
+<DD>
+
+<P>Returns a NodeGroup read from <I>filename</I> (or <I>filename.ipnode</I>).  Creates
+a new FieldSet for each type of versioning in the file, but only one FieldSet
+if there are no versions.</P>
+<P>Assigns a focus to the NodeGroup if it is present (for prolate coordinates).</P>
+<P>Creates a Field named <I>coordinates</I> and reads in the number of coordinates
+(components), and derivatives.  Does not cope well with malformed files :-(</P></DD>
+</DL>
+<H2><A NAME="writeIpnode"><B>writeIpnode</B></A></H2>
+<DL><DT><A NAME="PARAMETERS">PARAMETERS</A></DT>
+<DD>
+(filename, group, options)</DD>
+<DT><A NAME="USAGE">USAGE</A></DT>
+<DD>
+
+<PRE>  $options{nodes} = $group-&gt;getNodes(10..20);
+  writeIpnode($filename, $group, \%options);</PRE>
+</DD>
+<DT><A NAME="FUNCTION">FUNCTION</A></DT>
+<DD>
+Writes a NodeGroup to an <I>ipnode</I> file.  Options are passed through
+the <I>options</I> hash to control the subset of the NodeGroup which will be
+printed.</DD>
+<DT><A NAME="OPTIONS">OPTIONS</A></DT>
+<DD>
+<DL><DT><A NAME="nodes">nodes</A></DT>
+<DD>
+A array of node structures which will be output.  A number of routines are
+available to get nodes from a group (e.g. <B>getNodes</B>.  See CmUtils::Objects::NodeGroup).
+If not set, all nodes will be printed.</DD>
+<DT><A NAME="fields">fields</A></DT>
+<DD>
+An field name which will be printed.  If not set, the &quot;coordinates&quot; field
+will be printed if it exists.  Only one field may be printed to an <I>ipnode</I>
+file.</DD>
+<DT><A NAME="noDerivatives">noDerivatives</A></DT>
+<DD>
+Set this option to suppress printing of nodal derivatives.</DD>
+<DT><A NAME="noVersions">noVersions</A></DT>
+<DD>
+Set this option to suppress printing of multiple versions - only the first
+will be printed.  (not yet implemented)</DD>
+</DL>
+</DD>
+</DL>
+
+</BODY>
+</HTML>

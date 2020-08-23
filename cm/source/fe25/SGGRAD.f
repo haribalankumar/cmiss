@@ -1,0 +1,59 @@
+      SUBROUTINE SGGRAD(INDEX,ISEG,ISGRAD,iw,NBH,NBJ,
+     '  ne,NHE,NKHE,NKJE,NPF,NPNE,nr,NVHE,NVJE,NW,nx,
+     '  CE,CG,CGE,CP,CSEG,CURVCORRECT,PG,RG,SE,XA,XE,
+     '  XG,XP,ZA,ZE,ZG,ZP,ERROR,*)
+
+C#### Subroutine: SGGRAD
+C###  Description:
+C###    SGGRAD creates element gradient segment ISGRAD.
+
+      IMPLICIT NONE
+      INCLUDE 'geom00.cmn'
+      INCLUDE 'ityp00.cmn'
+      INCLUDE 'loc00.cmn'
+      INCLUDE 'loc00.inc'
+!     Parameter List
+      INTEGER INDEX,ISEG(*),ISGRAD,iw,NBH(NHM,NCM),NBJ(NJM),ne,NHE,
+     '  NKHE(NKM,NNM,NHM),NKJE(NKM,NNM,NJM),NPF(9),NPNE(NNM,NBFM),nr,
+     '  NVHE(NNM,NBFM,NHM),NVJE(NNM,NBFM),NW,nx
+      REAL*8 CE(NMM),CG(NMM,NGM),CGE(NMM,NGM),
+     '  CP(NMM,NPM),CURVCORRECT(2,2,NNM),
+     '  PG(NSM,NUM,NGM,NBM),
+     '  RG(NGM),SE(NSM,NBFM),XA(NAM,NJM,NEM),XE(NSM,NJM),XG(NJM,NUM),
+     '  XP(NKM,NVM,NJM,NPM),ZA(NAM,NHM),ZE(NSM,NHM),
+     '  ZG(NHM,NUM),ZP(NKM,NVM,NHM,NPM,NCM)
+!     Local Variables
+      INTEGER INDEX_OLD,nc
+      CHARACTER CSEG(*)*(*),ERROR*(*)
+
+      CALL ENTERS('SGGRAD',*9999)
+C GBS 10-NOV-1994
+      nc=1   !Temporary
+
+      CALL OPEN_SEGMENT(ISGRAD,ISEG,iw,'GRAD',INDEX,INDEX_OLD,
+     '  ne,1,CSEG,ERROR,*9999)
+
+      CALL XPXE(NBJ,NKJE,NPF,NPNE,nr,NVJE,
+     '  SE,XA(1,1,ne),XE,XP,ERROR,*9999)
+      CALL ZPZE(NBH,nc,NHE,NKHE,NPF,NPNE,nr,
+     '  NVHE,NW,nx,CURVCORRECT,SE,ZA,ZE,ZP,ERROR,*9999)
+      IF(ITYP1(nr,nx).EQ.3) THEN
+        CALL CPCG(1,NBH(NH_LOC(1,nx),nc),NPNE,nr,nx,CE,CG,CGE,CP,PG,
+     '    ERROR,*9999)
+      ELSE
+        CALL CPCG(NW,NBH(NH_LOC(1,nx),nc),NPNE,nr,nx,CE,CG,CGE,CP,
+     '    PG,ERROR,*9999)
+      ENDIF
+      CALL GRADIENT(INDEX,NBH(NH_LOC(1,nx),nc),NBJ,ne,NHE,nr,nx,
+     '  PG,RG,XE,XG,ZE,ZG,ERROR,*9999)
+
+      CALL CLOSE_SEGMENT(ISGRAD,iw,ERROR,*9999)
+
+      CALL EXITS('SGGRAD')
+      RETURN
+ 9999 CALL ERRORS('SGGRAD',ERROR)
+      CALL EXITS('SGGRAD')
+      RETURN 1
+      END
+
+

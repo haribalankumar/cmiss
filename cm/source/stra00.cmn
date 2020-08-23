@@ -1,0 +1,4 @@
+!  stra00.cmn
+      LOGICAL TABLE
+      COMMON /STRA00L/ TABLE
+

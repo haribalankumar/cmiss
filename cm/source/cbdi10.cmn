@@ -1,0 +1,11 @@
+!     cbdi10.cmn
+C     Changes in LEN_COQU should be reflected in the string lengths in
+C     file00.cmn (and probably elsewhere)
+      INTEGER LEN_CO,LEN_COQU
+      PARAMETER(LEN_CO=MXCH,LEN_COQU=MXCH)
+
+      INTEGER noco,NTCO,NTCOQU(25)
+      COMMON /CBDI10I/ noco,NTCO,NTCOQU
+
+      CHARACTER CO(25)*(LEN_CO),COQU(25,25)*(LEN_COQU)
+      COMMON /CBDI10C/ CO,COQU

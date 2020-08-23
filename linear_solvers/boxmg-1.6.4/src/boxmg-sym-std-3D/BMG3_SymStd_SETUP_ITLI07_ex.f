@@ -1,0 +1,860 @@
+      SUBROUTINE BMG3_SymStd_SETUP_ITLI07_ex(
+     &                SO, SOC, CI, IIF, JJF, KKF, IIC, JJC, KKC 
+     &                )
+
+C ========================================================================
+
+      IMPLICIT NONE
+
+C ----------------------------
+C     Includes
+C
+      INCLUDE 'BMG_constants.h'
+      INCLUDE 'BMG_stencils.h'
+
+C ----------------------------
+C     Argument Declarations
+C
+      INTEGER IIC, IIF, JJC, JJF, KKC, KKF
+      REAL*8  CI(IIC,JJC,KKC,26), SO(IIF,JJF,KKF,4), SOC(IIC,JJC,KKC,14)
+
+C ----------------------------
+C     Local Declarations:
+C
+      INTEGER I, IIC1, IIC2, IC, J, JJC1, JJC2, JC, K, KK, KC, KKC1
+      REAL*8  CB, CBE, CBN, CBNW, CBNE, CBS, CBSE, CBSW, CBW,    
+     &        CE, CN, CNW, CNE, CO, CS, CSE, CSW, CW,
+     &        CTE, CTN, CTNW, CTNE, CT, CTS, CTSE, CTSW, CTW    
+
+C ========================================================================
+
+      IIC1 = IIC-1
+      IIC2 = IIC-2
+      JJC1 = JJC-1
+      JJC2 = JJC-2
+      KKC1 = KKC-1
+
+C$OMP PARALLEL DO
+C$OMP& DEFAULT(NONE)
+C$OMP& PRIVATE(I,IC,J,JC,K,KC,KK,CB,CBE,CBN,CBNW,CBNE, 
+C$OMP&         CBS,CBSE,CBSW,CBW,CE,CN,CNW,CNE,CO,CS, 
+C$OMP&         CSE,CSW,CW,CTE,CTN,CTNW,CTNE,CT,CTS,CTSE, 
+C$OMP&         CTSW, CTW)
+C$OMP& SHARED(CI,IIC1,JJC1,KKC1,SO,SOC)  
+      DO KK = 1, (IIC1-1)*(JJC1-1)*(KKC1-1)
+         IC = MOD((KK-1),IIC1-1)+2
+         I  = 2*(IC-1)
+         JC = MOD((KK-1)/(IIC1-1),JJC1-1)+2
+         J  = 2*(JC-1)
+         KC = (KK-1)/((IIC1-1)*(JJC1-1))+2
+         K  = 2*(KC-1)
+         CO = SO(I,J,K,KPW)*CI(IC,JC,KC,LXYL) 
+         SOC(IC,JC,KC,KPW) = CO
+         CW = - SO(I-1,J,K,KP)*CI(IC,JC,KC,LXYL)
+     &        + SO(I-1,J,K,KPW)
+     &        + SO(I-1,J+1,K,KPS)*CI(IC,JC+1,KC,LXYSW)
+     &        + SO(I-1,J,K,KPS)*CI(IC,JC,KC,LXYNW)
+     &        + SO(I-1,J,K+1,KB)*CI(IC,JC,KC+1,LXZSW)
+     &        + SO(I-1,J,K,KB)*CI(IC,JC,KC,LXZNW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC,KC,LXYR)*CW
+         CNW = -SO(I-1,J+1,K,KP)*CI(IC,JC+1,KC,LXYSW)
+     &        + SO(I-1,J+1,K,KPW)*CI(IC-1,JC+1,KC,LXYB)
+     &        + SO(I-1,J+1,K,KPS)*CI(IC,JC,KC,LXYL)
+     &        + SO(I-1,J+1,K+1,KB)*CI(IC,JC+1,KC+1,LBSW)
+     &        + SO(I-1,J+1,K,KB)*CI(IC,JC+1,KC,LTSW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC+1,KC,LXYSE)*CNW
+         CTNW = -SO(I-1,J+1,K+1,KP)*CI(IC,JC+1,KC+1,LBSW)
+     &        + SO(I-1,J+1,K+1,KPW)*CI(IC-1,JC+1,KC+1,LYZSE)
+     &        + SO(I-1,J+1,K+1,KPS)*CI(IC,JC,KC+1,LXZSW)
+     &        + SO(I-1,J+1,K+1,KB)*CI(IC,JC+1,KC,LXYSW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC+1,KC+1,LBSE)*CTNW
+         CTW = - SO(I-1,J,K+1,KP)*CI(IC,JC,KC+1,LXZSW)
+     &        + SO(I-1,J,K+1,KB)*CI(IC,JC,KC,LXYL)
+     &        + SO(I-1,J,K+1,KPW)*CI(IC-1,JC,KC+1,LXZB)
+     &        + SO(I-1,J+1,K+1,KPS)*CI(IC,JC+1,KC+1,LBSW)
+     &        + SO(I-1,J,K+1,KPS)*CI(IC,JC,KC+1,LBNW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC,KC+1,LXZSE)*CTW
+         CTSW = -SO(I-1,J-1,K+1,KP)*CI(IC,JC,KC+1,LBNW)
+     &        + SO(I-1,J-1,K+1,KB)*CI(IC,JC,KC,LXYNW)
+     &        + SO(I-1,J,K+1,KPS)*CI(IC,JC,KC+1,LXZSW)
+     &        + SO(I-1,J-1,K+1,KPW)*CI(IC-1,JC,KC+1,LYZSW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC,KC+1,LBNE)*CTSW
+         CSW = - SO(I-1,J-1,K,KP)*CI(IC,JC,KC,LXYNW)
+     &        + SO(I-1,J,K,KPS)*CI(IC,JC,KC,LXYL)
+     &        + SO(I-1,J-1,K,KPW)*CI(IC-1,JC,KC,LXYA)
+     &        + SO(I-1,J-1,K+1,KB)*CI(IC,JC,KC+1,LBNW)
+     &        + SO(I-1,J-1,K,KB)*CI(IC,JC,KC,LTNW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC,KC,LXYNE)*CSW
+         CBNW = -SO(I-1,J+1,K-1,KP)*CI(IC,JC+1,KC,LTSW)
+     &        + SO(I-1,J+1,K-1,KPW)*CI(IC-1,JC+1,KC,LYZNE)
+     &        + SO(I-1,J+1,K-1,KPS)*CI(IC,JC,KC,LXZNW)
+     &        + SO(I-1,J+1,K,KB)*CI(IC,JC+1,KC,LXYSW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC+1,KC,LTSE)*CBNW
+         CBW = -SO(I-1,J,K-1,KP)*CI(IC,JC,KC,LXZNW)
+     &        + SO(I-1,J,K,KB)*CI(IC,JC,KC,LXYL)
+     &        + SO(I-1,J,K-1,KPW)*CI(IC-1,JC,KC,LXZA)
+     &        + SO(I-1,J+1,K-1,KPS)*CI(IC,JC+1,KC,LTSW)
+     &        + SO(I-1,J,K-1,KPS)*CI(IC,JC,KC,LTNW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC,KC,LXZNE)*CBW
+         CBSW = -SO(I-1,J-1,K-1,KP)*CI(IC,JC,KC,LTNW)
+     &        + SO(I-1,J-1,K,KB)*CI(IC,JC,KC,LXYNW)
+     &        + SO(I-1,J,K-1,KPS)*CI(IC,JC,KC,LXZNW)
+     &        + SO(I-1,J-1,K-1,KPW)*CI(IC-1,JC,KC,LYZNW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC,KC,LTNE)*CBSW
+         CT = SO(I,J,K+1,KPW)*CI(IC,JC,KC+1,LXZSW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC,KC+1,LXZB)*CT
+         CTN = SO(I,J+1,K+1,KPW)*CI(IC,JC+1,KC+1,LBSW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC+1,KC+1,LYZSE)*CTN
+         CTS = SO(I,J-1,K+1,KPW)*CI(IC,JC,KC+1,LBNW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC,KC+1,LYZSW)*CTS
+         CN = SO(I,J+1,K,KPW)*CI(IC,JC+1,KC,LXYSW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC+1,KC,LXYB)*CN
+         CS = SO(I,J-1,K,KPW)*CI(IC,JC,KC,LXYNW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC,KC,LXYA)*CS
+         CB = SO(I,J,K-1,KPW)*CI(IC,JC,KC,LXZNW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC,KC,LXZA)*CB
+         CBN = SO(I,J+1,K-1,KPW)*CI(IC,JC+1,KC,LTSW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC+1,KC,LYZNE)*CBN
+         CBS = SO(I,J-1,K-1,KPW)*CI(IC,JC,KC,LTNW)
+         SOC(IC,JC,KC,KPW) = SOC(IC,JC,KC,KPW)
+     &        + CI(IC,JC,KC,LYZNW)*CBS
+
+         SOC(IC,JC,KC,KPSW) = 0.0D0
+         CW = SO(I-1,J,K,KPS)*CI(IC,JC,KC,LXYSW)
+         SOC(IC,JC,KC,KPSW) = SOC(IC,JC,KC,KPSW)
+     &        + CI(IC,JC,KC,LXYR)*CW
+         CS = SO(I,J-1,K,KPW)*CI(IC,JC,KC,LXYSW)
+         SOC(IC,JC,KC,KPSW) = SOC(IC,JC,KC,KPSW)
+     &        + CI(IC,JC,KC,LXYA)*CS
+         CSW = -SO(I-1,J-1,K,KP)*CI(IC,JC,KC,LXYSW)
+     &        + SO(I-1,J-1,K,KPW)*CI(IC-1,JC,KC,LXYB)
+     &        + SO(I-1,J-1,K,KPS)*CI(IC,JC-1,KC,LXYL)
+     &        + SO(I-1,J-1,K+1,KB)*CI(IC,JC,KC+1,LBSW)
+     &        + SO(I-1,J-1,K,KB)*CI(IC,JC,KC,LTSW)
+         SOC(IC,JC,KC,KPSW) = SOC(IC,JC,KC,KPSW)
+     &        + CI(IC,JC,KC,LXYNE)*CSW
+         CTW = SO(I-1,J,K+1,KPS)*CI(IC,JC,KC+1,LBSW)
+         SOC(IC,JC,KC,KPSW) = SOC(IC,JC,KC,KPSW)
+     &        + CI(IC,JC,KC+1,LXZSE)*CTW
+         CTS = SO(I,J-1,K+1,KPW)*CI(IC,JC,KC+1,LBSW)
+         SOC(IC,JC,KC,KPSW) = SOC(IC,JC,KC,KPSW)
+     &        + CI(IC,JC,KC+1,LYZSW)*CTS
+         CTSW = SO(I-1,J-1,K+1,KPW)*CI(IC-1,JC,KC+1,LYZSE)
+     &        + SO(I-1,J-1,K+1,KPS)*CI(IC,JC-1,KC+1,LXZSW)
+     &        + SO(I-1,J-1,K+1,KB)*CI(IC,JC,KC,LXYSW)
+     &        - SO(I-1,J-1,K+1,KP)*CI(IC,JC,KC+1,LBSW)
+         SOC(IC,JC,KC,KPSW) = SOC(IC,JC,KC,KPSW) 
+     &        + CI(IC,JC,KC+1,LBNE)*CTSW
+         CBW = SO(I-1,J,K-1,KPS)*CI(IC,JC,KC,LTSW)
+         SOC(IC,JC,KC,KPSW) = SOC(IC,JC,KC,KPSW)
+     &        + CI(IC,JC,KC,LXZNE)*CBW
+         CBS = SO(I,J-1,K-1,KPW)*CI(IC,JC,KC,LTSW)
+         SOC(IC,JC,KC,KPSW) = SOC(IC,JC,KC,KPSW)
+     &        + CI(IC,JC,KC,LYZNW)*CBS
+         CBSW = -SO(I-1,J-1,K-1,KP)*CI(IC,JC,KC,LTSW)
+     &        + SO(I-1,J-1,K,KB)*CI(IC,JC,KC,LXYSW)
+     &        + SO(I-1,J-1,K-1,KPW)*CI(IC-1,JC,KC,LYZNE)
+     &        + SO(I-1,J-1,K-1,KPS)*CI(IC,JC-1,KC,LXZNW)
+         SOC(IC,JC,KC,KPSW) = SOC(IC,JC,KC,KPSW)
+     &        + CI(IC,JC,KC,LTNE)*CBSW
+
+         SOC(IC,JC,KC,KBSW) = 0.0D0
+         CSW = SO(I-1,J-1,K,KB)*CI(IC,JC,KC,LBSW)
+         SOC(IC,JC,KC,KBSW) = SOC(IC,JC,KC,KBSW)
+     &        + CI(IC,JC,KC,LXYNE)*CSW
+         CBW = SO(I-1,J,K-1,KPS)*CI(IC,JC,KC,LBSW)
+         SOC(IC,JC,KC,KBSW) = SOC(IC,JC,KC,KBSW)
+     &        + CI(IC,JC,KC,LXZNE)*CBW
+         CBS = SO(I,J-1,K-1,KPW)*CI(IC,JC,KC,LBSW)
+         SOC(IC,JC,KC,KBSW) = SOC(IC,JC,KC,KBSW) 
+     &        + CI(IC,JC,KC,LYZNW)*CBS
+         CBSW = SO(I-1,J-1,K-1,KPW)*CI(IC-1,JC,KC,LYZSE)
+     &        - SO(I-1,J-1,K-1,KP)*CI(IC,JC,KC,LBSW)
+     &        + SO(I-1,J-1,K-1,KPS)*CI(IC,JC-1,KC,LXZSW)
+     &        + SO(I-1,J-1,K-1,KB)*CI(IC,JC,KC-1,LXYSW)
+         SOC(IC,JC,KC,KBSW) = SOC(IC,JC,KC,KBSW)
+     &        + CI(IC,JC,KC,LTNE)*CBSW
+
+         CO = - SO(I,J,K,KP)
+     &        + SO(I,J,K,KPW)*CI(IC,JC,KC,LXYR)
+     &        + SO(I,J+1,K,KPS)*CI(IC,JC+1,KC,LXYB)
+     &        + SO(I+1,J,K,KPW)*CI(IC+1,JC,KC,LXYL)
+     &        + SO(I,J,K,KPS)*CI(IC,JC,KC,LXYA)
+     &        + SO(I,J,K,KB)*CI(IC,JC,KC,LXZA)
+     &        + SO(I,J,K+1,KB)*CI(IC,JC,KC+1,LXZB)
+         SOC(IC,JC,KC,KP) = - CO
+         CW = - SO(I-1,J,K,KP)*CI(IC,JC,KC,LXYR)
+     &        + SO(I,J,K,KPW)
+     &        + SO(I-1,J+1,K,KPS)*CI(IC,JC+1,KC,LXYSE)
+     &        + SO(I-1,J,K,KPS)*CI(IC,JC,KC,LXYNE)
+     &        + SO(I-1,J,K+1,KB)*CI(IC,JC,KC+1,LXZSE)
+     &        + SO(I-1,J,K,KB)*CI(IC,JC,KC,LXZNE)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP) 
+     &        - CI(IC,JC,KC,LXYR)*CW
+         CNW = -SO(I-1,J+1,K,KP)*CI(IC,JC+1,KC,LXYSE)
+     &        + SO(I-1,J+1,K,KPS)*CI(IC,JC,KC,LXYR)
+     &        + SO(I,J+1,K,KPW)*CI(IC,JC+1,KC,LXYB)
+     &        + SO(I-1,J+1,K,KB)*CI(IC,JC+1,KC,LTSE)
+     &        + SO(I-1,J+1,K+1,KB)*CI(IC,JC+1,KC+1,LBSE)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC+1,KC,LXYSE)*CNW
+         CN = - SO(I,J+1,K,KP)*CI(IC,JC+1,KC,LXYB)
+     &        + SO(I,J+1,K,KPS)
+     &        + SO(I,J+1,K,KPW)*CI(IC,JC+1,KC,LXYSE)
+     &        + SO(I+1,J+1,K,KPW)*CI(IC+1,JC+1,KC,LXYSW)
+     &        + SO(I,J+1,K,KB)*CI(IC,JC+1,KC,LYZNE)
+     &        + SO(I,J+1,K+1,KB)*CI(IC,JC+1,KC+1,LYZSE)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC+1,KC,LXYB)*CN
+         CNE = - SO(I+1,J+1,K,KP)*CI(IC+1,JC+1,KC,LXYSW)
+     &        + SO(I+1,J+1,K,KPW)*CI(IC,JC+1,KC,LXYB)
+     &        + SO(I+1,J+1,K,KPS)*CI(IC+1,JC,KC,LXYL)
+     &        + SO(I+1,J+1,K,KB)*CI(IC+1,JC+1,KC,LTSW)
+     &        + SO(I+1,J+1,K+1,KB)*CI(IC+1,JC+1,KC+1,LBSW)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC+1,JC+1,KC,LXYSW)*CNE
+         CE = -SO(I+1,J,K,KP)*CI(IC+1,JC,KC,LXYL)
+     &        + SO(I+1,J,K,KPW)
+     &        + SO(I+1,J+1,K,KPS)*CI(IC+1,JC+1,KC,LXYSW)
+     &        + SO(I+1,J,K,KPS)*CI(IC+1,JC,KC,LXYNW)
+     &        + SO(I+1,J,K,KB)*CI(IC+1,JC,KC,LXZNW)
+     &        + SO(I+1,J,K+1,KB)*CI(IC+1,JC,KC+1,LXZSW)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC+1,JC,KC,LXYL)*CE
+         CSE = - SO(I+1,J-1,K,KP)*CI(IC+1,JC,KC,LXYNW)
+     &        + SO(I+1,J-1,K,KPW)*CI(IC,JC,KC,LXYA)
+     &        + SO(I+1,J,K,KPS)*CI(IC+1,JC,KC,LXYL)
+     &        + SO(I+1,J-1,K,KB)*CI(IC+1,JC,KC,LTNW)
+     &        + SO(I+1,J-1,K+1,KB)*CI(IC+1,JC,KC+1,LBNW)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC+1,JC,KC,LXYNW)*CSE
+         CS = -SO(I,J-1,K,KP)*CI(IC,JC,KC,LXYA)
+     &        + SO(I,J,K,KPS)
+     &        + SO(I,J-1,K,KPW)*CI(IC,JC,KC,LXYNE)
+     &        + SO(I+1,J-1,K,KPW)*CI(IC+1,JC,KC,LXYNW)
+     &        + SO(I,J-1,K,KB)*CI(IC,JC,KC,LYZNW)
+     &        + SO(I,J-1,K+1,KB)*CI(IC,JC,KC+1,LYZSW)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC,KC,LXYA)*CS
+         CSW = -SO(I-1,J-1,K,KP)*CI(IC,JC,KC,LXYNE)
+     &        + SO(I-1,J,K,KPS)*CI(IC,JC,KC,LXYR)
+     &        + SO(I,J-1,K,KPW)*CI(IC,JC,KC,LXYA)
+     &        + SO(I-1,J-1,K,KB)*CI(IC,JC,KC,LTNE)
+     &        + SO(I-1,J-1,K+1,KB)*CI(IC,JC,KC+1,LBNE)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC,KC,LXYNE)*CSW
+         CB = -SO(I,J,K-1,KP)*CI(IC,JC,KC,LXZA)
+     &        + SO(I,J,K,KB)
+     &        + SO(I,J,K-1,KPW)*CI(IC,JC,KC,LXZNE)
+     &        + SO(I,J+1,K-1,KPS)*CI(IC,JC+1,KC,LYZNE)
+     &        + SO(I+1,J,K-1,KPW)*CI(IC+1,JC,KC,LXZNW)
+     &        + SO(I,J,K-1,KPS)*CI(IC,JC,KC,LYZNW)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC,KC,LXZA)*CB
+         CBW = SO(I-1,J+1,K-1,KPS)*CI(IC,JC+1,KC,LTSE)
+     &        + SO(I,J,K-1,KPW)*CI(IC,JC,KC,LXZA)
+     &        + SO(I-1,J,K-1,KPS)*CI(IC,JC,KC,LTNE)
+     &        + SO(I-1,J,K,KB)*CI(IC,JC,KC,LXYR)
+     &        - SO(I-1,J,K-1,KP)*CI(IC,JC,KC,LXZNE)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC,KC,LXZNE)*CBW
+         CBNW = -SO(I-1,J+1,K-1,KP)*CI(IC,JC+1,KC,LTSE)
+     &        + SO(I,J+1,K-1,KPW)*CI(IC,JC+1,KC,LYZNE)
+     &        + SO(I-1,J+1,K-1,KPS)*CI(IC,JC,KC,LXZNE)
+     &        + SO(I-1,J+1,K,KB)*CI(IC,JC+1,KC,LXYSE)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC+1,KC,LTSE)*CBNW
+         CBN = -SO(I,J+1,K-1,KP)*CI(IC,JC+1,KC,LYZNE)
+     &        + SO(I,J+1,K-1,KPW)*CI(IC,JC+1,KC,LTSE)
+     &        + SO(I+1,J+1,K-1,KPW)*CI(IC+1,JC+1,KC,LTSW)
+     &        + SO(I,J+1,K-1,KPS)*CI(IC,JC,KC,LXZA)
+     &        + SO(I,J+1,K,KB)*CI(IC,JC+1,KC,LXYB)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC+1,KC,LYZNE)*CBN
+         CBNE = -SO(I+1,J+1,K-1,KP)*CI(IC+1,JC+1,KC,LTSW)
+     &        + SO(I+1,J+1,K-1,KPW)*CI(IC,JC+1,KC,LYZNE)
+     &        + SO(I+1,J+1,K-1,KPS)*CI(IC+1,JC,KC,LXZNW)
+     &        + SO(I+1,J+1,K,KB)*CI(IC+1,JC+1,KC,LXYSW)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC+1,JC+1,KC,LTSW)*CBNE
+         CBE = -SO(I+1,J,K-1,KP)*CI(IC+1,JC,KC,LXZNW)
+     &        + SO(I+1,J,K-1,KPW)*CI(IC,JC,KC,LXZA)
+     &        + SO(I+1,J+1,K-1,KPS)*CI(IC+1,JC+1,KC,LTSW)
+     &        + SO(I+1,J,K-1,KPS)*CI(IC+1,JC,KC,LTNW)
+     &        + SO(I+1,J,K,KB)*CI(IC+1,JC,KC,LXYL)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC+1,JC,KC,LXZNW)*CBE
+         CBSE = -SO(I+1,J-1,K-1,KP)*CI(IC+1,JC,KC,LTNW)
+     &        + SO(I+1,J-1,K-1,KPW)*CI(IC,JC,KC,LYZNW)
+     &        + SO(I+1,J,K-1,KPS)*CI(IC+1,JC,KC,LXZNW)
+     &        + SO(I+1,J-1,K,KB)*CI(IC+1,JC,KC,LXYNW)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC+1,JC,KC,LTNW)*CBSE
+         CBS = -SO(I,J-1,K-1,KP)*CI(IC,JC,KC,LYZNW)
+     &        + SO(I,J-1,K-1,KPW)*CI(IC,JC,KC,LTNE)
+     &        + SO(I,J,K-1,KPS)*CI(IC,JC,KC,LXZA)
+     &        + SO(I+1,J-1,K-1,KPW)*CI(IC+1,JC,KC,LTNW)
+     &        + SO(I,J-1,K,KB)*CI(IC,JC,KC,LXYA)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC,KC,LYZNW)*CBS
+         CBSW = -SO(I-1,J-1,K-1,KP)*CI(IC,JC,KC,LTNE)
+     &        + SO(I-1,J,K-1,KPS)*CI(IC,JC,KC,LXZNE)
+     &        + SO(I,J-1,K-1,KPW)*CI(IC,JC,KC,LYZNW)
+     &        + SO(I-1,J-1,K,KB)*CI(IC,JC,KC,LXYNE)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC,KC,LTNE)*CBSW
+         CT = -SO(I,J,K+1,KP)*CI(IC,JC,KC+1,LXZB)
+     &        + SO(I,J,K+1,KB)
+     &        + SO(I,J,K+1,KPW)*CI(IC,JC,KC+1,LXZSE)
+     &        + SO(I,J+1,K+1,KPS)*CI(IC,JC+1,KC+1,LYZSE)
+     &        + SO(I+1,J,K+1,KPW)*CI(IC+1,JC,KC+1,LXZSW)
+     &        + SO(I,J,K+1,KPS)*CI(IC,JC,KC+1,LYZSW)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC,KC+1,LXZB)*CT
+         CTW = -SO(I-1,J,K+1,KP)*CI(IC,JC,KC+1,LXZSE)
+     &        + SO(I-1,J+1,K+1,KPS)*CI(IC,JC+1,KC+1,LBSE)
+     &        + SO(I,J,K+1,KPW)*CI(IC,JC,KC+1,LXZB)
+     &        + SO(I-1,J,K+1,KB)*CI(IC,JC,KC,LXYR)
+     &        + SO(I-1,J,K+1,KPS)*CI(IC,JC,KC+1,LBNE)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC,KC+1,LXZSE)*CTW
+         CTNW = - SO(I-1,J+1,K+1,KP)*CI(IC,JC+1,KC+1,LBSE)
+     &        + SO(I,J+1,K+1,KPW)*CI(IC,JC+1,KC+1,LYZSE)
+     &        + SO(I-1,J+1,K+1,KPS)*CI(IC,JC,KC+1,LXZSE)
+     &        + SO(I-1,J+1,K+1,KB)*CI(IC,JC+1,KC,LXYSE)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC+1,KC+1,LBSE)*CTNW
+         CTN = -SO(I,J+1,K+1,KP)*CI(IC,JC+1,KC+1,LYZSE)
+     &        + SO(I,J+1,K+1,KPW)*CI(IC,JC+1,KC+1,LBSE)
+     &        + SO(I+1,J+1,K+1,KPW)*CI(IC+1,JC+1,KC+1,LBSW)
+     &        + SO(I,J+1,K+1,KPS)*CI(IC,JC,KC+1,LXZB)
+     &        + SO(I,J+1,K+1,KB)*CI(IC,JC+1,KC,LXYB)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP) 
+     &        - CI(IC,JC+1,KC+1,LYZSE)*CTN
+         CTNE = -SO(I+1,J+1,K+1,KP)*CI(IC+1,JC+1,KC+1,LBSW)
+     &        + SO(I+1,J+1,K+1,KPW)*CI(IC,JC+1,KC+1,LYZSE)
+     &        + SO(I+1,J+1,K+1,KPS)*CI(IC+1,JC,KC+1,LXZSW)
+     &        + SO(I+1,J+1,K+1,KB)*CI(IC+1,JC+1,KC,LXYSW)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC+1,JC+1,KC+1,LBSW)*CTNE
+         CTE = -SO(I+1,J,K+1,KP)*CI(IC+1,JC,KC+1,LXZSW)
+     &        + SO(I+1,J,K+1,KPW)*CI(IC,JC,KC+1,LXZB)
+     &        + SO(I+1,J+1,K+1,KPS)*CI(IC+1,JC+1,KC+1,LBSW)
+     &        + SO(I+1,J,K+1,KPS)*CI(IC+1,JC,KC+1,LBNW)
+     &        + SO(I+1,J,K+1,KB)*CI(IC+1,JC,KC,LXYL)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC+1,JC,KC+1,LXZSW)*CTE
+         CTSE = -SO(I+1,J-1,K+1,KP)*CI(IC+1,JC,KC+1,LBNW)
+     &        + SO(I+1,J-1,K+1,KPW)*CI(IC,JC,KC+1,LYZSW)
+     &        + SO(I+1,J,K+1,KPS)*CI(IC+1,JC,KC+1,LXZSW)
+     &        + SO(I+1,J-1,K+1,KB)*CI(IC+1,JC,KC,LXYNW)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC+1,JC,KC+1,LBNW)*CTSE
+         CTS = -SO(I,J-1,K+1,KP)*CI(IC,JC,KC+1,LYZSW)
+     &        + SO(I,J-1,K+1,KPW)*CI(IC,JC,KC+1,LBNE)
+     &        + SO(I,J,K+1,KPS)*CI(IC,JC,KC+1,LXZB)
+     &        + SO(I+1,J-1,K+1,KPW)*CI(IC+1,JC,KC+1,LBNW)
+     &        + SO(I,J-1,K+1,KB)*CI(IC,JC,KC,LXYA)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC,KC+1,LYZSW)*CTS
+         CTSW = -SO(I-1,J-1,K+1,KP)*CI(IC,JC,KC+1,LBNE)
+     &        + SO(I-1,J-1,K+1,KB)*CI(IC,JC,KC,LXYNE)
+     &        + SO(I-1,J,K+1,KPS)*CI(IC,JC,KC+1,LXZSE)
+     &        + SO(I,J-1,K+1,KPW)*CI(IC,JC,KC+1,LYZSW)
+         SOC(IC,JC,KC,KP) = SOC(IC,JC,KC,KP)
+     &        - CI(IC,JC,KC+1,LBNE)*CTSW
+
+         SOC(IC,JC,KC,KBW) = 0.0D0
+         CW = SO(I-1,J,K,KB)*CI(IC,JC,KC,LXZSW)
+         SOC(IC,JC,KC,KBW) = SOC(IC,JC,KC,KBW)
+     &        + CI(IC,JC,KC,LXYR)*CW
+         CSW = SO(I-1,J-1,K,KB)*CI(IC,JC,KC,LBNW)
+         SOC(IC,JC,KC,KBW) = SOC(IC,JC,KC,KBW)
+     &        + CI(IC,JC,KC,LXYNE)*CSW
+         CBW = -SO(I-1,J,K-1,KP)*CI(IC,JC,KC,LXZSW)
+     &        + SO(I-1,J,K-1,KPW)*CI(IC-1,JC,KC,LXZB)
+     &        + SO(I-1,J,K-1,KPS)*CI(IC,JC,KC,LBNW)
+     &        + SO(I-1,J,K-1,KB)*CI(IC,JC,KC-1,LXYL)
+     &        + SO(I-1,J+1,K-1,KPS)*CI(IC,JC+1,KC,LBSW)
+         SOC(IC,JC,KC,KBW) = SOC(IC,JC,KC,KBW)
+     &        + CI(IC,JC,KC,LXZNE)*CBW
+         CBSW = SO(I-1,J-1,K-1,KB)*CI(IC,JC,KC-1,LXYNW)
+     &        + SO(I-1,J-1,K-1,KPW)*CI(IC-1,JC,KC,LYZSW)
+     &        + SO(I-1,J,K-1,KPS)*CI(IC,JC,KC,LXZSW)
+     &        - SO(I-1,J-1,K-1,KP)*CI(IC,JC,KC,LBNW)
+         SOC(IC,JC,KC,KBW) = SOC(IC,JC,KC,KBW)
+     &        + CI(IC,JC,KC,LTNE)*CBSW
+         CNW = SO(I-1,J+1,K,KB)*CI(IC,JC+1,KC,LBSW)
+         SOC(IC,JC,KC,KBW) = SOC(IC,JC,KC,KBW)
+     &        + CI(IC,JC+1,KC,LXYSE)*CNW
+         CBNW = SO(I-1,J+1,K-1,KPS)*CI(IC,JC,KC,LXZSW)
+     &        + SO(I-1,J+1,K-1,KPW)*CI(IC-1,JC+1,KC,LYZSE)
+     &        - SO(I-1,J+1,K-1,KP)*CI(IC,JC+1,KC,LBSW)
+     &        + SO(I-1,J+1,K-1,KB)*CI(IC,JC+1,KC-1,LXYSW)
+         SOC(IC,JC,KC,KBW) = SOC(IC,JC,KC,KBW)
+     &        + CI(IC,JC+1,KC,LTSE)*CBNW
+         CB = SO(I,J,K-1,KPW)*CI(IC,JC,KC,LXZSW)
+         SOC(IC,JC,KC,KBW) = SOC(IC,JC,KC,KBW)
+     &        + CI(IC,JC,KC,LXZA)*CB
+         CBN = SO(I,J+1,K-1,KPW)*CI(IC,JC+1,KC,LBSW)
+         SOC(IC,JC,KC,KBW) = SOC(IC,JC,KC,KBW)
+     &        + CI(IC,JC+1,KC,LYZNE)*CBN
+         CBS = SO(I,J-1,K-1,KPW)*CI(IC,JC,KC,LBNW)
+         SOC(IC,JC,KC,KBW) = SOC(IC,JC,KC,KBW)
+     &        + CI(IC,JC,KC,LYZNW)*CBS
+
+         SOC(IC,JC,KC,KBS) = 0.0D0
+         CBSW = SO(I-1,J-1,K-1,KPS)*CI(IC,JC-1,KC,LXZSE)
+     &        - SO(I-1,J-1,K-1,KP)*CI(IC,JC,KC,LBSE)
+     &        + SO(I,J-1,K-1,KPW)*CI(IC,JC,KC,LYZSE)
+     &        + SO(I-1,J-1,K-1,KB)*CI(IC,JC,KC-1,LXYSE)
+         SOC(IC,JC,KC,KBS) = SOC(IC,JC,KC,KBS)
+     &        + CI(IC,JC,KC,LTNE)*CBSW
+         CSW = SO(I-1,J-1,K,KB)*CI(IC,JC,KC,LBSE)
+         SOC(IC,JC,KC,KBS) = SOC(IC,JC,KC,KBS)
+     &        + CI(IC,JC,KC,LXYNE)*CSW
+         CS = SO(I,J-1,K,KB)*CI(IC,JC,KC,LYZSE)
+         SOC(IC,JC,KC,KBS) = SOC(IC,JC,KC,KBS)
+     &        + CI(IC,JC,KC,LXYA)*CS
+         CSE = SO(I+1,J-1,K,KB)*CI(IC+1,JC,KC,LBSW)
+         SOC(IC,JC,KC,KBS) = SOC(IC,JC,KC,KBS)
+     &        + CI(IC+1,JC,KC,LXYNW)*CSE
+         CBSE = SO(I+1,J-1,K-1,KPW)*CI(IC,JC,KC,LYZSE)
+     &        - SO(I+1,J-1,K-1,KP)*CI(IC+1,JC,KC,LBSW)
+     &        + SO(I+1,J-1,K-1,KPS)*CI(IC+1,JC-1,KC,LXZSW)
+     &        + SO(I+1,J-1,K-1,KB)*CI(IC+1,JC,KC-1,LXYSW)
+         SOC(IC,JC,KC,KBS) = SOC(IC,JC,KC,KBS)
+     &        + CI(IC+1,JC,KC,LTNW)*CBSE
+         CBS = SO(I,J-1,K-1,KPS)*CI(IC,JC-1,KC,LXZB)
+     &        - SO(I,J-1,K-1,KP)*CI(IC,JC,KC,LYZSE)
+     &        + SO(I,J-1,K-1,KB)*CI(IC,JC,KC-1,LXYB)
+     &        + SO(I,J-1,K-1,KPW)*CI(IC,JC,KC,LBSE)
+     &        + SO(I+1,J-1,K-1,KPW)*CI(IC+1,JC,KC,LBSW)
+         SOC(IC,JC,KC,KBS) = SOC(IC,JC,KC,KBS)
+     &        + CI(IC,JC,KC,LYZNW)*CBS
+         CBW = SO(I-1,J,K-1,KPS)*CI(IC,JC,KC,LBSE)
+         SOC(IC,JC,KC,KBS) = SOC(IC,JC,KC,KBS)
+     &        + CI(IC,JC,KC,LXZNE)*CBW
+         CB = SO(I,J,K-1,KPS)*CI(IC,JC,KC,LYZSE)
+         SOC(IC,JC,KC,KBS) = SOC(IC,JC,KC,KBS)
+     &        + CI(IC,JC,KC,LXZA)*CB
+         CBE = SO(I+1,J,K-1,KPS)*CI(IC+1,JC,KC,LBSW)
+         SOC(IC,JC,KC,KBS) = SOC(IC,JC,KC,KBS) 
+     &        + CI(IC+1,JC,KC,LXZNW)*CBE
+
+         CO = SO(I,J,K,KB)*CI(IC,JC,KC,LXZB)
+         SOC(IC,JC,KC,KB) = CO
+         CB = -SO(I,J,K-1,KP)*CI(IC,JC,KC,LXZB)
+     &        + SO(I,J,K-1,KB)
+     &        + SO(I,J,K-1,KPW)*CI(IC,JC,KC,LXZSE)
+     &        + SO(I,J+1,K-1,KPS)*CI(IC,JC+1,KC,LYZSE)
+     &        + SO(I+1,J,K-1,KPW)*CI(IC+1,JC,KC,LXZSW)
+     &        + SO(I,J,K-1,KPS)*CI(IC,JC,KC,LYZSW)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC,JC,KC,LXZA)*CB
+         CBW = -SO(I-1,J,K-1,KP)*CI(IC,JC,KC,LXZSE)
+     &        + SO(I-1,J+1,K-1,KPS)*CI(IC,JC+1,KC,LBSE)
+     &        + SO(I,J,K-1,KPW)*CI(IC,JC,KC,LXZB)
+     &        + SO(I-1,J,K-1,KB)*CI(IC,JC,KC-1,LXYR)
+     &        + SO(I-1,J,K-1,KPS)*CI(IC,JC,KC,LBNE)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC,JC,KC,LXZNE)*CBW
+         CBNW =-SO(I-1,J+1,K-1,KP)*CI(IC,JC+1,KC,LBSE)
+     &        + SO(I,J+1,K-1,KPW)*CI(IC,JC+1,KC,LYZSE)
+     &        + SO(I-1,J+1,K-1,KPS)*CI(IC,JC,KC,LXZSE)
+     &        + SO(I-1,J+1,K-1,KB)*CI(IC,JC+1,KC-1,LXYSE)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC,JC+1,KC,LTSE)*CBNW
+         CBN = -SO(I,J+1,K-1,KP)*CI(IC,JC+1,KC,LYZSE)
+     &        + SO(I,J+1,K-1,KPW)*CI(IC,JC+1,KC,LBSE)
+     &        + SO(I+1,J+1,K-1,KPW)*CI(IC+1,JC+1,KC,LBSW)
+     &        + SO(I,J+1,K-1,KPS)*CI(IC,JC,KC,LXZB)
+     &        + SO(I,J+1,K-1,KB)*CI(IC,JC+1,KC-1,LXYB)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC,JC+1,KC,LYZNE)*CBN
+         CBNE = -SO(I+1,J+1,K-1,KP)*CI(IC+1,JC+1,KC,LBSW)
+     &        + SO(I+1,J+1,K-1,KB)*CI(IC+1,JC+1,KC-1,LXYSW)
+     &        + SO(I+1,J+1,K-1,KPW)*CI(IC,JC+1,KC,LYZSE)
+     &        + SO(I+1,J+1,K-1,KPS)*CI(IC+1,JC,KC,LXZSW)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC+1,JC+1,KC,LTSW)*CBNE
+         CBE = -SO(I+1,J,K-1,KP)*CI(IC+1,JC,KC,LXZSW)
+     &        + SO(I+1,J,K-1,KPS)*CI(IC+1,JC,KC,LBNW)
+     &        + SO(I+1,J,K-1,KPW)*CI(IC,JC,KC,LXZB)
+     &        + SO(I+1,J+1,K-1,KPS)*CI(IC+1,JC+1,KC,LBSW)
+     &        + SO(I+1,J,K-1,KB)*CI(IC+1,JC,KC-1,LXYL)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC+1,JC,KC,LXZNW)*CBE
+         CBSE = -SO(I+1,J-1,K-1,KP)*CI(IC+1,JC,KC,LBNW)
+     &        + SO(I+1,J-1,K-1,KPW)*CI(IC,JC,KC,LYZSW)
+     &        + SO(I+1,J,K-1,KPS)*CI(IC+1,JC,KC,LXZSW)
+     &        + SO(I+1,J-1,K-1,KB)*CI(IC+1,JC,KC-1,LXYNW)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB) 
+     &        + CI(IC+1,JC,KC,LTNW)*CBSE
+         CBS = -SO(I,J-1,K-1,KP)*CI(IC,JC,KC,LYZSW)
+     &        + SO(I,J-1,K-1,KB)*CI(IC,JC,KC-1,LXYA)
+     &        + SO(I,J-1,K-1,KPW)*CI(IC,JC,KC,LBNE)
+     &        + SO(I,J,K-1,KPS)*CI(IC,JC,KC,LXZB)
+     &        + SO(I+1,J-1,K-1,KPW)*CI(IC+1,JC,KC,LBNW)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC,JC,KC,LYZNW)*CBS
+         CBSW = -SO(I-1,J-1,K-1,KP)*CI(IC,JC,KC,LBNE)
+     &        + SO(I-1,J-1,K-1,KB)*CI(IC,JC,KC-1,LXYNE)
+     &        + SO(I-1,J,K-1,KPS)*CI(IC,JC,KC,LXZSE)
+     &        + SO(I,J-1,K-1,KPW)*CI(IC,JC,KC,LYZSW)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC,JC,KC,LTNE)*CBSW
+         CW = SO(I-1,J,K,KB)*CI(IC,JC,KC,LXZSE)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC,JC,KC,LXYR)*CW
+         CNW = SO(I-1,J+1,K,KB)*CI(IC,JC+1,KC,LBSE)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC,JC+1,KC,LXYSE)*CNW
+         CN = SO(I,J+1,K,KB)*CI(IC,JC+1,KC,LYZSE)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC,JC+1,KC,LXYB)*CN
+         CNE = SO(I+1,J+1,K,KB)*CI(IC+1,JC+1,KC,LBSW)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC+1,JC+1,KC,LXYSW)*CNE
+         CE = SO(I+1,J,K,KB)*CI(IC+1,JC,KC,LXZSW)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC+1,JC,KC,LXYL)*CE
+         CSE = SO(I+1,J-1,K,KB)*CI(IC+1,JC,KC,LBNW)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC+1,JC,KC,LXYNW)*CSE
+         CS = SO(I,J-1,K,KB)*CI(IC,JC,KC,LYZSW)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC,JC,KC,LXYA)*CS
+         CSW = SO(I-1,J-1,K,KB)*CI(IC,JC,KC,LBNE)
+         SOC(IC,JC,KC,KB) = SOC(IC,JC,KC,KB)
+     &        + CI(IC,JC,KC,LXYNE)*CSW
+         
+         CO = SO(I,J,K,KPS)*CI(IC,JC,KC,LXYB)
+         SOC(IC,JC,KC,KPS) = CO
+         CS = -SO(I,J-1,K,KP)*CI(IC,JC,KC,LXYB)
+     &        + SO(I,J-1,K,KPS)
+     &        + SO(I,J-1,K,KPW)*CI(IC,JC,KC,LXYSE)
+     &        + SO(I+1,J-1,K,KPW)*CI(IC+1,JC,KC,LXYSW)
+     &        + SO(I,J-1,K,KB)*CI(IC,JC,KC,LYZNE)
+     &        + SO(I,J-1,K+1,KB)*CI(IC,JC,KC+1,LYZSE)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC,JC,KC,LXYA)*CS
+         CSW = -SO(I-1,J-1,K,KP)*CI(IC,JC,KC,LXYSE)
+     &        + SO(I,J-1,K,KPW)*CI(IC,JC,KC,LXYB)
+     &        + SO(I-1,J-1,K,KPS)*CI(IC,JC-1,KC,LXYR)
+     &        + SO(I-1,J-1,K,KB)*CI(IC,JC,KC,LTSE)
+     &        + SO(I-1,J-1,K+1,KB)*CI(IC,JC,KC+1,LBSE)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC,JC,KC,LXYNE)*CSW
+         CTSW = - SO(I-1,J-1,K+1,KP)*CI(IC,JC,KC+1,LBSE)
+     &        + SO(I-1,J-1,K+1,KPS)*CI(IC,JC-1,KC+1,LXZSE)
+     &        + SO(I,J-1,K+1,KPW)*CI(IC,JC,KC+1,LYZSE)
+     &        + SO(I-1,J-1,K+1,KB)*CI(IC,JC,KC,LXYSE)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC,JC,KC+1,LBNE)*CTSW
+         CTS = -SO(I,J-1,K+1,KP)*CI(IC,JC,KC+1,LYZSE)
+     &        + SO(I,J-1,K+1,KB)*CI(IC,JC,KC,LXYB)
+     &        + SO(I,J-1,K+1,KPS)*CI(IC,JC-1,KC+1,LXZB)
+     &        + SO(I,J-1,K+1,KPW)*CI(IC,JC,KC+1,LBSE)
+     &        + SO(I+1,J-1,K+1,KPW)*CI(IC+1,JC,KC+1,LBSW)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC,JC,KC+1,LYZSW)*CTS
+         CTSE = -SO(I+1,J-1,K+1,KP)*CI(IC+1,JC,KC+1,LBSW)
+     &        + SO(I+1,J-1,K+1,KPW)*CI(IC,JC,KC+1,LYZSE)
+     &        + SO(I+1,J-1,K+1,KPS)*CI(IC+1,JC-1,KC+1,LXZSW)
+     &        + SO(I+1,J-1,K+1,KB)*CI(IC+1,JC,KC,LXYSW)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC+1,JC,KC+1,LBNW)*CTSE
+         CBSW = -SO(I-1,J-1,K-1,KP)*CI(IC,JC,KC,LTSE)
+     &        + SO(I,J-1,K-1,KPW)*CI(IC,JC,KC,LYZNE)
+     &        + SO(I-1,J-1,K-1,KPS)*CI(IC,JC-1,KC,LXZNE)
+     &        + SO(I-1,J-1,K,KB)*CI(IC,JC,KC,LXYSE)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC,JC,KC,LTNE)*CBSW
+         CBS = -SO(I,J-1,K-1,KP)*CI(IC,JC,KC,LYZNE)
+     &        + SO(I,J-1,K-1,KPS)*CI(IC,JC-1,KC,LXZA)
+     &        + SO(I,J-1,K-1,KPW)*CI(IC,JC,KC,LTSE)
+     &        + SO(I+1,J-1,K-1,KPW)*CI(IC+1,JC,KC,LTSW)
+     &        + SO(I,J-1,K,KB)*CI(IC,JC,KC,LXYB)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC,JC,KC,LYZNW)*CBS
+         CBSE = -SO(I+1,J-1,K-1,KP)*CI(IC+1,JC,KC,LTSW)
+     &        + SO(I+1,J-1,K-1,KPW)*CI(IC,JC,KC,LYZNE)
+     &        + SO(I+1,J-1,K-1,KPS)*CI(IC+1,JC-1,KC,LXZNW)
+     &        + SO(I+1,J-1,K,KB)*CI(IC+1,JC,KC,LXYSW)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC+1,JC,KC,LTNW)*CBSE
+         CW = SO(I-1,J,K,KPS)*CI(IC,JC,KC,LXYSE)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC,JC,KC,LXYR)*CW
+         CTW = SO(I-1,J,K+1,KPS)*CI(IC,JC,KC+1,LBSE)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC,JC,KC+1,LXZSE)*CTW
+         CT = SO(I,J,K+1,KPS)*CI(IC,JC,KC+1,LYZSE)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC,JC,KC+1,LXZB)*CT
+         CTE = SO(I+1,J,K+1,KPS)*CI(IC+1,JC,KC+1,LBSW)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC+1,JC,KC+1,LXZSW)*CTE
+         CBW = SO(I-1,J,K-1,KPS)*CI(IC,JC,KC,LTSE)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC,JC,KC,LXZNE)*CBW
+         CB = SO(I,J,K-1,KPS)*CI(IC,JC,KC,LYZNE)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC,JC,KC,LXZA)*CB
+         CBE = SO(I+1,J,K-1,KPS)*CI(IC+1,JC,KC,LTSW)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC+1,JC,KC,LXZNW)*CBE
+         CE = SO(I+1,J,K,KPS)*CI(IC+1,JC,KC,LXYSW)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC+1,JC,KC,LXYL)*CE
+         CSE = -SO(I+1,J-1,K,KP)*CI(IC+1,JC,KC,LXYSW)
+     &        + SO(I+1,J-1,K,KPW)*CI(IC,JC,KC,LXYB)
+     &        + SO(I+1,J-1,K,KPS)*CI(IC+1,JC-1,KC,LXYL)
+     &        + SO(I+1,J-1,K,KB)*CI(IC+1,JC,KC,LTSW)
+     &        + SO(I+1,J-1,K+1,KB)*CI(IC+1,JC,KC+1,LBSW)
+         SOC(IC,JC,KC,KPS) = SOC(IC,JC,KC,KPS)
+     &        + CI(IC+1,JC,KC,LXYNW)*CSE
+         
+      ENDDO
+C$OMP END PARALLEL DO
+
+C$OMP PARALLEL DO
+C$OMP& DEFAULT(NONE)
+C$OMP& PRIVATE(I,IC,J,JC,K,KC,KK,CB,CBE,CBN,CBNW,CBNE, 
+C$OMP&         CBS,CBSE,CBSW,CBW,CE,CN,CNW,CNE,CO,CS, 
+C$OMP&         CSE,CSW,CW,CTE,CTN,CTNW,CTNE,CT,CTS,CTSE, 
+C$OMP&         CTSW, CTW)
+C$OMP& SHARED(CI,IIC1,JJC2,KKC1,SO,SOC)  
+      DO KK = 1, (IIC1-1)*(JJC2-1)*(KKC1-1)
+         IC = MOD((KK-1),IIC1-1)+2
+         I  = 2*(IC-1)
+         JC = MOD((KK-1)/(IIC1-1),JJC2-1)+2
+         J  = 2*(JC-1)
+         KC = (KK-1)/((IIC1-1)*(JJC2-1))+2
+         K  = 2*(KC-1)
+         SOC(IC,JC+1,KC,KPNW) = 0.0D0
+         CBW = SO(I-1,J+1,K-1,KPS)*CI(IC,JC+1,KC,LTNW)
+         SOC(IC,JC+1,KC,KPNW) = SOC(IC,JC+1,KC,KPNW)
+     &        + CI(IC,JC,KC,LXZNE)*CBW
+         CW = SO(I-1,J+1,K,KPS)*CI(IC,JC+1,KC,LXYNW)
+         SOC(IC,JC+1,KC,KPNW) = SOC(IC,JC+1,KC,KPNW)
+     &        + CI(IC,JC,KC,LXYR)*CW
+         CBNW = SO(I-1,J+1,K-1,KPW)*CI(IC-1,JC+1,KC,LYZNW)
+     &        + SO(I-1,J+2,K-1,KPS)*CI(IC,JC+1,KC,LXZNW)
+     &        - SO(I-1,J+1,K-1,KP)*CI(IC,JC+1,KC,LTNW)
+     &        + SO(I-1,J+1,K,KB)*CI(IC,JC+1,KC,LXYNW)
+         SOC(IC,JC+1,KC,KPNW) = SOC(IC,JC+1,KC,KPNW)
+     &        + CI(IC,JC+1,KC,LTSE)*CBNW
+         CBN = SO(I,J+1,K-1,KPW)*CI(IC,JC+1,KC,LTNW)
+         SOC(IC,JC+1,KC,KPNW) = SOC(IC,JC+1,KC,KPNW)
+     &        + CI(IC,JC+1,KC,LYZNE)*CBN
+         CN = SO(I,J+1,K,KPW)*CI(IC,JC+1,KC,LXYNW)
+         SOC(IC,JC+1,KC,KPNW) = SOC(IC,JC+1,KC,KPNW)
+     &        + CI(IC,JC+1,KC,LXYB)*CN
+         CNW = -SO(I-1,J+1,K,KP)*CI(IC,JC+1,KC,LXYNW)
+     &        + SO(I-1,J+1,K,KB)*CI(IC,JC+1,KC,LTNW)
+     &        + SO(I-1,J+1,K,KPW)*CI(IC-1,JC+1,KC,LXYA)
+     &        + SO(I-1,J+2,K,KPS)*CI(IC,JC+1,KC,LXYL)
+     &        + SO(I-1,J+1,K+1,KB)*CI(IC,JC+1,KC+1,LBNW)
+         SOC(IC,JC+1,KC,KPNW) = SOC(IC,JC+1,KC,KPNW)
+     &        + CI(IC,JC+1,KC,LXYSE)*CNW
+         CTW = SO(I-1,J+1,K+1,KPS)*CI(IC,JC+1,KC+1,LBNW)
+         SOC(IC,JC+1,KC,KPNW) = SOC(IC,JC+1,KC,KPNW) + 
+     &        CI(IC,JC,KC+1,LXZSE)*CTW
+         CTNW = SO(I-1,J+1,K+1,KB)*CI(IC,JC+1,KC,LXYNW)
+     &        - SO(I-1,J+1,K+1,KP)*CI(IC,JC+1,KC+1,LBNW)
+     &        + SO(I-1,J+1,K+1,KPW)*CI(IC-1,JC+1,KC+1,LYZSW)
+     &        + SO(I-1,J+2,K+1,KPS)*CI(IC,JC+1,KC+1,LXZSW)
+         SOC(IC,JC+1,KC,KPNW) = SOC(IC,JC+1,KC,KPNW)
+     &        + CI(IC,JC+1,KC+1,LBSE)*CTNW
+         CTN = SO(I,J+1,K+1,KPW)*CI(IC,JC+1,KC+1,LBNW)
+         SOC(IC,JC+1,KC,KPNW) = SOC(IC,JC+1,KC,KPNW)
+     &        + CI(IC,JC+1,KC+1,LYZSE)*CTN
+
+         SOC(IC,JC+1,KC,KBN) = 0.0D0
+         CBE = SO(I+1,J+1,K-1,KPS)*CI(IC+1,JC+1,KC,LBNW)
+         SOC(IC,JC+1,KC,KBN) = SOC(IC,JC+1,KC,KBN)
+     &        + CI(IC+1,JC,KC,LXZNW)*CBE
+         CB = SO(I,J+1,K-1,KPS)*CI(IC,JC+1,KC,LYZSW)
+         SOC(IC,JC+1,KC,KBN) = SOC(IC,JC+1,KC,KBN)
+     &        + CI(IC,JC,KC,LXZA)*CB
+         CBW = SO(I-1,J+1,K-1,KPS)*CI(IC,JC+1,KC,LBNE)
+         SOC(IC,JC+1,KC,KBN) = SOC(IC,JC+1,KC,KBN)
+     &        + CI(IC,JC,KC,LXZNE)*CBW
+         CNW = SO(I-1,J+1,K,KB)*CI(IC,JC+1,KC,LBNE)
+         SOC(IC,JC+1,KC,KBN) = SOC(IC,JC+1,KC,KBN)
+     &        + CI(IC,JC+1,KC,LXYSE)*CNW
+         CN = SO(I,J+1,K,KB)*CI(IC,JC+1,KC,LYZSW)
+         SOC(IC,JC+1,KC,KBN) = SOC(IC,JC+1,KC,KBN)
+     &        + CI(IC,JC+1,KC,LXYB)*CN
+         CNE = SO(I+1,J+1,K,KB)*CI(IC+1,JC+1,KC,LBNW)
+         SOC(IC,JC+1,KC,KBN) = SOC(IC,JC+1,KC,KBN)
+     &        + CI(IC+1,JC+1,KC,LXYSW)*CNE
+         CBNE = SO(I+1,J+1,K-1,KB)*CI(IC+1,JC+1,KC-1,LXYNW)
+     &        - SO(I+1,J+1,K-1,KP)*CI(IC+1,JC+1,KC,LBNW)
+     &        + SO(I+1,J+2,K-1,KPS)*CI(IC+1,JC+1,KC,LXZSW)
+     &        + SO(I+1,J+1,K-1,KPW)*CI(IC,JC+1,KC,LYZSW)
+         SOC(IC,JC+1,KC,KBN) = SOC(IC,JC+1,KC,KBN)
+     &        + CI(IC+1,JC+1,KC,LTSW)*CBNE
+         CBN = SO(I,J+1,K-1,KPW)*CI(IC,JC+1,KC,LBNE)
+     &        - SO(I,J+1,K-1,KP)*CI(IC,JC+1,KC,LYZSW)
+     &        + SO(I+1,J+1,K-1,KPW)*CI(IC+1,JC+1,KC,LBNW)
+     &        + SO(I,J+1,K-1,KB)*CI(IC,JC+1,KC-1,LXYA)
+     &        + SO(I,J+2,K-1,KPS)*CI(IC,JC+1,KC,LXZB)
+         SOC(IC,JC+1,KC,KBN) = SOC(IC,JC+1,KC,KBN)
+     &        + CI(IC,JC+1,KC,LYZNE)*CBN
+         CBNW = -SO(I-1,J+1,K-1,KP)*CI(IC,JC+1,KC,LBNE)
+     &        + SO(I,J+1,K-1,KPW)*CI(IC,JC+1,KC,LYZSW)
+     &        + SO(I-1,J+2,K-1,KPS)*CI(IC,JC+1,KC,LXZSE)
+     &        + SO(I-1,J+1,K-1,KB)*CI(IC,JC+1,KC-1,LXYNE)
+         SOC(IC,JC+1,KC,KBN) = SOC(IC,JC+1,KC,KBN)
+     &        + CI(IC,JC+1,KC,LTSE)*CBNW
+
+         SOC(IC,JC+1,KC,KBNW) = 0.0D0
+               CNW = SO(I-1,J+1,K,KB)*CI(IC,JC+1,KC,LBNW)
+               SOC(IC,JC+1,KC,KBNW) = SOC(IC,JC+1,KC,KBNW)
+     &              + CI(IC,JC+1,KC,LXYSE)*CNW
+               CBW = SO(I-1,J+1,K-1,KPS)*CI(IC,JC+1,KC,LBNW)
+               SOC(IC,JC+1,KC,KBNW) = SOC(IC,JC+1,KC,KBNW)
+     &              + CI(IC,JC,KC,LXZNE)*CBW
+               CBNW = -SO(I-1,J+1,K-1,KP)*CI(IC,JC+1,KC,LBNW)
+     &              + SO(I-1,J+1,K-1,KPW)*CI(IC-1,JC+1,KC,LYZSW)
+     &              + SO(I-1,J+2,K-1,KPS)*CI(IC,JC+1,KC,LXZSW)
+     &              + SO(I-1,J+1,K-1,KB)*CI(IC,JC+1,KC-1,LXYNW)
+               SOC(IC,JC+1,KC,KBNW) = SOC(IC,JC+1,KC,KBNW)
+     &              + CI(IC,JC+1,KC,LTSE)*CBNW
+               CBN = SO(I,J+1,K-1,KPW)*CI(IC,JC+1,KC,LBNW)
+               SOC(IC,JC+1,KC,KBNW) = SOC(IC,JC+1,KC,KBNW)
+     &              + CI(IC,JC+1,KC,LYZNE)*CBN
+
+      ENDDO
+C$OMP END PARALLEL DO
+
+C$OMP PARALLEL DO
+C$OMP& DEFAULT(NONE)
+C$OMP& PRIVATE(I,IC,J,JC,K,KC,KK,CB,CBE,CBN,CBNW,CBNE, 
+C$OMP&         CBS,CBSE,CBSW,CBW,CE,CN,CNW,CNE,CO,CS, 
+C$OMP&         CSE,CSW,CW,CTE,CTN,CTNW,CTNE,CT,CTS,CTSE, 
+C$OMP&         CTSW, CTW)
+C$OMP& SHARED(CI,IIC2,JJC1,KKC1,SO,SOC)  
+      DO KK = 1, (IIC2-1)*(JJC1-1)*(KKC1-1)
+         IC = MOD((KK-1),IIC2-1)+2
+         I  = 2*(IC-1)
+         JC = MOD((KK-1)/(IIC2-1),JJC1-1)+2
+         J  = 2*(JC-1)
+         KC = (KK-1)/((IIC2-1)*(JJC1-1))+2
+         K  = 2*(KC-1)
+         SOC(IC+1,JC,KC,KBE) = 0.0D0
+         CE = SO(I+1,J,K,KB)*CI(IC+1,JC,KC,LXZSE)
+         SOC(IC+1,JC,KC,KBE) = SOC(IC+1,JC,KC,KBE)
+     &        + CI(IC+1,JC,KC,LXYL)*CE
+         CSE = SO(I+1,J-1,K,KB)*CI(IC+1,JC,KC,LBNE)
+         SOC(IC+1,JC,KC,KBE) = SOC(IC+1,JC,KC,KBE)
+     &        + CI(IC+1,JC,KC,LXYNW)*CSE
+         CBE = -SO(I+1,J,K-1,KP)*CI(IC+1,JC,KC,LXZSE)
+     &        + SO(I+2,J,K-1,KPW)*CI(IC+1,JC,KC,LXZB)
+     &        + SO(I+1,J,K-1,KPS)*CI(IC+1,JC,KC,LBNE)
+     &        + SO(I+1,J,K-1,KB)*CI(IC+1,JC,KC-1,LXYR)
+     &        + SO(I+1,J+1,K-1,KPS)*CI(IC+1,JC+1,KC,LBSE)
+         SOC(IC+1,JC,KC,KBE) = SOC(IC+1,JC,KC,KBE)
+     &        + CI(IC+1,JC,KC,LXZNW)*CBE
+         CBSE = SO(I+1,J,K-1,KPS)*CI(IC+1,JC,KC,LXZSE)
+     &        + SO(I+2,J-1,K-1,KPW)*CI(IC+1,JC,KC,LYZSW)
+     &        + SO(I+1,J-1,K-1,KB)*CI(IC+1,JC,KC-1,LXYNE)
+     &        - SO(I+1,J-1,K-1,KP)*CI(IC+1,JC,KC,LBNE)
+         SOC(IC+1,JC,KC,KBE) = SOC(IC+1,JC,KC,KBE)
+     &        + CI(IC+1,JC,KC,LTNW)*CBSE
+         CNE = SO(I+1,J+1,K,KB)*CI(IC+1,JC+1,KC,LBSE)
+         SOC(IC+1,JC,KC,KBE) = SOC(IC+1,JC,KC,KBE)
+     &        + CI(IC+1,JC+1,KC,LXYSW)*CNE
+         CBN = SO(I+1,J+1,K-1,KPW)*CI(IC+1,JC+1,KC,LBSE)
+         SOC(IC+1,JC,KC,KBE) = SOC(IC+1,JC,KC,KBE)
+     &        + CI(IC,JC+1,KC,LYZNE)*CBN
+         CB = SO(I+1,J,K-1,KPW)*CI(IC+1,JC,KC,LXZSE)
+         SOC(IC+1,JC,KC,KBE) = SOC(IC+1,JC,KC,KBE)
+     &        + CI(IC,JC,KC,LXZA)*CB
+         CBS = SO(I+1,J-1,K-1,KPW)*CI(IC+1,JC,KC,LBNE)
+         SOC(IC+1,JC,KC,KBE) = SOC(IC+1,JC,KC,KBE)
+     &        + CI(IC,JC,KC,LYZNW)*CBS
+         CBNE = SO(I+1,J+1,K-1,KPS)*CI(IC+1,JC,KC,LXZSE)
+     &        + SO(I+2,J+1,K-1,KPW)*CI(IC+1,JC+1,KC,LYZSE)
+     &        - SO(I+1,J+1,K-1,KP)*CI(IC+1,JC+1,KC,LBSE)
+     &        + SO(I+1,J+1,K-1,KB)*CI(IC+1,JC+1,KC-1,LXYSE)
+         SOC(IC+1,JC,KC,KBE) = SOC(IC+1,JC,KC,KBE)
+     &        + CI(IC+1,JC+1,KC,LTSW)*CBNE
+
+        SOC(IC+1,JC,KC,KBSE) = 0.0D0
+               CSE = SO(I+1,J-1,K,KB)*CI(IC+1,JC,KC,LBSE)
+               SOC(IC+1,JC,KC,KBSE) = SOC(IC+1,JC,KC,KBSE)
+     &              + CI(IC+1,JC,KC,LXYNW)*CSE
+               CBE = SO(I+1,J,K-1,KPS)*CI(IC+1,JC,KC,LBSE)
+               SOC(IC+1,JC,KC,KBSE) = SOC(IC+1,JC,KC,KBSE)
+     &              + CI(IC+1,JC,KC,LXZNW)*CBE
+               CBSE = -SO(I+1,J-1,K-1,KP)*CI(IC+1,JC,KC,LBSE)
+     &              + SO(I+1,J-1,K-1,KPS)*CI(IC+1,JC-1,KC,LXZSE)
+     &              + SO(I+2,J-1,K-1,KPW)*CI(IC+1,JC,KC,LYZSE)
+     &              + SO(I+1,J-1,K-1,KB)*CI(IC+1,JC,KC-1,LXYSE)
+               SOC(IC+1,JC,KC,KBSE) = SOC(IC+1,JC,KC,KBSE)
+     &              + CI(IC+1,JC,KC,LTNW)*CBSE
+               CBS = SO(I+1,J-1,K-1,KPW)*CI(IC+1,JC,KC,LBSE)
+               SOC(IC+1,JC,KC,KBSE) = SOC(IC+1,JC,KC,KBSE)
+     &              + CI(IC,JC,KC,LYZNW)*CBS 
+         
+      ENDDO
+C$OMP END PARALLEL DO
+
+C$OMP PARALLEL DO
+C$OMP& DEFAULT(NONE)
+C$OMP& PRIVATE(I,IC,J,JC,K,KC,KK,CB,CBE,CBN,CBNW,CBNE, 
+C$OMP&         CBS,CBSE,CBSW,CBW,CE,CN,CNW,CNE,CO,CS, 
+C$OMP&         CSE,CSW,CW,CTE,CTN,CTNW,CTNE,CT,CTS,CTSE, 
+C$OMP&         CTSW, CTW)
+C$OMP& SHARED(CI,IIC2,JJC2,KKC1,SO,SOC)  
+      DO KK = 1, (IIC2-1)*(JJC2-1)*(KKC1-1)
+         IC = MOD((KK-1),IIC2-1)+2
+         I  = 2*(IC-1)
+         JC = MOD((KK-1)/(IIC2-1),JJC2-1)+2
+         J  = 2*(JC-1)
+         KC = (KK-1)/((IIC2-1)*(JJC2-1))+2
+         K  = 2*(KC-1)
+         SOC(IC+1,JC+1,KC,KBNE) = 0.0D0
+         CNE = SO(I+1,J+1,K,KB)*CI(IC+1,JC+1,KC,LBNE)
+         SOC(IC+1,JC+1,KC,KBNE) = SOC(IC+1,JC+1,KC,KBNE)
+     &        + CI(IC+1,JC+1,KC,LXYSW)*CNE
+         CBN = SO(I+1,J+1,K-1,KPW)*CI(IC+1,JC+1,KC,LBNE)
+         SOC(IC+1,JC+1,KC,KBNE) = SOC(IC+1,JC+1,KC,KBNE)
+     &        + CI(IC,JC+1,KC,LYZNE)*CBN
+         CBNE = -SO(I+1,J+1,K-1,KP)*CI(IC+1,JC+1,KC,LBNE)
+     &        + SO(I+1,J+1,K-1,KB)*CI(IC+1,JC+1,KC-1,LXYNE)
+     &        + SO(I+1,J+2,K-1,KPS)*CI(IC+1,JC+1,KC,LXZSE)
+     &        + SO(I+2,J+1,K-1,KPW)*CI(IC+1,JC+1,KC,LYZSW)
+         SOC(IC+1,JC+1,KC,KBNE) = SOC(IC+1,JC+1,KC,KBNE)
+     &        + CI(IC+1,JC+1,KC,LTSW)*CBNE
+         CBE = SO(I+1,J+1,K-1,KPS)*CI(IC+1,JC+1,KC,LBNE)
+         SOC(IC+1,JC+1,KC,KBNE) = SOC(IC+1,JC+1,KC,KBNE)
+     &        + CI(IC+1,JC,KC,LXZNW)*CBE
+      ENDDO
+C$OMP END PARALLEL DO
+
+      RETURN
+      END
+
+
+

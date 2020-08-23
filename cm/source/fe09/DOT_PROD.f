@@ -1,0 +1,17 @@
+      REAL*8 FUNCTION DOT_PROD(VECTOR1,VECTOR2)
+
+      IMPLICIT NONE
+      REAL*8 VECTOR1(3),VECTOR2(3)
+
+      DOT_PROD=(VECTOR1(1)*VECTOR2(1))
+     '  +(VECTOR1(2)*VECTOR2(2))+(VECTOR1(3)*VECTOR2(3))
+
+      RETURN
+      END
+
+
+
+
+C FE21 Functions
+C ==============
+

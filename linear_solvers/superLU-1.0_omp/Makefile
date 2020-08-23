@@ -1,0 +1,55 @@
+# -*- Makefile -*-
+
+############################################################################
+#
+#  Program:         SuperLU_MT
+#
+#  Module:          Makefile
+#
+#  Purpose:         Top-level Makefile
+#
+#  Creation date:   August 15, 1997
+#
+#  Modified:   	    September 1, 1999 version 1.0
+#
+############################################################################
+
+include make.inc
+
+lib: $(LIBDIR) superlulib
+
+$(LIBDIR):
+	mkdir -p $(LIBDIR)
+
+all: install libs testing
+
+libs: superlulib tmglib
+
+clean: cleanlib cleantesting
+
+install:
+	( cd INSTALL; $(MAKE) )
+#	( cd INSTALL; cp lsame.c ../SRC/; \
+#	  cp dlamch.c ../SRC/; cp slamch.c ../SRC/ )
+
+blaslib:
+	( cd CBLAS; $(MAKE) )
+
+superlulib:
+	( cd SRC; $(MAKE) )
+
+tmglib:
+	( cd TESTING/MATGEN; $(MAKE) )
+
+testing:
+	( cd TESTING ; $(MAKE) )
+
+cleanlib:
+	( cd SRC; $(MAKE) clean )
+	( cd TESTING/MATGEN; $(MAKE) clean )
+	( cd CBLAS; $(MAKE) clean )
+
+cleantesting:
+	( cd INSTALL; $(MAKE) clean )
+	( cd TESTING; $(MAKE) clean )
+	( cd EXAMPLE; $(MAKE) clean )

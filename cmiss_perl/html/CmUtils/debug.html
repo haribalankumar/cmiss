@@ -1,0 +1,48 @@
+<HTML>
+<HEAD>
+<TITLE>Base class for the CMISS modules related to nodes, files etc.  Defines shared
+methods and variables for debugging and help.  Any class or structure derived
+from CMISS have these methods available.  This includes:</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3adebug">CmUtils::debug</A></LI>
+<LI><A HREF="#METHODS">METHODS</A></LI>
+<UL>
+<LI><A HREF="#debug(%5bnumber%5d)"><B>debug([number])</B></A></LI>
+<LI><A HREF="#verbose(%5bnumber%5d)"><B>verbose([number])</B></A></LI>
+<LI><A HREF="#listMethods()"><B>listMethods()</B></A></LI>
+<LI><A HREF="#help(%5bmethod%5d)"><B>help([method])</B></A></LI>
+</UL>
+<LI><A HREF="#SEE%20ALSO">SEE ALSO</A></LI>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3adebug">CmUtils::debug</A></H1>
+
+<P>Base class for the CMISS modules related to nodes, files etc.  Defines shared
+methods and variables for debugging and help.  Any class or structure derived
+from CMISS have these methods available.  This includes:</P>
+<PRE>  CmUtils::Objects::Component
+  CmUtils::Objects::Field
+  CmUtils::Objects::FieldSet
+  CmUtils::Objects::Node
+  CmUtils::Objects::NodeGroup</PRE>
+<H1><A NAME="METHODS">METHODS</A></H1>
+<H2><A NAME="debug(%5bnumber%5d)"><B>debug([number])</B></A></H2>
+
+<P>Activates or deactivates a shared debug flag for the modules derived from
+this class.  Returns the state of this flag.</P><H2><A NAME="verbose(%5bnumber%5d)"><B>verbose([number])</B></A></H2>
+
+<P>Activates or deactivates a shared verbose flag for the modules derived from
+this class.  Set/test this for printing out information.</P><H2><A NAME="listMethods()"><B>listMethods()</B></A></H2>
+
+<P>Print out the list of available methods for this object to STDERR.
+Gets list from POD docs, not from Package variables.</P><H2><A NAME="help(%5bmethod%5d)"><B>help([method])</B></A></H2>
+
+<P>Print out the POD documentation for this object to STDERR.  If METHOD is
+given, only the help for this method is printed.</P><H1><A NAME="SEE%20ALSO">SEE ALSO</A></H1>
+
+<P><A HREF="CmUtils/File.html">CmUtils::File</A> for routines related to handling CMISS nodal files (exnode,
+ipnode, ipdata, ipfiel).</P>
+</BODY>
+</HTML>

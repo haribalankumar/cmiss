@@ -1,0 +1,14 @@
+Environment
+===========
+
+The following environment variable should be set for compilation:
+
+CMISS_ROOT
+
+
+Testing
+=======
+
+To test from a shell, use something like:
+
+env REQUEST_METHOD=GET QUERY_STRING=name=_expression_ ./cmiss-lookup.cgi

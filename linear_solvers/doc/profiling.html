@@ -1,0 +1,638 @@
+<html>
+
+<head>
+<title>Profiling Code</title>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<!- link="#00cfff" vlink="#ffa0a0" alink="#ff00ff">
+<center>
+<h1>Profiling Code</h1>
+</center>
+<p>
+To profile a program you can use one of the profiling utilities provided 
+either as open source by GNU, or by the individual computer vendors. The 
+choice of profiler depends on what platform you are on;
+<p>
+
+<center>
+<table border=1 width="30%">
+ <tr>
+  <td align=left>
+   <bold>IRIX</bold> (SGI)
+  </td>
+  <td align=left>
+   <a href="#speedshop">speedshop</a>
+  </td>
+ </tr>
+ <tr>
+  <td align=left>
+   <bold>AIX</bold> (IBM)
+  </td>
+  <td align=left>
+   <a href="#gprof">gprof</a><br>
+   <a href="#tprof">tprof</a>
+  </td>
+ </tr>
+ <tr>
+  <td align=left>
+   <bold>Linux</bold>
+  </td>
+  <td align=left>
+   <a href="#gprof">gprof</a><br>
+  </td>
+ </tr>
+</table>
+</center>
+
+<p>
+On the IBM (<em>hpc1</em> running AIX), <a href="#gprof"><em>gprof</em></a> 
+is available for profiling single cpu programs. However, if you need to profile
+a parallel program then you can't use <em>gprof</em> since the separate threads
+will overwrite the <em>gmon.out</em> data file. To profile a parallel program 
+you will have to use <a href="#tprof"><em>tprof</em></a> which has two main
+drawbacks; it only works for 32 bit executables, and it has to be run as root.
+<p>
+On SGI's (such as O<sup>2</sup>s, Octanes, and the <em>hpc2</em> Onyx),
+only the vendor supplied <a href="#speedshop"><em>speedshop</em></a> profiler
+is available.
+<p>
+On Linux platforms only the <a href="#gprof"><em>gprof</em></a> profiler is
+available, so it is probably best to use that.
+<p>
+
+
+<h2><a name="gprof">gprof</a></h2>
+<p>
+<em>gprof</em> is the GNU profiler which is freely available on most platforms.
+The code is linked or compiled and linked using the <em>-pg</em> flag. The 
+executable is then run, generating a file called <em>gmon.out</em>. 
+<em>gprof</em> is then run on this file, giving statistics about the run of 
+the program being tested.
+<p>
+<em>gprof</em> works by sampling the code at regular intervals (typically every
+0.01 seconds) and calculating the time spent in each routine from this data. 
+A fuller description of the run can be made by recompiling all the objects 
+using the <em>-pg</em> option, in which case a calltree is also recorded, 
+giving a record of what routines were called and in what order.
+<p>
+
+<h3>The Flat Profile</h3>
+<p>
+<em>gprof</em> can generate two main types of listing. The first is the 
+<em>flat profile,</em> which can be generated with code that is linked using
+the <em>-pg</em> option
+<p>
+<pre>
+	f77 -c test_f.f
+	cc -c test_c.c
+	f77 -pg -o test_obj test_f.o test_c.o
+</pre>
+<p>
+The code is run, generating a file called <em>gmon.out</em>, and this is 
+processed using <em>gprof,</em>
+<p>
+<pre>
+	./test_obj
+	gprof -p -b ./test_obj
+</centre>
+<p>
+The flat profile shows the amount of time spent in each routine,
+<p>
+<pre>
+	Flat profile:
+	
+	Each sample counts as 0.01 seconds.
+	  %   cumulative   self              self     total           
+	 time   seconds   seconds    calls  Ts/call  Ts/call  name    
+	 50.00      0.75     0.75                             matrix_mult_
+	 11.33      0.92     0.17                             pdaxpy_
+	  8.67      1.05     0.13                             pddot_
+	  8.00      1.17     0.12                             set_fv2d_equations_
+	  6.67      1.27     0.10                             calc_residual_
+	  4.00      1.33     0.06                             pdcopy_
+	  4.00      1.39     0.06                             precon_solve_
+	  3.33      1.44     0.05                             calc_mat_norm_
+	  2.00      1.47     0.03                             solv_fix_bounds_
+	  0.67      1.48     0.01                             conjgrad_sub_
+	  0.67      1.49     0.01                             dlamc4_
+	  0.67      1.50     0.01                             z_wnew
+</pre>
+<p>
+Note that no calltree data is available if the code is only linked
+with the <em>-pg</em> option. Also, only those routines which were running when
+the object was sampled are shown. Thus you cannot rule out that a routine
+was run, only that it was not run at any of the times that the program was 
+sampled.
+<p>
+
+<h3>The Calltree Profile</h3>
+<p>
+To get a calltree, and to show all routines that were run, you must both 
+compile and link with the <em>-pg</em> option.
+<p>
+<pre>
+	f77 -pg -c test_f.f
+	cc -pg -c test_c.c
+	f77 -pg -o test_obj test_f.o test_c.o
+</pre>
+<p>
+As before, the code is run, and the sample data is processed using 
+<em>gprof</em>
+<p>
+<pre>
+	./test_obj
+	gprof -p -b test_obj gmon.out
+</pre>
+<p>
+The flat profile now shows all routines called.
+<p>
+<pre>
+	Flat profile:
+	
+	Each sample counts as 0.01 seconds.
+	  %   cumulative   self              self     total           
+	 time   seconds   seconds    calls  ms/call  ms/call  name    
+	 50.99      0.77     0.77       22    35.00    35.00  matrix_mult_
+	 12.58      0.96     0.19                             pdaxpy_
+	  8.61      1.09     0.13        1   130.00   130.00  set_fv2d_equations_
+	  5.96      1.18     0.09        2    45.00    45.00  calc_residual_
+	  5.30      1.26     0.08                             pddot_
+	  3.97      1.32     0.06        2    30.00    30.00  calc_mat_norm_
+	  3.97      1.38     0.06                             pdcopy_
+	  1.99      1.41     0.03       22     1.36     1.36  precon_solve_
+	  1.99      1.44     0.03        1    30.00    30.00  solv_fix_bounds_
+	  1.99      1.47     0.03                             pdnrm2_
+	  0.66      1.48     0.01        1    10.00   855.00  conjgrad_sub_
+	  0.66      1.49     0.01                             dlamc4_
+	  0.66      1.50     0.01                             dnrm2_
+	  0.66      1.51     0.01                             pdload_
+	  0.00      1.51     0.00       60     0.00     0.00  enters_
+	  0.00      1.51     0.00       59     0.00     0.00  exits_
+	  0.00      1.51     0.00       49     0.00     0.00  len_trim_
+
+	... etc
+</pre>
+<p>
+Note that the last three routines listed show zero % cpu. They were called
+during the running of the program, but were never being run when the
+profiler sampled the code.
+<p>
+To get a call graph try running <em>gprof</em> without the <em>-p</em> option,
+or running with the <em>-q</em> option. The call graph generated shows the time
+spent in each routine, the name of the parent routine (the routine that called 
+it), and the names and times spent in the child routines (those that the 
+routine called). 
+<p>
+<pre>
+	                        Call graph
+  
+  
+	granularity: each sample hit covers 4 byte(s) for 0.66% of 1.51 seconds
+  
+	index % time    self  children    called     name
+	                0.00    1.12       1/1           main [2]
+	[1]     74.2    0.00    1.12       1         MAIN__ [1]
+	                0.00    0.89       1/1           iter_solve_ [3]
+	                0.13    0.00       1/1           set_fv2d_equations_ [8]
+	                0.00    0.07       1/1           check_soln_ [11]
+	                0.00    0.03       1/1           iter_factor_ [15]
+	                0.00    0.00       5/10          allocate_memory_ [26]
+	                0.00    0.00       3/3           timer_start_ [35]
+	                0.00    0.00       3/3           timer_stop_ [36]
+	                0.00    0.00       3/3           timer_read_busy_ [33]
+	                0.00    0.00       3/3           timer_read_wall_ [34]
+	                0.00    0.00       3/8           free_memory_ [29]
+	                0.00    0.00       1/1           iter_alloc_ [38]
+	-----------------------------------------------
+	                                                 <spontaneous>
+	[2]     74.2    0.00    1.12                 main [2]
+	                0.00    1.12       1/1           MAIN__ [1]
+	-----------------------------------------------
+	                0.00    0.89       1/1           MAIN__ [1]
+	[3]     58.6    0.00    0.89       1         iter_solve_ [3]
+	                0.00    0.85       1/1           conjgrad_ [4]
+	                0.03    0.00       1/1           solv_fix_bounds_ [16]
+	                0.00    0.00       1/60          enters_ [21]
+	                0.00    0.00       1/59          exits_ [22]
+	-----------------------------------------------
+	                0.00    0.85       1/1           iter_solve_ [3]
+	[4]     56.6    0.00    0.85       1         conjgrad_ [4]
+	                0.01    0.84       1/1           conjgrad_sub_ [5]
+	                0.00    0.00       5/10          allocate_memory_ [26]
+	                0.00    0.00       5/8           free_memory_ [29]
+	                0.00    0.00       1/60          enters_ [21]
+	                0.00    0.00       1/59          exits_ [22]
+	
+	...etc
+</pre>
+<p>
+To limit the profile to one routine and it's children use the <em>-f</em> 
+option,
+<p>
+<pre>
+	gprof -f conjgrad_ test_obj gmon.out
+</pre>
+<p>
+which starts the calltree at <em>conjgrad_,</em> and limits data to this 
+routines children.
+<p>
+
+
+<h2><a name="speedshop">speedshop</a></h2>
+<p>
+<em>speedshop</em> is the profiler available under IRIX. This a brief 
+introduction to the system; for a fuller account the user is directed to the
+<a href="http://techpubs.sgi.com/library/tpl/cgi-bin/browse.cgi?coll=0650&db=bks&cmd=toc&pth=/SGI_Developer/SShop_UG">SGI online manual</a>, also available
+in <a href="http://techpubs.sgi.com/library/manuals/3000/007-3311-008/pdf/007-3311-008.pdf">PDF</a> format.
+<p>
+
+Unlike gprof, no recompilation or relinking is necessary. The user runs the
+executable using the <em>ssrun</em> command, generating some data files
+which are then processed using the <em>prof</em> command.
+<p>
+
+To give an example, the program is compiled normally,
+<p>
+<pre>
+	f77 -c test.f
+	f77 -o test_obj test.o
+</pre>
+<p>
+and then run using the <em>ssrun</em> command,
+<p>
+<pre>
+	ssrun -usertime ./test_obj
+</pre>
+<p>
+
+This generates a data file called something like 
+<em>test_obj.usertime.m7663628</em>, where <em>test_obj</em> is the name of the 
+executable, <em>usertime</em> is the name of the experiment type, and 
+<em>m7663628</em> gives
+the process id of the job, with the <em>m</em> prefix showing that the
+file is from the master process (the process started by ssrun). Other 
+experiments include measuring <em>totaltime</em>, the physical or wall clock 
+time of the process, and <em>fpe</em>, to record floating point exceptions.
+<p>
+
+A profile of the run is then generated with <em>prof</em>,
+<p>
+<pre>
+	prof ./test_obj test_obj.usertime.m7663628
+</pre>
+<p>
+which generates a profile like
+<p>
+<pre>
+-------------------------------------------------------------------------
+SpeedShop profile listing generated Tue Nov  5 10:15:42 2002
+   prof test_obj test_obj.usertime.m7663628
+                test_obj (n32): Target program
+                      usertime: Experiment name
+                         ut:cu: Marching orders
+               R14000 / R14010: CPU / FPU
+                            16: Number of CPUs
+                           500: Clock frequency (MHz.)
+  Experiment notes--
+          From file test_obj.usertime.m7663628:
+        Caliper point 0 at target begin, PID 7663628
+                        test_obj
+        Caliper point 1 at exit(0)
+-------------------------------------------------------------------------
+Summary of statistical callstack sampling data (usertime)--
+                            98: Total Samples
+                             0: Samples with incomplete traceback
+                         2.940: Accumulated Time (secs.)
+                          30.0: Sample interval (msecs.)
+-------------------------------------------------------------------------
+Function list, in descending order by exclusive time
+-------------------------------------------------------------------------
+ [index]  excl.secs excl.%   cum.%  incl.secs incl.%    samples  procedure  (dso: file, line)
+
+     [6]      1.560  53.1%   53.1%      1.560  53.1%         52  MATRIX_MULT (test_obj: matrix.f, 986)
+     [7]      0.300  10.2%   63.3%      0.300  10.2%         10  PDAXPY (test_obj: pdaxpy.f, 2)
+     [8]      0.240   8.2%   71.4%      0.240   8.2%          8  SET_FV2D_EQUATIONS (test_obj: fd.f, 325)
+     [9]      0.210   7.1%   78.6%      0.210   7.1%          7  CALC_RESIDUAL (test_obj: matrix.f, 919)
+    [11]      0.150   5.1%   83.7%      0.150   5.1%          5  CALC_MAT_NORM (test_obj: matrix.f, 698)
+    [12]      0.150   5.1%   88.8%      0.150   5.1%          5  PDCOPY (test_obj: pdcopy.f, 2)
+    [14]      0.090   3.1%   91.8%      0.090   3.1%          3  SOLV_FIX_BOUNDS (test_obj: matrix.f, 482)
+    [10]      0.090   3.1%   94.9%      0.180   6.1%          6  PRECON_SOLVE (test_obj: entry.F, 223)
+    [15]      0.090   3.1%   98.0%      0.090   3.1%          3  PDDOT (test_obj: pddot.f, 2)
+     [4]      0.060   2.0%  100.0%      2.370  80.6%         79  CONJGRAD_SUB (test_obj: cg.F, 55)
+     [1]      0.000   0.0%  100.0%      2.940 100.0%         98  main (libftn.so: main.c, 76)
+     [2]      0.000   0.0%  100.0%      2.940 100.0%         98  TEST_SOLVERS (test_obj: main.F, 2)
+    [13]      0.000   0.0%  100.0%      0.150   5.1%          5  CHECK_SOLN (test_obj: matrix.f, 2)
+    [16]      0.000   0.0%  100.0%      0.090   3.1%          3  ITER_FACTOR (test_obj: entry.F, 437)
+     [3]      0.000   0.0%  100.0%      2.460  83.7%         82  ITER_SOLVE (test_obj: entry.F, 512)
+     [5]      0.000   0.0%  100.0%      2.370  80.6%         79  CONJGRAD (test_obj: cg.F, 2)
+</pre>
+<p>
+
+To get a calltree the <em>-b</em> argument can be passed to <em>prof</em>
+<p>
+<pre>
+	prof -b ./test_obj test_obj.usertime.m7663628
+</pre>
+<p>
+which generates a profile like
+<p>
+<pre>
+-------------------------------------------------------------------------
+Butterfly function list, in descending order by inclusive time
+-------------------------------------------------------------------------
+         attrib.% attrib.time                         incl.time  caller (callsite) [index]
+ [index]   incl.%   incl.time    self%   self-time       procedure [index]
+                              attrib.% attrib.time    incl.time  callee (callsite) [index]
+-------------------------------------------------------------------------
+     [1]   100.0%       2.940     0.0%       0.000         main [1]
+                                100.0%       2.940        2.940  TEST_SOLVERS (@0x0adc9c20; libftn.so: main.c, 97) [2]
+-------------------------------------------------------------------------
+           100.0%       2.940                             2.940  main (@0x0adc9c20; libftn.so: main.c, 97) [1]
+     [2]   100.0%       2.940     0.0%       0.000         TEST_SOLVERS [2]
+                                 83.7%       2.460        2.460  ITER_SOLVE (@0x1000e040; test_obj: main.F, 1105) [3]
+                                  8.2%       0.240        0.240  SET_FV2D_EQUATIONS (@0x1000d9e8; test_obj: main.F, 670) [8]
+                                  5.1%       0.150        0.150  CHECK_SOLN (@0x1000e0e4; test_obj: main.F, 1123) [13]
+                                  3.1%       0.090        0.090  ITER_FACTOR (@0x1000df38; test_obj: main.F, 1092) [16]
+-------------------------------------------------------------------------
+            83.7%       2.460                             2.940  TEST_SOLVERS (@0x1000e040; test_obj: main.F, 1105) [2]
+     [3]    83.7%       2.460     0.0%       0.000         ITER_SOLVE [3]
+                                 80.6%       2.370        2.370  CONJGRAD (@0x10024c34; test_obj: entry.F, 573) [5]
+                                  3.1%       0.090        0.090  SOLV_FIX_BOUNDS (@0x10024a28; test_obj: entry.F, 540) [14]
+-------------------------------------------------------------------------
+            80.6%       2.370                             2.370  CONJGRAD (@0x10047cdc; test_obj: cg.F, 35) [5]
+     [4]    80.6%       2.370     2.0%       0.060         CONJGRAD_SUB [4]
+                                 53.1%       1.560        1.560  MATRIX_MULT (@0x10048438; test_obj: cg.F, 161) [6]
+                                  6.1%       0.180        0.180  PRECON_SOLVE (@0x10048374; test_obj: cg.F, 141) [10]
+                                  5.1%       0.150        0.300  PDAXPY (@0x10048504; test_obj: cg.F, 179) [7]
+                                  4.1%       0.120        0.210  CALC_RESIDUAL (@0x1004828c; test_obj: cg.F, 135) [9]
+                                  3.1%       0.090        0.300  PDAXPY (@0x100483ec; test_obj: cg.F, 156) [7]
+                                  2.0%       0.060        0.150  PDCOPY (@0x10048408; test_obj: cg.F, 157) [12]
+                                  2.0%       0.060        0.300  PDAXPY (@0x100484a4; test_obj: cg.F, 173) [7]
+                                  2.0%       0.060        0.090  PDDOT (@0x10048460; test_obj: cg.F, 163) [15]
+                                  1.0%       0.030        0.090  PDDOT (@0x100483a0; test_obj: cg.F, 146) [15]
+-------------------------------------------------------------------------
+            80.6%       2.370                             2.460  ITER_SOLVE (@0x10024c34; test_obj: entry.F, 573) [3]
+     [5]    80.6%       2.370     0.0%       0.000         CONJGRAD [5]
+                                 80.6%       2.370        2.370  CONJGRAD_SUB (@0x10047cdc; test_obj: cg.F, 35) [4]
+-------------------------------------------------------------------------
+... etc
+</pre>
+<p>
+
+The <em>-usage</em> flag gives a summary of the resource usage of the program,
+<p>
+<pre>
+	prof -usage ./test_obj test_obj.usertime.m7663628
+</pre>
+<p>
+which generates a profile like
+<p>
+<pre>
+
+-------------------------------------------------------------------------
+Resource usage data
+-------------------------------------------------------------------------
+                           Real-time:     3.032084 (max.)
+
+             Process Statistics (sum)       System-wide Statistics (max.)
+             ========================       =============================
+              user-time:     2.739388       total-user-cpu:    41.400000 
+               sys-time:     0.188260        total-sys-cpu:     7.020000 
+              wait-time:     0.104435       total-idle-cpu:     0.090000 
+
+             accounting state timers
+             -----------------------
+               user-run:     2.739388
+             system-run:     0.188270
+          interrupt-run:     0.005423
+       blocked-I/O-wait:     0.020920
+            memory-wait:     0.000000
+            select-wait:     0.000000
+       job-control-wait:     0.000000
+         run-queue-wait:     0.077886
+             sleep-wait:     0.000320
+    stream-monitor-wait:     0.000091
+           raw-I/O-wait:     0.000000
+                          -----------
+                    SUM:     3.032300
+
+                 summary statistics
+                 ------------------
+               bytes-read:          0
+            bytes-written:        495
+              page-faults:          2
+             minor-faults:         45
+    vol.-context-switches:         17
+  invol.-context-switches:         25   total-context-switches:       2682
+                  signals:         98         total-interrupts:       9581
+            user-syscalls:        484           total-syscalls:     168372
+            read-syscalls:          0      total-read-syscalls:       1006
+           write-syscalls:         20     total-write-syscalls:        221
+            poll-syscalls:          0
+           ioctl-syscalls:          0
+       process-size(max.):       6596
+  resident-set-size(max.):       3212
+
+</pre>
+<p>
+
+When profiling parallel programs run a <em>totaltime</em> experiment, with
+the environment variable <em>MPC_GANG</em> set to <em>OFF</em>. A speedshop
+file will be generated for each thread, the master thread being something 
+like <em>test_obj.usertime.m1111</em>, with the child threads having their
+process ID's prefixed by a <em>p</em> rather than a <em>m</em>, 
+<em>test_obj.usertime.p2222</em> for example. 
+<p>
+
+Running <em>prof</em> on these output files with the <em>-overhead</em>
+flag gives the parallel overhead for the run,
+<p>
+<pre>
+-------------------------------------------------------------------------
+OpenMP Report:
+-------------------------------------------------------------------------
+                Parallelization Overhead: 00.000% excl.   00.000% incl.
+                          Load Imbalance: 00.000% excl.   00.000% incl.
+                Insufficient Parallelism: 16.596% excl.   16.596% incl.
+                            Barrier Loss: 26.383% excl.   26.383% incl.
+                    Synchronization Loss: 00.000% excl.   00.000% incl.
+           Other Model-specific Overhead: 00.000% excl.   00.000% incl.
+</pre>
+<p>
+Running <em>prof</em> on the file generated by the <em>master</em> thread 
+gives the sum of serial and parallel times, with the barrier losses for that 
+thread, whilst running <em>prof</em> on the files generated by the child threads
+shows the insufficient parallelism, the time spent idle by the child threads.
+<p>
+If you wish to have a profile of where the program is spending its time, then
+the profile of the master thread is most useful. An account of which routines
+were running in parallel is found by examining the profiles of the parallel threads.
+<p>
+
+
+<h2><a name="tprof">tprof</a></h2>
+<p>
+<em>tprof</em> is the threadsafe profiler provided by IBM for their
+AIX platforms (such as hpc1). Unlike the AIX implementation of <em>gprof</em>,
+it can be used to profile parallel programs. However it must be run as root,
+and is only supported for 32 bit executables.
+<p>
+Unlike <em>gprof</em> the executable need not be relinked, but instead is
+run via the <em>tprof</em> command.
+<p>
+To demonstrate, the program is compiled and linked as normal,
+<p>
+<pre>
+	xlf -c test.f
+	xlf -o test_obj test.o
+</pre>
+<p>
+and then run <em>(as <bold>root!</bold>)</em> with <em>tprof</em>,
+<p>
+<pre>
+	tprof -v -s -p ./test_obj -x ./test_obj
+</pre>
+<p>
+The <em>-p "filename"</em> specifies the name of the process to be profiled, 
+the <em>-x "executable [executable options]"</em> is the command line of
+the program to be run, and the <em>-s</em> flag specifies that <em>tprof</em>
+is to profile shared libraries as well as the code statically linked into 
+the executable.
+
+Running the program through <em>tprof</em> generates a number of log files 
+prefixed by a double leading underscore, "__", and a file containing the 
+profile of the run called <em>__test_obj.all</em>. The data in this file 
+looks something like
+<p>
+<pre>
+
+	        Process      PID      TID  Total Kernel   User Shared  Other
+	        =======      ===      ===  ===== ======   ==== ======  =====
+	     ./test_obj    65784   146411  22382    916  10235  11231      0
+	     ./test_obj    65784   104533  22328    229  10329  11770      0
+	        =======      ===      ===  ===== ======   ==== ======  =====
+	          Total                    44710   1145  20564  23001      0
+	
+	
+	          Process   FREQ  Total Kernel   User Shared  Other
+	          =======    ===  ===== ======   ==== ======  =====
+	       ./test_obj      2  44710   1145  20564  23001      0
+	          =======    ===  ===== ======   ==== ======  =====
+	            Total      2  44710   1145  20564  23001      0
+	
+	
+	 Total System Ticks: 716480 (used to calculate function level CPU)
+	
+	
+	   Total Ticks For ./test_obj (USER) = 20564 
+	
+	 Subroutine                Ticks  %   Source   Address Bytes
+	 =============             ===== ==== ======== ======== ======
+	 .calc_residual_@OL@9       6386  0.9 matrix.f 375cc    19c   
+	 .matrix_mult_@OL@A         6243  0.9 matrix.f 6ff54    190   
+	 .solv_fix_bounds_@OL@2     2794  0.4 matrix.f 65b90    238   
+	 .conjgrad_sub_@OL@1        1954  0.3 cg.F     68664    d8    
+	 .pdaxpy_@OL@1               828  0.1 pdaxpy.f 6ec0c    a8    
+	 .pdcopy_@OL@1               734  0.1 pdcopy.f 37a80    9c    
+	 .pddot_@OL@1                455  0.1 pddot.f  6f74c    108   
+	 .precon_solve_@OL@1         428  0.1 entry.F  690c0    78    
+	 .pdnrm2_@OL@1               369  0.1 pdnrm2.f 688c8    12c   
+	 .idamax_                    117  0.0 glink.s  6771c    28    
+	 .pdload_@OL@1               116  0.0 pdload.f a580     74    
+	 .dasum_                     112  0.0 glink.s  35450    28    
+	 ._xlsmpGetSLock               5  0.0 glink.s  35400    28    
+	 .pddot_                       4  0.0 pddot.f  6f3a4    3a8   
+	 .conjgrad_sub_                4  0.0 cg.F     67bb4    ab0   
+	 .pdnrm2_                      4  0.0 pdnrm2.f 6873c    18c   
+	 .solv_fix_bounds_             2  0.0 matrix.f 657a8    2a0   
+	 .calc_residual_               2  0.0 matrix.f 37380    24c   
+	 .lsame_                       1  0.0 lsame.c  42910    60    
+	 .dlamch_                      1  0.0 dlamch.c 672bc    36c   
+	 ._xlfReadUfmt                 1  0.0 glink.s  b417c    28    
+	 .iter_solve_                  1  0.0 entry.F  64e68    940   
+	 .conjgrad_                    1  0.0 cg.F     67744    470   
+	 ._xlsmpParallelDoSetup_TPO    1  0.0 glink.s  a690     28    
+	 .dlamc4_                      1  0.0 dlamch.c 66164    308   
+	
+	   Total Ticks For ./test_obj (SH-LIBs) = 23001 
+	
+	 Shared Object                            Ticks  %   Address  Bytes 
+	 =============                            ===== ==== ======== ======
+	 /usr/lib/libesslsmp.a/essl.o             17792  2.5 d92bf100 8cd61c
+	 /usr/lib/libxlsmp.a/smprt.o               2931  0.4 d92ae100 10376 
+	 /usr/lib/libpthreads.a/shr_xpg5.o         2245  0.3 d0047000 2b4d5 
+	 /usr/lib/libxlf90.a/io.o                    23  0.0 d313a100 4c95a 
+	 /usr/lib/libc.a/shr.o                       10  0.0 d01cb640 1ef281
+	
+	
+	   Profile: /usr/lib/libesslsmp.a/essl.o
+	
+	   Total Ticks For ./test_obj (/usr/lib/libesslsmp.a/essl.o) = 17792 
+	
+	 Subroutine                Ticks  %   Source   Address Bytes
+	
+	 Subroutine                Ticks  %   Source   Address Bytes
+	 =============             ===== ==== ======== ======== ======
+	 .dasum                     9113  1.3 dasum.f  94c5ea8  1bf8  
+	 .idamax                    5757  0.8 idamax.f 94c4eb8  5e0   
+	 .cpuid                     1283  0.2 cpuid.c  92c253c  180   
+	 ._restf22                   805  0.1 noname   92c272c  4     
+	 .__xlf_omp_in_parallel_i4   227  0.0 glink.s  92c26bc  28    
+	 .__xlf_omp_get_nested_i4    119  0.0 glink.s  92c26e4  28    
+	 .Srestf28                    84  0.0 noname   92c2744  4     
+	 ._savef22                    66  0.0 noname   92c24f8  4     
+	 .dasum_                      60  0.0 esslqext.s 99f39c8  4     
+	 .idamax_                     59  0.0 esslqext.s 99f39a0  4     
+	 ._savef26                    53  0.0 noname   92c2508  4     
+	 .Ssavef28                    47  0.0 noname   92c2510  4     
+	 ._savef30                    43  0.0 noname   92c2518  4     
+	 .$RESTF30                    40  0.0 noname   92c274c  4     
+	 .$RESTF26                    36  0.0 noname   92c273c  4     
+
+... etc
+</pre>
+<p>
+
+The above profile is from a program parallelised using the OpenMP Fortran
+compiler. Note that a number of routines are represented by separate 
+serial and parallel routines. Thus the Fortran subroutine <em>CALC_RESIDUAL</em>
+has a time for the serial component <em>calc_residual_</em> and for the
+parallel loops <em>calc_residual_@OL@9</em>.
+
+<p>
+
+There are several things that bare keeping in mind about the output from
+<em>tprof</em>;
+<p>
+<ul>
+<li>
+The process profiles <bold>all</bold> programs running on the system 
+that have the name specified by the <em>-p "filename"</em> option. 
+Thus it pays to name your program something that will be unique. (For
+example, if profiling the cmiss backend <em>cm</em>, if the executable 
+being run is named <em>cm</em>, then <em>all</em> cmiss processes currently 
+running will be profiled. To prevent this, rename
+the executable being tested to something like <em>cm_joe.bloggs</em>).
+<li>
+The samples are given as a percentage of all tests made on all processors.
+Thus, on a 32 processor machine, the number of ticks encountered by a 
+single thread will be 1/32 of the total system made, and this is the
+percentage shown in the % column in the profile output file.
+<li>
+You have to run this as <bold>root</bold>. This means you will have to
+persuade the System Admin to run the jobs for you.
+<li>
+Only 32 bit executables can be profiled. Profiling 64 bit executables 
+results in an empty output file.
+<li>
+Any shared libraries must be world readable. Otherwise they do not get
+profiled. This is rather strange considering we are running as root ...
+<li>
+When running on cmiss we normally get a problem with the buffer overflowing.
+I am not sure how to get around this one.
+</ul>
+<p>
+
+</body>
+</html>

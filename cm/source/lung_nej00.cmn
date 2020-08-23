@@ -1,0 +1,30 @@
+!  lung_nej00.cmn
+      INTEGER
+     &  elas_nj,flow_nj,ne_trachea,nej_cap,nej_flow,nej_flow_1,
+     &  nej_maxa,nej_maxa_5,nej_p1,nej_p1_4,nej_p2,nej_p2_3,
+     &  nej_resis,nej_resis_2,nej_strtrad,nej_vel,new_pp_nj,new_vol_nj,
+     &  nj_alveoli,nj_blood,nj_cca,nj_coa,nj_coeff,nj_flow,nj_hypoxia,
+     &  nj_loss,nj_ode,nj_pca,nj_pcb,nj_pleural,nj_poa,nj_pob,
+     &  nj_pressure,nj_radius,nj_radius_R0,nj_source,nj_stretch,nj_sV,
+     &  nj_tt,nj_truncate,nj_Vc,nj_Vratio,nj_wall,nm_avPAO2,nm_avPcO2,
+     &  nm_C,nm_C_av,nm_C_trunc,nm_Diam,
+     &  nj_Pneg,nj_Ppos,nj_Pe,nj_mu,nj_vent,
+     &  nm_dPl,nm_lambda,nm_PcO2,nm_Ppl,nm_R,nm_R_av,nm_R_trunc,nm_Rt,
+     &  nm_ST_trunc,nm_time,nm_volumes,
+     &  nm_vinit,nm_vol_bel,old_pp_nj,old_vol_nj,s_resis_nj
+
+      COMMON /LUNG_NEJ00I/
+     &  elas_nj,flow_nj,ne_trachea,nej_cap,nej_flow,nej_flow_1,
+     &  nej_maxa,nej_maxa_5,nej_p1,nej_p1_4,nej_p2,nej_p2_3,
+     &  nej_resis,nej_resis_2,nej_strtrad,nej_vel,new_pp_nj,new_vol_nj,
+     &  nj_alveoli,nj_blood,nj_cca,nj_coa,nj_coeff,nj_flow,nj_hypoxia,
+     &  nj_loss,nj_ode,nj_pca,nj_pcb,nj_pleural,nj_poa,nj_pob,
+     &  nj_pressure,nj_radius,nj_radius_R0,nj_source,nj_stretch,nj_sV,
+     &  nj_truncate,nj_tt,nj_Vc,nj_Vratio,nj_wall,nm_avPAO2,
+     &  nm_avPcO2,nm_C,nm_C_av,nm_C_trunc,nm_Diam,
+     &  nj_Pneg,nj_Ppos,nj_Pe,nj_mu,nj_vent,
+     &  nm_dPl,nm_lambda,nm_PcO2,nm_Ppl,nm_R,nm_R_av,nm_R_trunc,nm_Rt,
+     &  nm_ST_trunc,nm_time,nm_volumes,
+     &  nm_vinit,nm_vol_bel,old_pp_nj,old_vol_nj,s_resis_nj
+
+

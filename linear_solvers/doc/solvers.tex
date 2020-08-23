@@ -1,0 +1,62 @@
+%%
+%%
+%%
+\documentclass[10pt,a4paper,oneside]{article}
+\usepackage{amsmath,times,alltt,verbatim,moreverb,array,epsfig}
+
+\includeonly{solvers_01,solvers_02,solvers_04,solvers_03,solvers_05}
+
+
+%%\input{/product/cmiss/latex/macros}
+%%\input{/product/cmiss/latex/defns}
+\newcommand{\ttext}[1]{{\ttfamily #1}}
+\setlength{\parskip2.0ex}
+\setlength{\parindent0em}
+\topmargin -10mm
+\oddsidemargin=0mm 
+\evensidemargin=0mm 
+\headsep=12.5mm 
+\textheight=230mm
+\textwidth=142mm
+
+
+%% So here we go ...
+%%
+\title{The CMISS Linear Solvers Library}
+\author{S. E. Norris}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+%% Intro stuff
+%%
+\include{solvers_01}
+
+%% LAPACK
+%%
+\include{solvers_02}
+
+%% Sparse LU
+%%
+\include{solvers_03}
+
+%% Iterative
+%%
+\include{solvers_04}
+
+%% Overview
+%%
+\include{solvers_05}
+
+%%\section{References}
+\bibliography{refs}
+\bibliographystyle{abbrv}
+
+\end{document}
+
+
+
+
+

@@ -1,0 +1,3 @@
+!  cbpr00.cmn
+      CHARACTER PR*(MXCH)    !mxch dimensioned in file MXCH.INC
+      COMMON /CBPR00C/ PR

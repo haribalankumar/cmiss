@@ -1,0 +1,217 @@
+
+\section{The Iterative Solvers Used in CMISS}\label{s4.0}
+
+A number of iterative solvers have been written for the CMISS library.
+The solvers break down into three broad classes,
+\begin{itemize}
+\item	Simple iterative methods: the Jacobi and SOR solvers.
+\item	Incomplete factorisation schemes: Incomplete Cholesky factorisation,
+  Incomplete LU and Incomplete LDL decomposition.
+\item Krylov space methods: The Conjugate Gradient solver, BiCGSTAB and GMRES.
+\end {itemize}
+As with the LAPACK solvers, all methods are accessed through the one interface,
+with the solution process consisting of an allocation call, a factorisation,
+a solve, and finally a call to free the allocated memory.
+
+Unlike the direct methods the bulk of the CPU time with the iterative methods 
+takes place not with the factorisation, but instead in the solution call.
+The solvers repeatedly apply an operation until the scaled residual of the
+system reduces to the desired tolerance. The residual of the system is
+\begin{equation}\label{e4.0.1}
+\mathbf{r = b - A x},
+\end{equation}
+and convergence is achieved when 
+\begin{equation}\label{e4.0.2}
+\Sigma \mathbf{r}^2 < \;\; 
+  {\text{tolerance}} . \left(
+        \Sigma \mathbf{A}^2 \; \Sigma \mathbf{x}^2 + \Sigma \mathbf{b}^2
+                     \right).
+\end{equation}
+
+
+An example of the use of the solvers is shown below in Figure \ref{f4.1}.
+
+\begin{figure}[htb]
+\begin{small}
+\begin{verbatim}
+      INCLUDE 'solver.inc'
+      INTEGER N,NZA            ! Size of the system
+      INTEGER IROW(N+1)        ! The row index
+      INTEGER ICOL(NZA)        ! The column index
+      REAL*8  A(NZA)           ! The non-zero entries of the matrix
+      REAL*8  X(N)             ! Solution vector
+      REAL*8  B(M)             ! Right hand side
+      REAL*8  ANORM            ! Second norm of matrix A
+      INTEGER SOLVER           ! Type of solver
+      INTEGER PRECON           ! Type of preconditioner
+      INTEGER SPARSE           ! Sparsity pattern of A
+      INTEGER D_PTR            ! Pointer to REAL*8 workspace
+      REAL*8  RESID            ! Solution tolerance
+      REAL*8  OMEGA            ! Relaxation factor
+      INTEGER ITER             ! Maximum number of iterations
+      INTEGER NRES             ! Frequency to recalculate the residual
+      INTEGER NPRECON          ! Maximum number of precon iterations
+      INTEGER OUTPUTCODE       ! Flag to print verbose output
+      CHARACTER*(*) ERROR      ! String containing error message
+
+      SOLVER=SOLV_CG
+      PRECON=COLV_IC1
+
+C     Allocate memory
+      CALL ITER_ALLOC(LDA,N,NZA,SOLVER,PRECON,SPARSE,D_PTR,ERROR,*9999)
+
+C     Factorise the system
+      CALL ITER_FACTOR(A,LDA,N,%VAL(D_PTR),ANORM,SPARSE,ICOL,IROW,
+     &                 SOLVER,PRECON,OUTPUTCODE,ERROR,*9999)
+
+C     Solve for the given right hand side
+      CALL ITER_SOLVE(A,LDA,N,X,B,%VAL(D_PTR),SPARSE,ICOL,IROW,ANORM,
+     &                RESID,OMEGA,ITER,NRES,NPRECON,SOLVER,PRECON,
+     &                OUTPUTCODE,ERROR,*9999)
+
+C     Clear memory
+      CALL ITER_FREE(SOLVER,PRECON,D_PTR,ERROR,*9999)
+
+      RETURN
+
+C     Catch errors
+ 9999 CONTINUE
+      WRITE(*,'(a)') 'An error occurred in the Iterative solvers'
+      WRITE(*,'(a)') ERROR
+      RETURN
+      END
+\end{verbatim}
+\end{small}
+\caption{\label{f4.1} The {\tt solver} interface to the iterative linear
+  solvers. Note that the pointer {\tt D\_PTR} should be of type {\tt INTEGER*4}
+  on $32$ bit machines, and {\tt INTEGER*8} on $64$ bit machines.}
+\end{figure}
+
+The parameters used by the iterative solvers are;
+\begin{itemize}
+\item {\tt SOLVER}: the solver type, listed in the {\tt "solver.inc"} include 
+      file.
+\item {\tt PRECON}: the preconditioner type, listed in the {\tt "solver.inc"} 
+      include file. Only used by the Krylov space methods.
+\item {\tt SPARSE}: flags the array type of A. If $0$, the array is a Dense
+      system, if $1$ the array is a compressed row sparse matrix.
+\item {\tt ITER}: on input the maximum number of iterations allowed. On exit,
+      the actual number of iterations taken. Should eb on the order of
+      $n^2$ except for Jacobi and SOR which require many more iterations.
+\item {\tt RESID}: on input the desired tolerance, on output the second norm
+      of the achieved residual. Should be on the order of $10^{-6}$.
+\item {\tt OMEGA}: the relaxation factor used by Jacobi and SOR. For Jacobi 
+      should be $\le 1$, and for SOR $\le 2$.
+\item {\tt NRES}: for the Krylov space methods, the residual is not calculated
+      directly but instead is approximated by a faster update. Every {\tt NRES}
+      iterations it is recalculated directly using Equation \ref{e4.0.1}.
+      Should be on the order of 50 or so.
+\item {\tt NPRECON}: the number of preconditioner iterations taken for every 
+      application of the preconditioner. Should be on the order of 2.
+\item {\tt OUTPUTCODE}: controls the written output from the solver. If it is
+      set to a value $\ge 2$ then the second norm of the residual is printed 
+      out for each iteration and the user can observe if the solver is 
+      converging or diverging.
+\end {itemize}
+
+\clearpage
+
+\subsection{The Jacobi and SOR Solvers}\label{s4.1}
+
+The Jacobi solver solvers the linear system
+\begin{equation}\label{e4.1.1}
+\mathbf{A \, x = b},
+\end{equation}
+by repeatedly applying the operations
+\begin{eqnarray}\label{e4.1.2}
+\mathbf{r} & = & \mathbf{b - A \, x}\\
+\mathbf{x} & = & \mathbf{x} + \omega \mathbf{r}
+\end{eqnarray}
+to the vector $\mathbf{x}$. The solver is applied until the second norm of 
+the residual $\mathbf{r}$ reaches some tolerance.
+
+The SOR solver is an improvement of the Jacobi solver, where the
+values of $\mathbf{x}$ are updated as soon as the corresponding $\mathbf{r}$
+entry is calculated.
+
+Both methods are extremely slow. However they have use as preconditioners
+for the Krylov space methods. Also the Jacobi solver is trivially parallel,
+whereas the SOR solver is not so.
+
+
+\subsection{The Incomplete Factorisation Solvers}\label{s4.2}
+
+The Incomplete Factorisation solvers use a factorisation of the sparse
+array, where the sparsity pattern is restricted compared to a full 
+decomposition. For a level $0$ factorisation only the diagonal elements of 
+the factorisation are used, whilst for the level $1$ factorisations the 
+sparsity pattern of the factorisation matches the sparsity pattern of the 
+original matrix.
+
+Three factorisations are provided; the Incomplete LU factorisation, for general
+systems, and the Incomplete Cholesky and Incomplete LDL factorisations for 
+symmetric positive definite systems.
+
+The Incomplete LU solver proceeds by repeatedly applying the following series 
+of operations,
+\begin{eqnarray}\label{e4.2.1}
+\mathbf{r} & = & \mathbf{b - A \, x}\\
+\mathbf{L} \mathbf{y} & = & \mathbf{r}\\
+\mathbf{U} \mathbf{z} & = & \mathbf{y}\\
+\mathbf{x} & = & \mathbf{x} + \mathbf{z}
+\end{eqnarray}
+whilst the operations of the Incomplete Cholesky solver may be summarised as,
+\begin{eqnarray}\label{e4.2.2}
+\mathbf{r} & = & \mathbf{b - A \, x}\\
+\mathbf{L} \mathbf{y} & = & \mathbf{r}\\
+\mathbf{L}^T \mathbf{z} & = & \mathbf{y}\\
+\mathbf{x} & = & \mathbf{x} + \mathbf{z}.
+\end{eqnarray}
+The Incomplete LDL solver uses a similar factorisation to the Cholesky 
+decomposition, but saves the requirement to calculate $n$ square roots
+of the diagonal elements and is marginally faster.
+
+The Incomplete factorisation methods can be used as solvers in their own right.
+However their main use is as preconditioners for the Krylov space methods.
+None of the methods have been parallelised.
+
+
+\subsection{The Conjugate Gradient (Krylov Space) Solvers}\label{s4.3}
+
+The Krylov space methods are minimisation methods that work to minimise the
+residual of the linear system being solver. Their algorithms are too 
+complicated to warrent being repeated here, and the reader is directed to the 
+following references book for further information \cite{barrett:1993a},
+\cite{shewchuk:1994a}.
+
+For each iteration of the Krylov space solvers the solution can be partially 
+improoved by applying a preconditioner to the solution, smoothing out high 
+frequency errors in the solution. The preconditioner is simply another linear
+solver, and typically Jacobi or one of the Incomplete Factorisation methods 
+is used.
+
+The Conjugate Gradient solver solvers symmetric systems. For general systems 
+the BiCGSTAB and GMRES solvers are available. The GMRES solver requires more 
+memory but is generally more stable. All three method are parallelised, but
+only the Jacobi and Point Jacobi preconditioners are parallelised.
+
+
+\subsection{A Summary of the Iterative Solvers}\label{s4.4}
+
+For solving a general system the BiCGSTAB or GMRES solvers are recomended, 
+or the Conjugate Gradient solver if the system is symmetric. Unless a
+multi-threaded solver is being used the the Incomplete LU or Incomplete LDL
+preconditioners are recomended (the latter only with a symetric system).
+
+If the solution is for a problem that is advancing in time, and there is little
+difference between the solutions at any two time steps, then the Incomplete 
+Factorisation solvers can be very efficent, especially if the problem has
+strong diagonal dominance (the value of the entry on the diagonal $\ge$ the sum
+of the other entries on the row).
+
+Only the Krylov space methods will cope with systems that have zeros on the 
+diagonal. Of the preconditioners only the point Jacobi copes with this 
+occurance.
+
+Note that whilst the linear solvers are intended for solving sparse systems,
+a reference implementation has also been made for dense systems.

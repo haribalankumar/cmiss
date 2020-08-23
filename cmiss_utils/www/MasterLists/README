@@ -1,0 +1,14 @@
+Contents
+========
+
+This directory contains the script that generates a list of common files
+and a list of module files for the various other batch scripts in this
+package.
+
+
+
+Work To Do
+==========
+
+Change the paths in the script to use the new CMISS_ROOT and related
+enviroment variables

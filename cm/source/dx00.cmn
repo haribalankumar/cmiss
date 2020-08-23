@@ -1,0 +1,4 @@
+!  dx00.cmn
+      REAL*8 D3PG(16,4,25,3)
+      COMMON /DX00R/ D3PG
+

@@ -1,0 +1,38 @@
+      SUBROUTINE SGALIG(INDEX,ISALIG,ISEG,iw,CSEG,ERROR,*)
+
+C#### Subroutine: SGALIG
+C###  Description:
+C###    SGALIG creates alignment segment ISALIG.
+
+      IMPLICIT NONE
+      INCLUDE 'alig00.cmn'
+      INCLUDE 'graf00.cmn'
+!     Parameter List
+      INTEGER INDEX,ISALIG,ISEG(*),iw
+      CHARACTER CSEG(*)*(*),ERROR*(*)
+!     Local Variables
+      INTEGER INDEX_OLD
+      REAL*8 POINT(3),X,Y
+
+      CALL ENTERS('SGALIG',*9999)
+      CALL OPEN_SEGMENT(ISALIG,ISEG,iw,'ALIG',INDEX,INDEX_OLD,
+     '  1,1,CSEG,ERROR,*9999)
+
+      DO X=DBLE(XMIN)+DX_ALIG,DBLE(XMAX)-DX_ALIG,DX_ALIG
+        POINT(1)=X
+        DO Y=DBLE(YMIN)+DY_ALIG,DBLE(YMAX)-DY_ALIG,DY_ALIG
+          POINT(2)=Y
+          CALL POLYMARKER(INDEX,iw,1,POINT,ERROR,*9999)
+        ENDDO
+      ENDDO
+
+      CALL CLOSE_SEGMENT(ISALIG,iw,ERROR,*9999)
+
+      CALL EXITS('SGALIG')
+      RETURN
+ 9999 CALL ERRORS('SGALIG',ERROR)
+      CALL EXITS('SGALIG')
+      RETURN 1
+      END
+
+

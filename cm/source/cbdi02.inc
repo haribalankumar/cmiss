@@ -1,0 +1,3 @@
+!  cbdi02.inc
+      INTEGER FIRST_COM_UNIT
+      PARAMETER(FIRST_COM_UNIT=75)

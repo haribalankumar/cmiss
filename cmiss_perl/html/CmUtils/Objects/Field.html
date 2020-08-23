@@ -1,0 +1,95 @@
+<HTML>
+<HEAD>
+<TITLE>Fields are a collection of one or more Components.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aObjects%3a%3aField">CmUtils::Objects::Field</A></LI>
+<LI><A HREF="#Field%20structure">Field structure</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#METHODS">METHODS</A></LI>
+<UL>
+<LI><A HREF="#new()"><B>new()</B></A></LI>
+<LI><A HREF="#copy()"><B>copy()</B></A></LI>
+<LI><A HREF="#name(%5bstring%5d)"><B>name([string])</B></A></LI>
+<LI><A HREF="#type(%5bstring%5d)"><B>type([string])</B></A></LI>
+<LI><A HREF="#coordsys(%5bstring%5d)"><B>coordsys([string])</B></A></LI>
+<LI><A HREF="#addComponent(Component)"><B>addComponent(Component)</B></A></LI>
+<LI><A HREF="#updateComponent(Component)"><B>updateComponent(Component)</B></A></LI>
+<LI><A HREF="#getComponentNames(%5bComponentName(s)%5d)"><B>getComponentNames([ComponentName(s)])</B></A></LI>
+<LI><A HREF="#getComponents(%5bComponentName(s)%5d)"><B>getComponents([ComponentName(s)])</B></A></LI>
+<LI><A HREF="#getComponentsMatching(%5bPattern%5d)"><B>getComponentsMatching([Pattern])</B></A></LI>
+<LI><A HREF="#getComponent(ComponentName)"><B>getComponent(ComponentName)</B></A></LI>
+<LI><A HREF="#deleteComponent(ComponentName)"><B>deleteComponent(ComponentName)</B></A></LI>
+<LI><A HREF="#numberOfComponents()"><B>numberOfComponents()</B></A></LI>
+<LI><A HREF="#isSame(Field)"><B>isSame(Field)</B></A></LI>
+<LI><A HREF="#list(FH)"><B>list(FH)</B></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aObjects%3a%3aField">CmUtils::Objects::Field</A></H1>
+
+<P>Fields are a collection of one or more Components.</P><H1><A NAME="Field%20structure">Field structure</A></H1>
+<DL><DT><A NAME="NAME">NAME</A></DT>
+<DD>
+Name of the Field</DD>
+<DT><A NAME="TYPE">TYPE</A></DT>
+<DD>
+Field type</DD>
+<DT><A NAME="COORDSYS">COORDSYS</A></DT>
+<DD>
+Name of the coordinate system associated with the Field</DD>
+<DT><A NAME="COMPONENTS">COMPONENTS</A></DT>
+<DD>
+A set of Components which are part of this Field</DD>
+</DL>
+<H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>0.51 (20 February 2001)</P><H1><A NAME="METHODS">METHODS</A></H1>
+<H2><A NAME="new()"><B>new()</B></A></H2>
+
+<P>Returns a new Field.</P><H2><A NAME="copy()"><B>copy()</B></A></H2>
+
+<P>Returns an identical copy of an existing Field.</P><H2><A NAME="name(%5bstring%5d)"><B>name([string])</B></A></H2>
+
+<P>Optional argument is name for Field.  Returns the name of the Field.</P><H2><A NAME="type(%5bstring%5d)"><B>type([string])</B></A></H2>
+
+<P>Optional argument is type of Field.  Returns the type of the Field.</P><H2><A NAME="coordsys(%5bstring%5d)"><B>coordsys([string])</B></A></H2>
+
+<P>Optional argument is coordinate system of Field.  Returns the coordinate
+system of the Field.</P><H2><A NAME="addComponent(Component)"><B>addComponent(Component)</B></A></H2>
+
+<P>Adds a Component to the list of Components of this Field.  Returns the 
+number of Components.</P><H2><A NAME="updateComponent(Component)"><B>updateComponent(Component)</B></A></H2>
+
+<P>Updates a Component in the list of Components of this ComponentSet.  Returns the 
+index of the last Component.</P><H2><A NAME="getComponentNames(%5bComponentName(s)%5d)"><B>getComponentNames([ComponentName(s)])</B></A></H2>
+
+<P>If ComponentName(s) are specified, returns a list of names of all 
+Components with these names that exist in the Field, in the order they 
+are specified.  If no argument is given, returns a list of names of ALL
+Components, sorted in alphabetical order.</P><H2><A NAME="getComponents(%5bComponentName(s)%5d)"><B>getComponents([ComponentName(s)])</B></A></H2>
+
+<P>If ComponentName(s) are specified, returns a list of all Components with these
+names that exist in the Field, in the order they are specified.  If no
+argument is given, returns a list of ALL Components, sorted in
+alphabetical order.</P><H2><A NAME="getComponentsMatching(%5bPattern%5d)"><B>getComponentsMatching([Pattern])</B></A></H2>
+
+<P>If Pattern are specified, returns a list of all Components matching /Pattern/i
+that exist in the Field, in the order they are specified.  If no argument is
+given, returns a list of ALL Components, sorted in alphabetical order.</P><H2><A NAME="getComponent(ComponentName)"><B>getComponent(ComponentName)</B></A></H2>
+
+<P>Returns the Component named ComponentName from the Field.</P><H2><A NAME="deleteComponent(ComponentName)"><B>deleteComponent(ComponentName)</B></A></H2>
+
+<P>Deletes the Component named ComponentName from the Field.  Returns the new
+number of Components.</P><H2><A NAME="numberOfComponents()"><B>numberOfComponents()</B></A></H2>
+
+<P>Returns the number of Components defined in the Field.</P><H2><A NAME="isSame(Field)"><B>isSame(Field)</B></A></H2>
+
+<P>Returns True if the Field is the same as the owner Field, otherwise
+returns False.</P><H2><A NAME="list(FH)"><B>list(FH)</B></A></H2>
+
+<P>List the contents of this Field to the filehandle <I>FH</I> (default to STDOUT).
+Set the &quot;verbose&quot; flag ($s-&gt;verbose(1)) to see extended information.</P>
+</BODY>
+</HTML>

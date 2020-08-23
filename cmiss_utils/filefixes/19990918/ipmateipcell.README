@@ -1,0 +1,8 @@
+With the splitting up of *.ipmate files for simple ionic current
+models and grid problems, a new ipcell file will be created with the
+same name as the ipmate file but all comfiles must be changed
+manually for the new ipcell file to be read in.
+
+Note that the script to do the splitting, ipcellipmate.sh,
+only works IF THE PARAMETERS ARE CONSTANT SPATIALLY. Otherwise
+a manual split up is needed.

@@ -1,0 +1,136 @@
+      SUBROUTINE CUBIC_INIT_GRID(NQLIST,CQ,RCQS,YQ,YQS,ERROR,*)
+
+C#### Subroutine: CUBIC_INIT_GRID
+C###  Description:
+C###    CUBIC_INIT_GRID initialises arrays for the cubic
+C###    ionic current model.
+C**** Written by Martin Buist, 17 May 1999
+
+      IMPLICIT NONE
+
+      INCLUDE 'cell02.cmn'
+      INCLUDE 'cellml.cmn'
+      INCLUDE 'cell_cubic.inc'
+      INCLUDE 'cell_reserved.inc'
+      INCLUDE 'geom00.cmn'
+      INCLUDE 'nqloc00.inc'
+
+!     Parameter List
+      INTEGER NQLIST(0:NQM)
+      REAL*8 CQ(NMM,NQM),RCQS(NQRM),YQ(NYQM,NIQM,NAM),
+     '  YQS(NIQSM,NQM)
+      CHARACTER ERROR*(*)
+!     Local Variables
+      INTEGER nq
+
+      CALL ENTERS('CUBIC_INIT_GRID',*9999)
+
+
+C *** DPN 18 June 1999
+C *** Simplifed models not going through ipcell can't have spatially
+C     varying material parameters, unless they are set-up here.
+      CELL_SPATIALLY_VARYING=.FALSE.
+
+!ICQS
+      CELL_NUM_AII(1)=1
+      CELL_NUM_AIO(1)=1
+      CELL_NUM_CONTROL(1)=1
+      CELL_NUM_MODEL(1)=1
+      CELL_NUM_VARIANTS=1
+
+      CELL_AII_OFFSET(1)=CELL_VARIANT_OFFSET+1
+      CELL_AIO_OFFSET(1)=CELL_AII_OFFSET(1)+CELL_NUM_AII(1)
+      CELL_CONTROL_OFFSET(1)=CELL_AIO_OFFSET(1)+CELL_NUM_AIO(1)
+      CELL_MODEL_OFFSET(1)=CELL_CONTROL_OFFSET(1)+CELL_NUM_CONTROL(1)
+      !DPN This is now a parameter
+      !CELL_VARIANT_OFFSET=CELL_MODEL_OFFSET+CELL_NUM_MODEL
+
+      NQIT=1+CELL_NUM_MODEL(1)+CELL_NUM_CONTROL(1)+CELL_NUM_AII(1)
+     '  +CELL_NUM_AIO(1)
+      CALL ASSERT(NQIM.GE.NQIT,' >>Increase NQIM (>=NQIT)',ERROR,*9999)
+
+!RCQS
+      CELL_NUM_ARI(1)=1
+      CELL_NUM_ARO(1)=1
+      CELL_NUM_PARAMETERS(1)=6
+      CELL_NUM_PROTOCOL(1)=4
+
+      CELL_ARI_OFFSET(1)=1
+      CELL_ARO_OFFSET(1)=CELL_ARI_OFFSET(1)+CELL_NUM_ARI(1)
+      CELL_PARAMETERS_OFFSET(1)=CELL_ARO_OFFSET(1)+CELL_NUM_ARO(1)
+      CELL_PROTOCOL_OFFSET(1)=CELL_PARAMETERS_OFFSET(1)
+     '  +CELL_NUM_PARAMETERS(1)
+
+      NQRT=CELL_PROTOCOL_OFFSET(1)+CELL_NUM_PROTOCOL(1)-1
+      CALL ASSERT(NQRM.GE.NQRT,' >>Increase NQRM (>=NQRT)',ERROR,*9999)
+
+!YQS
+      CELL_NUM_DERIVED(1)=1
+      CELL_NUM_STATE(1)=1
+      CELL_NUM_ODE(1)=CELL_NUM_STATE(1)
+
+      CELL_STATE_OFFSET(1)=1
+      CELL_DERIVED_OFFSET(1)=CELL_STATE_OFFSET(1)+CELL_NUM_STATE(1)
+
+      NIQST=CELL_DERIVED_OFFSET(1)+CELL_NUM_DERIVED(1)-1
+      CALL ASSERT(NIQSM.GE.NIQST,' >>Increase NIQSM (>=NIQST)',
+     '  ERROR,*9999)
+
+!YQ
+      CALL ASSERT(NIQM.GE.3,'>>Increase NIQM (>=3)',ERROR,*9999)
+      CALL ASSERT(NQM.GE.3,'>>Increase NQM (>=3)',ERROR,*9999)
+C KAT 2001-04-12: unused
+C      NQLIST(0)=3
+
+      CALL NIQ_LOC(NIQ_INQUIRE,NIQ_ION,NQLIST(1),NIQ_V,
+     '  ERROR,*9999)
+      IF(NQLIST(1).EQ.0) THEN
+        CALL NIQ_LOC(NIQ_ALLOCATE_AND_LOCK,NIQ_ION,NQLIST(1),
+     '    NIQ_V,ERROR,*9999)
+      ENDIF
+
+      CALL NIQ_LOC(NIQ_INQUIRE,NIQ_ION,NQLIST(2),NIQ_BNDRY,
+     '  ERROR,*9999)
+      IF(NQLIST(2).EQ.0) THEN
+        CALL NIQ_LOC(NIQ_ALLOCATE_AND_LOCK,NIQ_ION,NQLIST(2),
+     '    NIQ_BNDRY,ERROR,*9999)
+      ENDIF
+
+C KAT 2001-04-12: moved to after user specified initial conditions
+C      CALL NIQ_LOC(NIQ_INQUIRE,NIQ_ION,NQLIST(3),NIQ_OLDSOLN,
+C     '  ERROR,*9999)
+C      IF(NQLIST(3).EQ.0) THEN
+C        CALL NIQ_LOC(NIQ_ALLOCATE_AND_LOCK,NIQ_ION,NQLIST(3),
+C     '    NIQ_OLDSOLN,ERROR,*9999)
+C      ENDIF
+
+      DO nq=1,NQT
+!STATE
+        YQ(nq,NQLIST(1),1)=CQ(9,nq)
+        YQ(nq,NQLIST(2),1)=0.0d0
+C        YQ(nq,NQLIST(3),1)=CQ(9,nq)
+        YQS(CELL_STATE_OFFSET(1)+Vm-1,nq)=CQ(9,nq)
+!PARAMETERS
+C *** DPN 14 March 2000 - fixing up units
+C        RCQS(CELL_PARAMETERS_OFFSET+Cm-1)=CQ(1,nq)*1.0d-6
+        RCQS(CELL_PARAMETERS_OFFSET(1)+Cm-1)=CQ(1,nq)
+        RCQS(CELL_PARAMETERS_OFFSET(1)+Am-1)=CQ(2,nq)
+        RCQS(CELL_PARAMETERS_OFFSET(1)+Vmrest-1)=CQ(9,nq)
+        RCQS(CELL_PARAMETERS_OFFSET(1)+Vmplat-1)=CQ(10,nq)
+        RCQS(CELL_PARAMETERS_OFFSET(1)+Vmthres-1)=CQ(11,nq)
+C *** DPN 14 March 2000 - fixing up units
+c        RCQS(CELL_PARAMETERS_OFFSET+g-1)=CQ(12,nq)*1.0d-6
+        RCQS(CELL_PARAMETERS_OFFSET(1)+g-1)=CQ(12,nq)
+!PROTOCOL
+        RCQS(CELL_PROTOCOL_OFFSET(1)+PseudoIs-1)=0.0d0
+        RCQS(CELL_PROTOCOL_OFFSET(1)+Is1current-1)=0.0d0
+      ENDDO
+
+      CALL EXITS('CUBIC_INIT_GRID')
+      RETURN
+ 9999 CALL ERRORS('CUBIC_INIT_GRID',ERROR)
+      CALL EXITS('CUBIC_INIT_GRID')
+      RETURN 1
+      END
+
+

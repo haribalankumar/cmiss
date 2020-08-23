@@ -1,0 +1,6 @@
+!  docd00.cmn
+      LOGICAL          DOCDIR
+      COMMON /DOCD00L/ DOCDIR
+C KAT 31/3/00: Only used in one subroutine and doesn't need to be static
+C     CHARACTER        Example_subdir*100
+C      COMMON /DOCD00C/ Example_subdir

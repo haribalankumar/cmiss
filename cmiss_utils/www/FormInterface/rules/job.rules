@@ -1,0 +1,14 @@
+-- Job Description Rules ------------------------------------------------------
+--
+
+define JOB as
+  <
+  HEAD Job
+  TAG  Original-Files
+	TAG  Status
+	TAG  Host
+	TAG  Pid
+	TAG  Start-Time
+  TAG  Description[0..1]
+  >
+

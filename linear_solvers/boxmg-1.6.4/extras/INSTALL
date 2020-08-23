@@ -1,0 +1,11 @@
+===============================================================================
+INSTALL: Extras for Black Box Multigrid                            boxmg-extras
+===============================================================================
+
+In previous releases of the Black Box Multigrid package there was an
+entirely separate tarball for the "extras".  This "extras" package is
+now included in the boxmg release as a subdirectory. The instructions
+for building the "extras" library have been moved to the top-level 
+INSTALL file.
+
+===============================================================================

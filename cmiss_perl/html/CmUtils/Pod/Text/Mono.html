@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<TITLE>CmUtils::Pod::Text::Mono</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#NAME">NAME</A></LI>
+<LI><A HREF="#SYNOPSIS">SYNOPSIS</A></LI>
+<LI><A HREF="#DESCRIPTION">DESCRIPTION</A></LI>
+<LI><A HREF="#SEE%20ALSO">SEE ALSO</A></LI>
+<LI><A HREF="#AUTHOR">AUTHOR</A></LI>
+</UL>
+<HR>
+<H1><A NAME="NAME">NAME</A></H1>
+
+<P>CmUtils::Pod::Text::Mono - Overrides for printing POD in Mono</P><H1><A NAME="SYNOPSIS">SYNOPSIS</A></H1>
+
+<PRE>    use CmUtils::Pod::Text::Mono;
+    my $parser = CmUtils::Pod::Text::Mono-&gt;new (sentence =&gt; 0, width =&gt; 78);</PRE>
+
+<PRE>    # Read POD from STDIN and write to STDOUT.
+    $parser-&gt;parse_from_filehandle;</PRE>
+
+<PRE>    # Read POD from file.pod and write to file.txt.
+    $parser-&gt;parse_from_file ('file.pod', 'file.txt');</PRE>
+<H1><A NAME="DESCRIPTION">DESCRIPTION</A></H1>
+
+<P>CmUtils::Pod::Text::Mono is a simple subclass of Pod::Text that overrides a few
+routines so as to be more useful in CMISS.  See <A HREF="Pod/Text.html">Pod::Text</A> for details and
+available options.</P><H1><A NAME="SEE%20ALSO">SEE ALSO</A></H1>
+
+<P><A HREF="Pod/Text.html">Pod::Text</A>, <A HREF="Pod/Parser.html">Pod::Parser</A></P><H1><A NAME="AUTHOR">AUTHOR</A></H1>
+
+<P>Greg Sands</P>
+</BODY>
+</HTML>

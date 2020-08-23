@@ -1,0 +1,33 @@
+      SUBROUTINE SET_MATHS_ALL_UNSOLVED(ERROR,*)
+
+C#### Subroutine: SET_MATHS_ALL_UNSOLVED
+C###  Description:
+C###    Sets all the maths to a unsolved state
+
+      IMPLICIT NONE
+      INCLUDE 'maths00.cmn'
+
+!     Parameter List
+      CHARACTER ERROR*(*)
+
+!     Local Variables
+      INTEGER INDEX,TOTAL
+      CHARACTER LABEL*(MATHS_LABELS_LEN)
+
+      CALL ENTERS('SET_MATHS_ALL_UNSOLVED',*9999)
+          
+      CALL GET_MATHS_TOTAL(TOTAL,ERROR,*9999)
+      
+      DO INDEX=1,TOTAL
+        CALL GET_MATHS_LABEL(INDEX,LABEL,ERROR,*9999)
+        CALL SET_MATHS_SOLVED(LABEL,0,ERROR,*9999)
+      ENDDO 
+
+      CALL EXITS('SET_MATHS_ALL_UNSOLVED')
+      RETURN
+ 9999 CALL ERRORS('SET_MATHS_ALL_UNSOLVED',ERROR)
+      CALL EXITS('SET_MATHS_ALL_UNSOLVED')
+      RETURN 1
+      END
+
+

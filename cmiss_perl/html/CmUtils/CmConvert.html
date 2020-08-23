@@ -1,0 +1,203 @@
+<HTML>
+<HEAD>
+<TITLE>cmConvert</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aCmConvert">CmUtils::CmConvert</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#USAGE">USAGE</A></LI>
+<LI><A HREF="#SYNOPSIS%20of%20cmConvert">SYNOPSIS of cmConvert</A></LI>
+<LI><A HREF="#OPTIONS%20AND%20ARGUMENTS">OPTIONS AND ARGUMENTS</A></LI>
+<LI><A HREF="#DESCRIPTION">DESCRIPTION</A></LI>
+<LI><A HREF="#SUBROUTINES">SUBROUTINES</A></LI>
+<UL>
+<LI><A HREF="#cmConvert"><B>cmConvert</B></A></LI>
+<LI><A HREF="#ipExdata"><B>ipExdata</B></A></LI>
+<LI><A HREF="#ipExnode"><B>ipExnode</B></A></LI>
+<LI><A HREF="#exIpdata"><B>exIpdata</B></A></LI>
+<LI><A HREF="#exIpnode"><B>exIpnode</B></A></LI>
+<LI><A HREF="#toExdata"><B>toExdata</B></A></LI>
+<LI><A HREF="#toIpdata"><B>toIpdata</B></A></LI>
+<LI><A HREF="#toExnode"><B>toExnode</B></A></LI>
+<LI><A HREF="#toIpnode"><B>toIpnode</B></A></LI>
+</UL>
+<LI><A HREF="#CHANGES">CHANGES</A></LI>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aCmConvert">CmUtils::CmConvert</A></H1>
+
+<P>cmConvert - converts files between CMISS formats</P><H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>1.01 (23 March 2001)</P><H1><A NAME="USAGE">USAGE</A></H1>
+
+<P>The routines in this package can be called in several ways.</P>
+<P>1/  From the shell prompt, call as cmConvert, or one of the aliases for
+specific conversions. Prefix options with '-'. e.g.</P>
+<PRE>    cmConvert -toformat exdata -force file.ipdata   # creates file.exdata
+    toIpnode file.exnode                            # creates file.ipnode
+    cmConvert file.ipnode                           # creates file.exnode</PRE>
+
+<P>2/  If data is piped in (or out) then the file formats must be explicitly
+specified. e.g.</P>
+<PRE>    cat file.ipnode | cmConvert -fromformat ipnode -toformat exnode &gt; file.exnode</PRE>
+
+<P>3/  From a Perl script, or from inside CMISS, load this module (with optional
+flags): </P>
+<PRE>    use CmUtils::CmConvert;                           # loads cmConvert()
+    use CmUtils::CmConvert qw(:all);                  # loads all routines
+    use CmUtils::CmConvert qw(ipExnode toIpdata);     # ipExnode() &amp; toIpdata()</PRE>
+
+<P>Options and filenames can then be specified in several ways.</P>
+<P>a)  as a string equivalent to a command line</P>
+<PRE>    ipExnode(&quot;-force -unique file.ipnode&quot;);   # create file.exnode</PRE>
+
+<P>b)  as options and filenames</P>
+<PRE>    cmConvert(&quot;-toformat&quot;,&quot;ipdata&quot;,$file);</PRE>
+
+<P>c)  as a hash array of options, followed by a list of files</P>
+<PRE>    $options-&gt;{-force} = 1;
+    $options-&gt;{-toformat} = &quot;ipdata&quot;;
+    cmConvert($options, @files);</PRE>
+
+<PRE>    $options = {-force =&gt; 1, -unique =&gt; 1, x0 =&gt; 5.7};
+    toIpdata($options, $exdatafile);
+    
+    %options = (-force =&gt; 1, -unique =&gt; 1, x0 =&gt; 5.7);
+    toIpdata(\%options, &quot;file.exdata&quot;);</PRE>
+<H1><A NAME="SYNOPSIS%20of%20cmConvert">SYNOPSIS of cmConvert</A></H1>
+<DL><DT><A NAME="cmConvert"><B>cmConvert</B></A></DT>
+<DD>
+[<B>-help</B>]
+[<B>-man</B>]
+[<B>-verbose</B>]
+[<B>-force</B>]
+[<B>-offset</B>&nbsp;<I>offset</I>]
+[<B>-unique</B>&nbsp;[<B>-thousand</B>|<B>-log</B>]]
+[<B>-x0</B>&nbsp;<I>x0</I>]
+[<B>-y0</B>&nbsp;<I>y0</I>]
+[<B>-z0</B>&nbsp;<I>z0</I>]
+[<B>-sort</B>]
+[<B>-fields</B>&nbsp;<I>fieldlist</I>]
+[<B>-allfields</B>]
+[<B>-nodes</B>&nbsp;<I>nodelist</I>]
+[<B>-fromformat</B>&nbsp;<I>format</I>]
+[<B>-toformat</B>&nbsp;<I>format</I>]
+[<I>filename(s)</I>]</DD>
+</DL>
+<H1><A NAME="OPTIONS%20AND%20ARGUMENTS">OPTIONS AND ARGUMENTS</A></H1>
+<DL><DT><A NAME="-help"><B>-help</B></A></DT>
+<DD>
+</DD>
+<DT><A NAME="-man"><B>-man</B></A></DT>
+<DD>
+</DD>
+<DT><A NAME="-verbose"><B>-verbose</B></A></DT>
+<DD>
+</DD>
+<DT><A NAME="-force"><B>-force</B></A></DT>
+<DD>
+Force output file to be overwritten if it exists.</DD>
+<DT><A NAME="-offset%20offset"><B>-offset</B>&nbsp;<I>offset</I></A></DT>
+<DD>
+Node number offset to begin numbering from.</DD>
+<DT><A NAME="-unique"><B>-unique</B></A></DT>
+<DD>
+Causes all nodes for all files to have unique numbers.</DD>
+<DT><A NAME="-thousand"><B>-thousand</B></A></DT>
+<DD>
+Starts each new numbering from next multiple of 1000.</DD>
+<DT><A NAME="-log"><B>-log</B></A></DT>
+<DD>
+Starts each new numbering according to power of ten of previous set.</DD>
+<DT><A NAME="-x0%20x0%20-y0%20y0%20-z0%20z0"><B>-x0</B> <I>x0</I> <B>-y0</B> <I>y0</I> <B>-z0</B> <I>z0</I></A></DT>
+<DD>
+Translation of position.</DD>
+<DT><A NAME="-sort"><B>-sort</B></A></DT>
+<DD>
+Will sort multiple files by decreasing size.</DD>
+<DT><A NAME="-allfields"><B>-allfields</B></A></DT>
+<DD>
+Write all fields (usually &quot;coordinates&quot; and &quot;weights&quot;) to file.  Default
+is to only write &quot;coordinate&quot; field.</DD>
+<DT><A NAME="-fields%20fieldlist"><B>-fields</B>&nbsp;<I>fieldlist</I></A></DT>
+<DD>
+Write the given field(s) only to the file. Default is to only write
+&quot;coordinate&quot; field.</DD>
+<DT><A NAME="-nodes%20nodelist"><B>-nodes</B>&nbsp;<I>nodelist</I></A></DT>
+<DD>
+
+<P>Select a subset of nodes to convert.  Any nodes lying in the range given will
+be output if they exist.  Nodelist must be defined without spaces, e.g.</P>
+<PRE>  -nodes 4,7,10..14,32</PRE>
+</DD>
+<DT><A NAME="-fromformat%20format"><B>-fromformat</B>&nbsp;<I>format</I></A></DT>
+<DD>
+Input file format.  If not specified, it will be determined from the input 
+filename.  Must be specified if file comes from STDIN.</DD>
+<DT><A NAME="-toformat%20format"><B>-toformat</B>&nbsp;<I>format</I></A></DT>
+<DD>
+Output file format.  By default, is the corresponding alternate format (i.e.
+<I>exdata</I> from <I>ipdata</I>).</DD>
+<DT><A NAME="filename(s)"><I>filename(s)</I></A></DT>
+<DD>
+Input file(s) to convert.  Also accepts piped input.</DD>
+</DL>
+<H1><A NAME="DESCRIPTION">DESCRIPTION</A></H1>
+
+<P><B>cmConvert</B> converts file between different CMISS formats, including <I>ipnode</I>,
+<I>ipdata</I>, <I>exnode</I>, <I>exdata</I>, <I>ipfiel</I> and <I>ipfibr</I>.
+Will also read from STDIN and write to STDOUT.  If multiple files 
+are specified and <I>sort</I> is set, then files will be sorted by decreasing size.
+If an output file already exists, it will not be written, unless the <I>force</I>
+option is used.</P>
+<P>File input and output formats are specified using the <I>fromformat</I> and
+<I>toformat</I> options, or are determined from the input file(s).</P>
+<P>If the variable <I>offset</I> is set, then the numbering will 
+begin from <I>offset</I>, else it is the same as the input file.
+If multiple files are parsed, the <I>unique</I> option allows numbering to
+increment for each file in sequence so that all written nodes for
+all files have unique numbers.  The <I>thousand</I> option causes this numbering
+to jump to the next multiple of 1000.  The <I>log</I> option instead jumps to 
+next appropriate power of 10.</P>
+<P>Can also set a translation using <I>x0</I>, <I>y0</I> and <I>z0</I>.  Translates the nodes
+so this specified point is at the origin.</P>
+<P>If symbolic links are made to this program, it can also be run as one of the
+following names, with appropriate input and output formats preset.</P>
+<PRE>  ipExdata
+  exIpdata
+  ipExnode
+  exIpnode
+  toExdata
+  toIpdata
+  toExnode
+  toIpnode</PRE>
+<H1><A NAME="SUBROUTINES">SUBROUTINES</A></H1>
+<H2><A NAME="cmConvert"><B>cmConvert</B></A></H2>
+
+<P>Used as a module, the <B>cmConvert</B> routine is available by default, with
+additional routines exportable if needed, individually, or together with
+qualifier <I>:all</I>.</P><H2><A NAME="ipExdata"><B>ipExdata</B></A></H2>
+
+<P>Converts from <I>ipdata</I> to <I>exdata</I> formats.</P><H2><A NAME="ipExnode"><B>ipExnode</B></A></H2>
+
+<P>Converts from <I>ipnode</I> to <I>exnode</I> formats.</P><H2><A NAME="exIpdata"><B>exIpdata</B></A></H2>
+
+<P>Converts from <I>exdata</I> to <I>ipdata</I> formats.</P><H2><A NAME="exIpnode"><B>exIpnode</B></A></H2>
+
+<P>Converts from <I>exnode</I> to <I>ipnode</I> formats.</P><H2><A NAME="toExdata"><B>toExdata</B></A></H2>
+
+<P>Converts to <I>exdata</I> formats.</P><H2><A NAME="toIpdata"><B>toIpdata</B></A></H2>
+
+<P>Converts to <I>ipdata</I> formats.</P><H2><A NAME="toExnode"><B>toExnode</B></A></H2>
+
+<P>Converts to <I>exnode</I> formats.</P><H2><A NAME="toIpnode"><B>toIpnode</B></A></H2>
+
+<P>Converts to <I>ipnode</I> formats.</P><H1><A NAME="CHANGES">CHANGES</A></H1>
+
+<P>1.01 - Added options for specifying fields to use.  Also verbose option.</P>
+<P>1.0 - Release</P>
+<P>0.7 - Added new Pod documentation system to give help in CMISS or perldl etc</P>
+<P>0.6 - Added documentation and examples describing usage</P>
+</BODY>
+</HTML>

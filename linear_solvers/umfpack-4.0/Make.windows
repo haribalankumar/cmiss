@@ -1,0 +1,34 @@
+#-------------------------------------------------------------------------------
+# Windows configuration
+#-------------------------------------------------------------------------------
+
+# This has not been tested.  It's a wild guess ... good luck.
+
+CC = cl
+OUTPUT = /Fo
+OBJEXT = .obj
+CFLAGS = -DWIN32 /O2
+RANLIB = ranlib
+
+# BLAS options:
+
+# with no BLAS (this will be slow)
+CONFIG = -DNBLAS
+LIB = 
+
+# with the vendor-supplied BLAS
+# CONFIG = -DNCBLAS
+# LIB = 
+
+# with the C-BLAS
+# CONFIG = 
+# LIB = 
+
+#-------------------------------------------------------------------------------
+# For compiling the MATLAB mexFunction.  Uses MATLAB's internal BLAS.
+
+MEX = mex -inline -O
+UMFPACKMEX = umfpack
+
+# If you do not have MATLAB, uncomment this line:
+# UMFPACKMEX = 

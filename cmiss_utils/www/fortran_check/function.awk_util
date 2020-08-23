@@ -1,0 +1,44 @@
+function parse_file_module(full_line,names, # 2 parameters
+			   filename) {
+  num_words=split(full_line,words);
+  get_file = 0;
+  if(words[2]=="line" && words[4]=="col")
+    {
+      get_file = 1;
+      names[1] = words[3];
+      names[2] = words[5];
+    }
+  else if(words[2]=="near" && words[3]=="line")
+    {
+      get_file = 1;
+      names[1] = words[4];
+    }
+  if(get_file)
+    {
+      comma = index(words[1],",");
+      if(comma)
+	{
+	  filename = substr(words[1],2,comma-3);
+	}
+      else
+	{
+	  filename = substr(words[1],2,length(words[1])-2);
+#			#parameters.inc etc
+#			colon = index(words[1],":");
+#			names[0] = substr(words[1],colon+1,length(words[1])-colon-2);
+	}
+      names[0] = tail(filename);
+    }
+}
+
+function tail(filename, # 1 parameter
+	      rest,slash)
+{
+  rest = filename;
+  while (slash = index(rest,"/"))
+    {
+      rest = substr(rest,slash+1);
+    }
+  return rest;
+}
+

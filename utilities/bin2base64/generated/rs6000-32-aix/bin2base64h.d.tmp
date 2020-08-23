@@ -1,0 +1,4 @@
+makedepend: warning:  source/bin2base64h.c, line 11: cannot find include file "stdio.h"
+makedepend: warning:  source/bin2base64h.c, line 12: cannot find include file "stdlib.h"
+makedepend: warning:  source/bin2base64h.c, line 13: cannot find include file "string.h"
+makedepend: warning:  source/bin2base64h.c, line 14: cannot find include file "math.h"

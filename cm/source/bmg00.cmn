@@ -1,0 +1,35 @@
+C -*- Fortran -*-
+C  bmg00.cmn
+c
+      INTEGER BMG_iPARMS(65,9),BMG_pWORK(13,9), 
+     &	      NBMG_iWORK_PL(9),NBMG_rWORK_PL(9),
+     &        NBMG_iWORK(9), NBMG_rWORK(9), BMG_DIMS(3,9),
+     &        BMG_PCG_iPARMS(6,9)
+      
+      LOGICAL BMG_IOFLAG(46,9),BMG_InWORK(7,9),BMG_PCG_OUTPUT(9),   
+     &        BMG_ALLOCATED(9)
+
+      REAL*8 BMG_rPARMS(6,9), BMG_PCG_rPARMS(2,9)
+      
+      COMMON /BMGPARMS/ BMG_iPARMS, BMG_pWORK, 
+     &                  NBMG_iWORK, NBMG_rWORK, BMG_DIMS,
+     &                  NBMG_iWORK_PL, NBMG_rWORK_PL,
+     &	                BMG_PCG_iPARMS
+
+      COMMON /BMGLOGS/ BMG_IOFLAG,BMG_InWORK,BMG_PCG_OUTPUT,
+     &                 BMG_ALLOCATED
+
+      COMMON /BMGRPARMS/ BMG_rPARMS,BMG_PCG_rPARMS
+
+      INTEGER*4 
+     &  BMG_iWORK_PTR(9),BMG_rWORK_PTR(9),
+     &  BMG_iWORK_PL_PTR(9),BMG_rWORK_PL_PTR(9),
+     &  BMG_BDY_PTR(9), BMG_PCG_RES(9), BMG_IJK_PTR(9), 
+     &  CM_IJK_PTR(9), CM_MESH_DIST_PTR(9), 
+     &  BMG_TO_CM_PTR(9)
+
+      COMMON /BMGPTRI4/ BMG_iWORK_PTR,BMG_rWORK_PTR,
+     &                  BMG_iWORK_PL_PTR,BMG_rWORK_PL_PTR,
+     &                  BMG_BDY_PTR,BMG_PCG_RES, BMG_IJK_PTR,
+     &                  CM_IJK_PTR, CM_MESH_DIST_PTR, 
+     &                  BMG_TO_CM_PTR

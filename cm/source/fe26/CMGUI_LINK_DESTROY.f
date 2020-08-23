@@ -1,0 +1,75 @@
+      SUBROUTINE CMGUI_LINK_DESTROY(ERROR,*)
+
+C#### Subroutine: CMGUI_LINK_DESTROY
+C###  Description:
+C###    Destroy any variables used by the CM-CMGUI
+C###    link.  This should be called before CM quits.
+
+      IMPLICIT NONE
+      INCLUDE 'cmgui00.cmn'
+!     Parameter List
+      CHARACTER ERROR*(*)
+!     Local Variables
+      INTEGER CODE_C_I,CODE_C_O,CODE_P_I,CODE_P_O,CODE_D_I,CODE_D_O
+
+      CALL ENTERS('CMGUI_LINK_DESTROY',*9999)
+
+C     destroy any pointers
+      IF(CMGUI_DATA_PTR.NE.0) THEN
+        CALL FREE_MEMORY(CMGUI_DATA_PTR,ERROR,*9999)
+      ENDIF
+      CMGUI_DATA_LEN=0
+      IF(CMGUI_NODE_PTR.NE.0) THEN
+        CALL FREE_MEMORY(CMGUI_NODE_PTR,ERROR,*9999)
+      ENDIF
+      CMGUI_NODE_LEN=0
+      IF(CMGUI_REGION_PTR.NE.0) THEN
+        CALL FREE_MEMORY(CMGUI_REGION_PTR,ERROR,*9999)
+      ENDIF
+      CMGUI_REGION_LEN=0
+C     Will probably have to kill the link here
+      IF(CMGUI_COMMAND_I.NE.0) THEN
+        CALL WH_INPUT_F_DESTROY(CMGUI_COMMAND_I,CODE_C_I)
+      ELSE
+        CODE_C_I=1
+      ENDIF
+      IF(CMGUI_COMMAND_O.NE.0) THEN
+        CALL WH_OUTPUT_F_DESTROY(CMGUI_COMMAND_O,CODE_C_O)
+      ELSE
+        CODE_C_O=1
+      ENDIF
+      IF(CMGUI_PROMPT_I.NE.0) THEN
+        CALL WH_INPUT_F_DESTROY(CMGUI_PROMPT_I,CODE_P_I)
+      ELSE
+        CODE_P_I=1
+      ENDIF
+      IF(CMGUI_PROMPT_O.NE.0) THEN
+        CALL WH_OUTPUT_F_DESTROY(CMGUI_PROMPT_O,CODE_P_O)
+      ELSE
+        CODE_P_O=1
+      ENDIF
+      IF(CMGUI_DATA_I.NE.0) THEN
+        CALL WH_INPUT_F_DESTROY(CMGUI_DATA_I,CODE_D_I)
+      ELSE
+        CODE_D_I=1
+      ENDIF
+      IF(CMGUI_DATA_O.NE.0) THEN
+        CALL WH_OUTPUT_F_DESTROY(CMGUI_DATA_O,CODE_D_O)
+      ELSE
+        CODE_D_O=1
+      ENDIF
+      IF((CODE_C_I.EQ.0).OR.(CODE_C_O.EQ.0).OR.
+     '  (CODE_P_I.EQ.0).OR.(CODE_P_O.EQ.0).OR.
+     '  (CODE_D_I.EQ.0).OR.(CODE_D_O.EQ.0)) THEN
+        ERROR=' >>Could not destroy CMGUI wormholes'
+        GOTO 9999
+      ENDIF
+
+      CALL EXITS('CMGUI_LINK_DESTROY')
+      RETURN
+ 9999 CALL ERRORS('CMGUI_LINK_DESTROY',ERROR)
+      CALL EXITS('CMGUI_LINK_DESTROY')
+      RETURN 1
+      END
+
+

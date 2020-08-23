@@ -1,0 +1,119 @@
+      SUBROUTINE SET_MATHS_INPUT_MAP(MATHS_LABEL,
+     &  MATHS_IN_LABEL,DEST_TYPE,DEST_LABEL,
+     &  DEST_INPUT_LABEL,ERROR,*)
+
+C#### Subroutine: SET_MATHS_INPUT_MAP
+C###  Description:
+C###    Sets the mapping for a maths input variable.
+
+      IMPLICIT NONE
+      INCLUDE 'constant00.cmn'
+      INCLUDE 'field00.cmn'
+      INCLUDE 'maths00.cmn'
+      INCLUDE 'equation00.cmn'
+
+!     Parameter List
+      CHARACTER DEST_LABEL*(*),DEST_INPUT_LABEL*(*),DEST_TYPE*(*),
+     &  MATHS_LABEL*(*),MATHS_IN_LABEL*(*),ERROR*(*)
+!     Local Variables
+      INTEGER INDEX,MATHS_INDEX,MATHS_IN_INDEX
+
+      CALL ENTERS('SET_MATHS_INPUT_MAP',*9999)
+
+      CALL GET_MATHS_INDEX(MATHS_LABEL,MATHS_INDEX,ERROR,*9999)
+      CALL ASSERT(MATHS_INDEX.GT.0,'Maths label not found',
+     &  ERROR,*9999)
+      CALL GET_MATHS_INPUT_INDEX(MATHS_LABEL,MATHS_IN_LABEL,
+     &  MATHS_IN_INDEX,ERROR,*9999)
+      CALL ASSERT(MATHS_IN_INDEX.GT.0,
+     &  'Maths variable label not found',ERROR,*9999)
+     
+      IF(DEST_TYPE.EQ.'INITIAL_VALUE')THEN
+
+        CALL SET_STRING_IN_ARRAY(
+     &    MATHS_IN_MAP_TYPE_ARRAY,
+     &    MATHS_IN_MAP_TYPE_ALLOC_ARRAY,
+     &    MATHS_IN_MAP_TYPE_ARRAY_SIZE,
+     &    MATHS_IN_MAP_TYPE_LEN,
+     &    MATHS_INDEX,MATHS_IN_INDEX,DEST_TYPE,
+     &    ERROR,*9999)
+     
+      ELSEIF(DEST_TYPE.EQ.'CONSTANT')THEN
+
+        CALL GET_CONSTANT_INDEX(DEST_LABEL,INDEX,ERROR,*9999)
+        CALL ASSERT(INDEX.GT.0,'Constant label not found',ERROR,*9999)
+        CALL GET_CONSTANT_COMPONENT_INDEX(DEST_LABEL,DEST_INPUT_LABEL,
+     &    INDEX,ERROR,*9999)
+        CALL ASSERT(INDEX.GT.0,'Constant component label not found',
+     &    ERROR,*9999)
+
+      ELSEIF(DEST_TYPE.EQ.'FIELD')THEN
+
+        CALL GET_FIELD_INDEX(DEST_LABEL,INDEX,ERROR,*9999)
+        CALL ASSERT(INDEX.GT.0,'Field label not found',ERROR,*9999)
+        CALL GET_FIELD_COMPONENT_INDEX(DEST_LABEL,DEST_INPUT_LABEL,
+     &    INDEX,ERROR,*9999)
+        CALL ASSERT(INDEX.GT.0,'Field component label not found',
+     &    ERROR,*9999)
+
+      ELSEIF(DEST_TYPE.EQ.'MATHS')THEN
+
+        CALL GET_MATHS_INDEX(DEST_LABEL,INDEX,ERROR,*9999)
+        CALL ASSERT(INDEX.GT.0,'Maths label not found',ERROR,*9999)
+        CALL GET_MATHS_OUTPUT_INDEX(DEST_LABEL,DEST_INPUT_LABEL,
+     &    INDEX,ERROR,*9999)
+        CALL ASSERT(INDEX.GT.0,'Maths variable label not found',
+     &    ERROR,*9999)
+
+      ELSEIF(DEST_TYPE.EQ.'EQUATION')THEN
+
+        CALL GET_EQUATION_INDEX(DEST_LABEL,INDEX,ERROR,*9999)
+        CALL ASSERT(INDEX.GT.0,'Equation label not found',ERROR,*9999)
+        CALL GET_EQUATION_OUTPUT_INDEX(DEST_LABEL,DEST_INPUT_LABEL,
+     &    INDEX,ERROR,*9999)
+        CALL ASSERT(INDEX.GT.0,'Equation variable label not found',
+     &    ERROR,*9999)
+
+      ELSE
+        
+        CALL ASSERT(INDEX.GT.0,'Destination type not identified',
+     &    ERROR,*9999)
+        
+      ENDIF
+
+      IF(DEST_TYPE.NE.'VALUE')THEN
+
+        CALL SET_STRING_IN_ARRAY(
+     &    MATHS_IN_MAP_TYPE_ARRAY,
+     &    MATHS_IN_MAP_TYPE_ALLOC_ARRAY,
+     &    MATHS_IN_MAP_TYPE_ARRAY_SIZE,
+     &    MATHS_IN_MAP_TYPE_LEN,
+     &    MATHS_INDEX,MATHS_IN_INDEX,DEST_TYPE,
+     &    ERROR,*9999)
+     
+        CALL SET_STRING_IN_ARRAY(
+     &    MATHS_IN_MAP_PARENT_ARRAY,
+     &    MATHS_IN_MAP_PARENT_ALLOC_ARRAY,
+     &    MATHS_IN_MAP_PARENT_ARRAY_SIZE,
+     &    MATHS_IN_MAP_PARENT_LEN,
+     &    MATHS_INDEX,MATHS_IN_INDEX,DEST_LABEL,
+     &    ERROR,*9999)
+
+        CALL SET_STRING_IN_ARRAY(
+     &    MATHS_IN_MAP_CHILD_ARRAY,
+     &    MATHS_IN_MAP_CHILD_ALLOC_ARRAY,
+     &    MATHS_IN_MAP_CHILD_ARRAY_SIZE,
+     &    MATHS_IN_MAP_CHILD_LEN,
+     &    MATHS_INDEX,MATHS_IN_INDEX,DEST_INPUT_LABEL,
+     &    ERROR,*9999)
+      
+      ENDIF
+
+      CALL EXITS('SET_MATHS_INPUT_MAP')
+      RETURN
+ 9999 CALL ERRORS('SET_MATHS_INPUT_MAP',ERROR)
+      CALL EXITS('SET_MATHS_INPUT_MAP')
+      RETURN 1
+      END
+
+

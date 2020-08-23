@@ -1,0 +1,4 @@
+!  echo00.cmn
+      REAL ECAREA(4)
+      COMMON /ECHO00R4/ ECAREA
+

@@ -1,0 +1,24 @@
+No licence was distributed with this solver.
+
+The previous version, AMG1R5 is described as "widely available to the
+public" by M. BREZINA, A. J. CLEARY, R. D. FALGOUT, V. E. HENSON, J. E. JONES,
+T. A. MANTEUFFEL, S. F. MCCORMICK, AND J. W. RUGE, in "ALGEBRAIC MULTIGRID
+BASED ON ELEMENT INTERPOLATION (AMGe)", SIAM J. SCI. COMPUT., Vol. 22, No. 5,
+pp. 1570-1592, and john w. ruge is one of the authors of amg1r6.
+
+The other possibly principal author seems to be Klaus Stuben of
+Fraunhofer-Institute for Algorithms and Scientific Computing (SCAI), Sankt
+Augustin, Germany.
+
+The code no longer seems to be distributed and has been superceded by SAMG
+(http://www.scai.fraunhofer.de/SAMG.htm).
+
+It seems there may have been "Free AMG1R5 Research Software License Agreement"
+making the software available freely only for research purposes.
+(http://groups.yahoo.com/group/gwmodel/message/864)
+
+http://www.mgnet.org/mgnet-codes-gmd.html says:
+
+  AMG was written by John Ruge, Klaus Stueben, and Rolf Hempel and resided here
+  for 12 years.  Klaus Stueben requested its removal on May 12, 2003.  Please
+  send email to samg@scai.fhg.de if you want a copy.

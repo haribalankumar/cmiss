@@ -1,0 +1,5 @@
+!  coef00.cmn
+      INTEGER NT_MATR
+      REAL*8 AMATR(50,50)
+      COMMON /COEF00I/ NT_MATR
+      COMMON /COEFOOR/ AMATR

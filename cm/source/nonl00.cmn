@@ -1,0 +1,19 @@
+!  nonl00.cmn
+      INTEGER NOSTEP,CONT_IT,AUG_IT,LOAD_IT,CONV_IT,PENALTY,AUGMENT,
+     '        ADD_GEOM
+!     VIS_WT contains the psuedo-viscous penalty.
+!     FRIC_COEFF contains the material friction coefficient
+!     GAP_TOL contains the gap function error value
+      REAL*8 VIS_WT,FRIC_COEFF,GAP_TOL,CONT_STIFF,FRIC_STIFF,TIED_STIFF,
+     &  INITIAL_ENERGY
+!     CONT_STIFF is the contact stiffness value for frictionless contact
+!     FRIC_STIFF is the contact stiffness value for frictional contact
+!     TIED_STIFF is the tied stiffness value
+      LOGICAL CHECK_CONTACT
+!     CHECK_CONTACT allows all contact points to be active during Newton steps 
+      
+      COMMON /NONL00I/ NOSTEP,CONT_IT,AUG_IT,LOAD_IT,CONV_IT,
+     '  PENALTY,AUGMENT,ADD_GEOM
+      COMMON /NONL00R/ VIS_WT,FRIC_COEFF,GAP_TOL,CONT_STIFF,FRIC_STIFF,
+     '  TIED_STIFF,INITIAL_ENERGY
+      COMMON /NONL00L/ CHECK_CONTACT

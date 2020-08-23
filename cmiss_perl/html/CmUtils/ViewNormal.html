@@ -1,0 +1,111 @@
+<HTML>
+<HEAD>
+<TITLE>Sets the view of a named window normal to a plane defined by 
+4 nodes in an .exnode file.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aViewNormal">CmUtils::ViewNormal</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<UL>
+<LI><A HREF="#1.03">1.03</A></LI>
+<LI><A HREF="#1.02">1.02</A></LI>
+<LI><A HREF="#1.01">1.01</A></LI>
+</UL>
+<LI><A HREF="#VARIABLES">VARIABLES</A></LI>
+<LI><A HREF="#viewNormal(filename%20%5b%2cwindow%5d%20%5b%2cscale%5d%20%5b%2cviewrange%5d)"><B>viewNormal(filename [,window] [,scale] [,viewrange])</B></A></LI>
+<LI><A HREF="#updateViewNormal(filename%20%5b%2cwindow%5d%20%5b%2cscale%5d%20%5b%2cviewrange%5d)"><B>updateViewNormal(filename [,window] [,scale] [,viewrange])</B></A></LI>
+<LI><A HREF="#computeNormal(filename)"><B>computeNormal(filename)</B></A></LI>
+<LI><A HREF="#Other%20routines">Other routines</A></LI>
+<UL>
+<LI><A HREF="#checkNodes(group)"><B>checkNodes(group)</B></A></LI>
+<LI><A HREF="#calculateNormal(nodelist)"><B>calculateNormal(nodelist)</B></A></LI>
+<LI><A HREF="#calculateCentre(nodelist)"><B>calculateCentre(nodelist)</B></A></LI>
+<LI><A HREF="#calculateUp(nodelist)"><B>calculateUp(nodelist)</B></A></LI>
+<LI><A HREF="#rotateView(window%2c%20info%2c%20scale%2c%20viewrange)"><B>rotateView(window, info, scale, viewrange)</B></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aViewNormal">CmUtils::ViewNormal</A></H1>
+
+<P>Sets the view of a named window normal to a plane defined by 
+4 nodes in an <I>.exnode</I> file.  </P><H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>1.03 (17 December 2003)
+=head1 CHANGES</P><H2><A NAME="1.03">1.03</A></H2>
+
+<P>Added <B>updateViewNormal</B> which uses the Cmiss direct interface modules to 
+interrogate the scene viewer and try and maintain a consistent interest point
+when changing slices.  The routine compiles conditionally so that this 
+Digitise module will still compile and fall back to the old behaviour if the
+function does not initialise.</P><H2><A NAME="1.02">1.02</A></H2>
+
+<P>Added <B>computeNormal</B> to compute normals from a exnode file without changing
+windows - in essence prefilling the cache.  This node file may contain multiple
+node groups, and each one is computed.</P><H2><A NAME="1.01">1.01</A></H2>
+
+<P>Added caching of nodal information in a hash <CODE>%info</CODE>.</P><H1><A NAME="VARIABLES">VARIABLES</A></H1>
+<DL><DT><A NAME="%24CmUtils%3a%3aViewNormal%3a%3aScale">$CmUtils::ViewNormal::Scale</A></DT>
+<DD>
+Scaling for viewing image.  By default, Scale is 100.</DD>
+<DT><A NAME="%24CmUtils%3a%3aViewNormal%3a%3aViewRange">$CmUtils::ViewNormal::ViewRange</A></DT>
+<DD>
+Range for near and far clipping planes.  By default, ViewRange is 10.</DD>
+</DL>
+<H1><A NAME="viewNormal(filename%20%5b%2cwindow%5d%20%5b%2cscale%5d%20%5b%2cviewrange%5d)"><B>viewNormal(filename [,window] [,scale] [,viewrange])</B></A></H1>
+
+<P>By default, the window to set is &quot;Window 1&quot;.  For example</P>
+<PRE>  use CmUtils::ViewNormal;
+  viewNormal(&quot;axial10&quot;);</PRE>
+
+<P>sets window 1 so that axial10.exnode (which may have axial10.rgb drawn in it)
+is normal to the view.  Used so far to give a view normal to echo images.</P>
+<P>The <I>Scale</I> and <I>ViewRange</I> can also be overridden for this call only. 
+Neither can be zero;</P><H1><A NAME="updateViewNormal(filename%20%5b%2cwindow%5d%20%5b%2cscale%5d%20%5b%2cviewrange%5d)"><B>updateViewNormal(filename [,window] [,scale] [,viewrange])</B></A></H1>
+
+<P>By default, the window to set is &quot;Window 1&quot;.  For example</P>
+<PRE>  use CmUtils::ViewNormal;
+  updateViewNormal(&quot;axial10&quot;);</PRE>
+
+<P>sets window 1 so that axial10.exnode (which may have axial10.rgb drawn in it)
+is normal to the view.  Used so far to give a view normal to echo images.</P>
+<P>The <I>Scale</I> and <I>ViewRange</I> can also be overridden for this call only. 
+Neither can be zero;</P>
+<P>This version is a replacement for viewNormal which maintains the same
+viewing range when you change planes and ensures that the centre of the
+new view is the intersection of the previous viewing direction and this
+plane.</P><H1><A NAME="computeNormal(filename)"><B>computeNormal(filename)</B></A></H1>
+
+<P>Reads node file <I>filename</I> and computes and stores normals for all node groups
+in the file.</P>
+<PRE>  use CmUtils::ViewNormal qw(computeNormal);
+  computeNormal(&quot;file.exnode&quot;);</PRE>
+<H1><A NAME="Other%20routines">Other routines</A></H1>
+
+<P>The above routines call the following (unexported) routines.</P><H2><A NAME="checkNodes(group)"><B>checkNodes(group)</B></A></H2>
+
+<P>Checks that nodal information in a group is valid, and puts the nodal
+coordinates into the array as vectors.  Requires a single fieldset,
+with 4 nodes of 3 coordinates each.</P><H2><A NAME="calculateNormal(nodelist)"><B>calculateNormal(nodelist)</B></A></H2>
+
+<P>Calculates the normal to the plane by taking the cross-product of two vectors
+in the plane.  Returns a normal vector as a CmUtils::Vector.</P>
+<PRE>  $normal = calculateNormal(@nodes);</PRE>
+<H2><A NAME="calculateCentre(nodelist)"><B>calculateCentre(nodelist)</B></A></H2>
+
+<P>Calculates the centre of the nodes.</P>
+<PRE>  $centre = calculateCentre(@nodes);</PRE>
+<H2><A NAME="calculateUp(nodelist)"><B>calculateUp(nodelist)</B></A></H2>
+
+<P>Calculates the up-vector of the image (node 3 - node 1).</P>
+<PRE>  $up = calculateUp(@nodes);</PRE>
+<H2><A NAME="rotateView(window%2c%20info%2c%20scale%2c%20viewrange)"><B>rotateView(window, info, scale, viewrange)</B></A></H2>
+
+<P>Rotates the view to align with a vector, centred on a point, with a given
+up-vector.</P>
+<PRE>  rotateView(1, $info);</PRE>
+
+<P>rotates window 1 so that the interest point is $info-&gt;{centre}, and the view
+direction is defined by $info-&gt;{normal} and an up-vector of $info-&gt;{up}.</P>
+</BODY>
+</HTML>

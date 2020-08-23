@@ -1,0 +1,28 @@
+<HTML>
+<HEAD>
+<TITLE>cmAddVersions</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aCmAddVersions">CmUtils::CmAddVersions</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#USAGE">USAGE</A></LI>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aCmAddVersions">CmUtils::CmAddVersions</A></H1>
+
+<P>cmAddVersions - add versions to an ipnode file for specified nodes.</P><H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>1.0 (17 December 2003) GBS</P><H1><A NAME="USAGE">USAGE</A></H1>
+
+<PRE>  &gt; cmAddVersions nodefile versionsfile outputfile</PRE>
+
+<PRE>  CmUtils::CmAddVersions(&quot;initial.ipnode&quot;, &quot;versionchanges&quot;, &quot;new.ipnode&quot;);</PRE>
+
+<P>All three parameters are required.  The Versions file contains a list of pairs
+where the first number is the node number to add versions to, and the second
+number is how many versions this node should have.</P>
+<P>If a node listed already contains versions, the original information is ignored,
+and new versions are created from the first version of the node.</P>
+</BODY>
+</HTML>

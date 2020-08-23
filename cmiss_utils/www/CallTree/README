@@ -1,0 +1,13 @@
+Call Tree
+=========
+
+The program in this directory take a list of fortran files and generate
+the calling tree information for the subroutines. Comments (both column
+zero as well as "!" based ones) are handled. Call that are broken over
+more than one line (continuations) are handled. Strings that appear to
+be subrouytine calls within quotations (strings) are handled.
+
+The data that is collected is then merged with the "database" of 
+existing information about the subroutines and written back to disc.
+
+Edouard.

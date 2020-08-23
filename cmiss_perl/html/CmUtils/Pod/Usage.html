@@ -1,0 +1,324 @@
+<HTML>
+<HEAD>
+<TITLE>CmUtils::Pod::Usage, pod2usage()</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aPod%3a%3aUsage">CmUtils::Pod::Usage</A></LI>
+<LI><A HREF="#SYNOPSIS">SYNOPSIS</A></LI>
+<LI><A HREF="#ARGUMENTS">ARGUMENTS</A></LI>
+<LI><A HREF="#DESCRIPTION">DESCRIPTION</A></LI>
+<LI><A HREF="#EXAMPLES">EXAMPLES</A></LI>
+<UL>
+<LI><A HREF="#Recommended%20Use">Recommended Use</A></LI>
+</UL>
+<LI><A HREF="#CAVEATS">CAVEATS</A></LI>
+<LI><A HREF="#AUTHORS">AUTHORS</A></LI>
+<LI><A HREF="#ACKNOWLEDGEMENTS">ACKNOWLEDGEMENTS</A></LI>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aPod%3a%3aUsage">CmUtils::Pod::Usage</A></H1>
+
+<P>CmUtils::Pod::Usage, pod2usage() - print a usage message from embedded pod documentation</P><H1><A NAME="SYNOPSIS">SYNOPSIS</A></H1>
+
+<PRE>  use CmUtils::Pod::Usage</PRE>
+
+<PRE>  my $message_text  = &quot;This text precedes the usage message.&quot;;
+  my $exit_status   = 2;          ## The exit status to use
+  my $verbose_level = 0;          ## The verbose level to use
+  my $filehandle    = \*STDERR;   ## The filehandle to write to</PRE>
+
+<PRE>  pod2usage($message_text);</PRE>
+
+<PRE>  pod2usage($exit_status);</PRE>
+
+<PRE>  pod2usage( { -message =&gt; $message_text ,
+               -exitval =&gt; $exit_status  ,  
+               -verbose =&gt; $verbose_level,  
+               -output  =&gt; $filehandle } );</PRE>
+
+<PRE>  pod2usage(   -msg     =&gt; $message_text ,
+               -exitval =&gt; $exit_status  ,  
+               -verbose =&gt; $verbose_level,  
+               -output  =&gt; $filehandle   );</PRE>
+<H1><A NAME="ARGUMENTS">ARGUMENTS</A></H1>
+
+<P><B>pod2usage</B> should be given either a single argument, or a list of
+arguments corresponding to an associative array (a &quot;hash&quot;). When a single
+argument is given, it should correspond to exactly one of the following:</P><UL>
+<LI>A string containing the text of a message to print <I>before</I> printing
+the usage message</LI>
+<LI>A numeric value corresponding to the desired exit status</LI>
+<LI>A reference to a hash</LI>
+</UL>
+
+<P>If more than one argument is given then the entire argument list is
+assumed to be a hash.  If a hash is supplied (either as a reference or
+as a list) it should contain one or more elements with the following
+keys:</P><DL><DT><A NAME="-message"><CODE>-message</CODE></A></DT>
+<DD>
+</DD>
+<DT><A NAME="-msg"><CODE>-msg</CODE></A></DT>
+<DD>
+The text of a message to print immediately prior to printing the
+program's usage message. </DD>
+<DT><A NAME="-exitval"><CODE>-exitval</CODE></A></DT>
+<DD>
+
+<P>The desired exit status to pass to the <B>exit()</B> function.</P>
+<P>GBS mods:
+If exitval is &lt; 0, then don't exit.</P></DD>
+<DT><A NAME="-verbose"><CODE>-verbose</CODE></A></DT>
+<DD>
+The desired level of &quot;verboseness&quot; to use when printing the usage
+message. If the corresponding value is 0, then only the &quot;SYNOPSIS&quot;
+section of the pod documentation is printed. If the corresponding value
+is 1, then the &quot;SYNOPSIS&quot; section, along with any section entitled
+&quot;OPTIONS&quot;, &quot;ARGUMENTS&quot;, or &quot;OPTIONS AND ARGUMENTS&quot; is printed.  If the
+corresponding value is 2 or more then the entire manpage is printed.</DD>
+<DT><A NAME="-output"><CODE>-output</CODE></A></DT>
+<DD>
+A reference to a filehandle, or the pathname of a file to which the
+usage message should be written. The default is <CODE>\*STDERR</CODE> unless the
+exit value is less than 2 (in which case the default is <CODE>\*STDOUT</CODE>).</DD>
+<DT><A NAME="-input"><CODE>-input</CODE></A></DT>
+<DD>
+A reference to a filehandle, or the pathname of a file from which the
+invoking script's pod documentation should be read.  It defaults to the
+file indicated by <CODE>$0</CODE> (<CODE>$PROGRAM_NAME</CODE> for users of <I>English.pm</I>).</DD>
+<DT><A NAME="-pathlist"><CODE>-pathlist</CODE></A></DT>
+<DD>
+A list of directory paths. If the input file does not exist, then it
+will be searched for in the given directory list (in the order the
+directories appear in the list). It defaults to the list of directories
+implied by <CODE>$ENV{PATH}</CODE>. The list may be specified either by a reference
+to an array, or by a string of directory paths which use the same path
+separator as <CODE>$ENV{PATH}</CODE> on your system (e.g., <CODE>:</CODE> for Unix, <CODE>;</CODE> for
+MSWin32 and DOS).</DD>
+</DL>
+<H1><A NAME="DESCRIPTION">DESCRIPTION</A></H1>
+
+<P><B>pod2usage</B> will print a usage message for the invoking script (using
+its embedded pod documentation) and then exit the script with the
+desired exit status. The usage message printed may have any one of three
+levels of &quot;verboseness&quot;: If the verbose level is 0, then only a synopsis
+is printed. If the verbose level is 1, then the synopsis is printed
+along with a description (if present) of the command line options and
+arguments. If the verbose level is 2, then the entire manual page is
+printed.</P>
+<P>Unless they are explicitly specified, the default values for the exit
+status, verbose level, and output stream to use are determined as
+follows:</P><UL>
+<LI>If neither the exit status nor the verbose level is specified, then the
+default is to use an exit status of 2 with a verbose level of 0.</LI>
+<LI>If an exit status <I>is</I> specified but the verbose level is <I>not</I>, then the
+verbose level will default to 1 if the exit status is less than 2 and
+will default to 0 otherwise.</LI>
+<LI>If an exit status is <I>not</I> specified but verbose level <I>is</I> given, then
+the exit status will default to 2 if the verbose level is 0 and will
+default to 1 otherwise.</LI>
+<LI>If the exit status used is less than 2, then output is printed on
+<CODE>STDOUT</CODE>.  Otherwise output is printed on <CODE>STDERR</CODE>.</LI>
+</UL>
+
+<P>Although the above may seem a bit confusing at first, it generally does
+&quot;the right thing&quot; in most situations.  This determination of the default
+values to use is based upon the following typical Unix conventions:</P><UL>
+<LI>An exit status of 0 implies &quot;success&quot;. For example, <B>diff(1)</B> exits
+with a status of 0 if the two files have the same contents.</LI>
+<LI>An exit status of 1 implies possibly abnormal, but non-defective, program
+termination.  For example, <B>grep(1)</B> exits with a status of 1 if
+it did <I>not</I> find a matching line for the given regular expression.</LI>
+<LI>An exit status of 2 or more implies a fatal error. For example, <B>ls(1)</B>
+exits with a status of 2 if you specify an illegal (unknown) option on
+the command line.</LI>
+<LI>Usage messages issued as a result of bad command-line syntax should go
+to <CODE>STDERR</CODE>.  However, usage messages issued due to an explicit request
+to print usage (like specifying <B>-help</B> on the command line) should go
+to <CODE>STDOUT</CODE>, just in case the user wants to pipe the output to a pager
+(such as <B>more(1)</B>).</LI>
+<LI>If program usage has been explicitly requested by the user, it is often
+desireable to exit with a status of 1 (as opposed to 0) after issuing
+the user-requested usage message.  It is also desireable to give a
+more verbose description of program usage in this case.</LI>
+</UL>
+
+<P><B>pod2usage</B> doesn't force the above conventions upon you, but it will
+use them by default if you don't expressly tell it to do otherwise.  The
+ability of <B>pod2usage()</B> to accept a single number or a string makes it
+convenient to use as an innocent looking error message handling function:</P>
+<PRE>    use CmUtils::Pod::Usage;
+    use Getopt::Long;</PRE>
+
+<PRE>    ## Parse options
+    GetOptions(&quot;help&quot;, &quot;man&quot;, &quot;flag1&quot;)  ||  pod2usage(2);
+    pod2usage(1)  if ($opt_help);
+    pod2usage(-verbose =&gt; 2)  if ($opt_man);</PRE>
+
+<PRE>    ## Check for too many filenames
+    pod2usage(&quot;$0: Too many files given.\n&quot;)  if (@ARGV &gt; 1);</PRE>
+
+<P>Some user's however may feel that the above &quot;economy of expression&quot; is
+not particularly readable nor consistent and may instead choose to do
+something more like the following:</P>
+<PRE>    use CmUtils::Pod::Usage;
+    use Getopt::Long;</PRE>
+
+<PRE>    ## Parse options
+    GetOptions(&quot;help&quot;, &quot;man&quot;, &quot;flag1&quot;)  ||  pod2usage(-verbose =&gt; 0);
+    pod2usage(-verbose =&gt; 1)  if ($opt_help);
+    pod2usage(-verbose =&gt; 2)  if ($opt_man);</PRE>
+
+<PRE>    ## Check for too many filenames
+    pod2usage(-verbose =&gt; 2, -message =&gt; &quot;$0: Too many files given.\n&quot;)
+        if (@ARGV &gt; 1);</PRE>
+
+<P>As with all things in Perl, <I>there's more than one way to do it</I>, and
+<B>pod2usage()</B> adheres to this philosophy.  If you are interested in
+seeing a number of different ways to invoke <B>pod2usage</B> (although by no
+means exhaustive), please refer to <A HREF="#EXAMPLES">&quot;EXAMPLES&quot;</A>.</P><H1><A NAME="EXAMPLES">EXAMPLES</A></H1>
+
+<P>Each of the following invocations of <CODE>pod2usage()</CODE> will print just the
+&quot;SYNOPSIS&quot; section to <CODE>STDERR</CODE> and will exit with a status of 2:</P>
+<PRE>    pod2usage();</PRE>
+
+<PRE>    pod2usage(2);</PRE>
+
+<PRE>    pod2usage(-verbose =&gt; 0);</PRE>
+
+<PRE>    pod2usage(-exitval =&gt; 2);</PRE>
+
+<PRE>    pod2usage({-exitval =&gt; 2, -output =&gt; \*STDERR});</PRE>
+
+<PRE>    pod2usage({-verbose =&gt; 0, -output  =&gt; \*STDERR});</PRE>
+
+<PRE>    pod2usage(-exitval =&gt; 2, -verbose =&gt; 0);</PRE>
+
+<PRE>    pod2usage(-exitval =&gt; 2, -verbose =&gt; 0, -output =&gt; \*STDERR);</PRE>
+
+<P>Each of the following invocations of <CODE>pod2usage()</CODE> will print a message
+of &quot;Syntax error.&quot; (followed by a newline) to <CODE>STDERR</CODE>, immediately
+followed by just the &quot;SYNOPSIS&quot; section (also printed to <CODE>STDERR</CODE>) and
+will exit with a status of 2:</P>
+<PRE>    pod2usage(&quot;Syntax error.&quot;);</PRE>
+
+<PRE>    pod2usage(-message =&gt; &quot;Syntax error.&quot;, -verbose =&gt; 0);</PRE>
+
+<PRE>    pod2usage(-msg  =&gt; &quot;Syntax error.&quot;, -exitval =&gt; 2);</PRE>
+
+<PRE>    pod2usage({-msg =&gt; &quot;Syntax error.&quot;, -exitval =&gt; 2, -output =&gt; \*STDERR});</PRE>
+
+<PRE>    pod2usage({-msg =&gt; &quot;Syntax error.&quot;, -verbose =&gt; 0, -output =&gt; \*STDERR});</PRE>
+
+<PRE>    pod2usage(-msg  =&gt; &quot;Syntax error.&quot;, -exitval =&gt; 2, -verbose =&gt; 0);</PRE>
+
+<PRE>    pod2usage(-message =&gt; &quot;Syntax error.&quot;,
+              -exitval =&gt; 2,
+              -verbose =&gt; 0,
+              -output  =&gt; \*STDERR);</PRE>
+
+<P>Each of the following invocations of <CODE>pod2usage()</CODE> will print the
+&quot;SYNOPSIS&quot; section and any &quot;OPTIONS&quot; and/or &quot;ARGUMENTS&quot; sections to
+<CODE>STDOUT</CODE> and will exit with a status of 1:</P>
+<PRE>    pod2usage(1);</PRE>
+
+<PRE>    pod2usage(-verbose =&gt; 1);</PRE>
+
+<PRE>    pod2usage(-exitval =&gt; 1);</PRE>
+
+<PRE>    pod2usage({-exitval =&gt; 1, -output =&gt; \*STDOUT});</PRE>
+
+<PRE>    pod2usage({-verbose =&gt; 1, -output =&gt; \*STDOUT});</PRE>
+
+<PRE>    pod2usage(-exitval =&gt; 1, -verbose =&gt; 1);</PRE>
+
+<PRE>    pod2usage(-exitval =&gt; 1, -verbose =&gt; 1, -output =&gt; \*STDOUT});</PRE>
+
+<P>Each of the following invocations of <CODE>pod2usage()</CODE> will print the
+entire manual page to <CODE>STDOUT</CODE> and will exit with a status of 1:</P>
+<PRE>    pod2usage(-verbose  =&gt; 2);</PRE>
+
+<PRE>    pod2usage({-verbose =&gt; 2, -output =&gt; \*STDOUT});</PRE>
+
+<PRE>    pod2usage(-exitval  =&gt; 1, -verbose =&gt; 2);</PRE>
+
+<PRE>    pod2usage({-exitval =&gt; 1, -verbose =&gt; 2, -output =&gt; \*STDOUT});</PRE>
+<H2><A NAME="Recommended%20Use">Recommended Use</A></H2>
+
+<P>Most scripts should print some type of usage message to <CODE>STDERR</CODE> when a
+command line syntax error is detected. They should also provide an
+option (usually <CODE>-H</CODE> or <CODE>-help</CODE>) to print a (possibly more verbose)
+usage message to <CODE>STDOUT</CODE>. Some scripts may even wish to go so far as to
+provide a means of printing their complete documentation to <CODE>STDOUT</CODE>
+(perhaps by allowing a <CODE>-man</CODE> option). The following complete example
+uses <B>CmUtils::Pod::Usage</B> in combination with <B>Getopt::Long</B> to do all of these
+things:</P>
+<PRE>    use Getopt::Long;
+    use CmUtils::Pod::Usage;</PRE>
+
+<PRE>    my $man = 0;
+    my $help = 0;
+    ## Parse options and print usage if there is a syntax error,
+    ## or if usage was explicitly requested.
+    GetOptions('help|?' =&gt; \$help, man =&gt; \$man) or pod2usage(2);
+    pod2usage(1) if $help;
+    pod2usage(-verbose =&gt; 2) if $man;</PRE>
+
+<PRE>    ## If no arguments were given, then allow STDIN to be used only
+    ## if it's not connected to a terminal (otherwise print usage)
+    pod2usage(&quot;$0: No files given.&quot;)  if ((@ARGV == 0) &amp;&amp; (-t STDIN));
+    __END__</PRE>
+
+<PRE>    =head1 NAME</PRE>
+
+<PRE>    sample - Using GetOpt::Long and CmUtils::Pod::Usage</PRE>
+
+<PRE>    =head1 SYNOPSIS</PRE>
+
+<PRE>    sample [options] [file ...]</PRE>
+
+<PRE>     Options:
+       -help            brief help message
+       -man             full documentation</PRE>
+
+<PRE>    =head1 OPTIONS</PRE>
+
+<PRE>    =over 8</PRE>
+
+<PRE>    =item B&lt;-help&gt;</PRE>
+
+<PRE>    Print a brief help message and exits.</PRE>
+
+<PRE>    =item B&lt;-man&gt;</PRE>
+
+<PRE>    Prints the manual page and exits.</PRE>
+
+<PRE>    =back</PRE>
+
+<PRE>    =head1 DESCRIPTION</PRE>
+
+<PRE>    B&lt;This program&gt; will read the given input file(s) and do something
+    useful with the contents thereof.</PRE>
+
+<PRE>    =cut</PRE>
+<H1><A NAME="CAVEATS">CAVEATS</A></H1>
+
+<P>By default, <B>pod2usage()</B> will use <CODE>$0</CODE> as the path to the pod input
+file.  Unfortunately, not all systems on which Perl runs will set <CODE>$0</CODE>
+properly (although if <CODE>$0</CODE> isn't found, <B>pod2usage()</B> will search
+<CODE>$ENV{PATH}</CODE> or else the list specified by the <CODE>-pathlist</CODE> option).
+If this is the case for your system, you may need to explicitly specify
+the path to the pod docs for the invoking script using something
+similar to the following:</P>
+<PRE>    pod2usage(-exitval =&gt; 2, -input =&gt; &quot;/path/to/your/pod/docs&quot;);</PRE>
+<H1><A NAME="AUTHORS">AUTHORS</A></H1>
+
+<P>Greg Sands &lt;g.sands@auckland.ac.nz&gt;</P>
+<P>Brad Appleton &lt;bradapp@enteract.com&gt;</P>
+<P>Based on code for <B>Pod::Text::pod2text()</B> written by
+Tom Christiansen &lt;tchrist@mox.perl.com&gt;</P><H1><A NAME="ACKNOWLEDGEMENTS">ACKNOWLEDGEMENTS</A></H1>
+
+<P>Steven McDougall &lt;swmcd@world.std.com&gt; for his help and patience
+with re-writing this manpage.</P>
+</BODY>
+</HTML>

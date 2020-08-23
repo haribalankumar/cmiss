@@ -1,0 +1,26 @@
+      SUBROUTINE SET_REAL_CORE(REALS_PTR,ALLOCATED_VALUES,
+     &  INDEX,VALUE,ERROR,*)
+
+C#### Subroutine: SET_REAL_CORE
+C###  Description:
+C###    The core routine for setting an real value in an array.
+
+      IMPLICIT NONE
+
+!     Parameter List
+      INTEGER ALLOCATED_VALUES,INDEX
+      REAL*8 REALS_PTR(ALLOCATED_VALUES),VALUE
+      CHARACTER ERROR*(*)
+
+      CALL ENTERS('SET_REAL_CORE',*9999)
+
+      REALS_PTR(INDEX)=VALUE
+
+      CALL EXITS('SET_REAL_CORE')
+      RETURN
+ 9999 CALL ERRORS('SET_REAL_CORE',ERROR)
+      CALL EXITS('SET_REAL_CORE')
+      RETURN 1
+      END
+
+

@@ -1,0 +1,245 @@
+
+\section{The LAPACK Direct Solvers used in CMISS}\label{s2.0}
+
+LAPACK is a library that provides Direct methods for the efficient solution
+of Dense linear systems. It is the development of LINPACK and EISPACK, and 
+built upon the BLAS library implementation of basic linear algebra operations.
+
+CMISS links to four LAPACK solvers, that use $\mathbf{L \, U}$ decomposition,
+Cholesky factorisation, $\mathbf{Q \, R}$ decomposition or Singular Value 
+Decomposition to solve a linear system
+
+For simplicity, all these routines are accessed through the same functional 
+interface, that in addition to solving the system will also perform the memory
+allocation needed by some of the solvers. The interface routines are in the
+{\tt solver/entry.F} file, and have the prefix {\tt DIR\_}. A typical use
+of the solvers is shown below in Figure \ref{f2.1}. 
+The sequence of operations is an initial allocation or workspace, a 
+factorisation of the matrix $\mathbf{A}$, one or more solution calls using
+the factorised system to solver for $\mathbf{x}$ for a given right hand side
+$\mathbf{b}$. When the factorisation is no longer needed a call to the
+deallocation routine frees the workspace used by the solver.
+
+The enumerated types for the solver names are given in the Fortran include 
+file {\tt "solver.inc"} which is in the {\tt linear\_solvers/solver}
+directory. For the LAPACK linear solvers they are {\tt SOLV\_LU}, 
+{\tt SOLV\_CHOLESKY}, {\tt SOLV\_LSQ} and {\tt SOLV\_SVD}.
+
+\begin{figure}[htb]
+\begin{small}
+\begin{verbatim}
+      INCLUDE 'solver.inc'
+      INTEGER M,N,LDA          ! Array dimensions
+      REAL*8  A(LDA,N)         ! Linear system
+      REAL*8  X(N)             ! Solution vector
+      REAL*8  B(M)             ! Right hand side
+      REAL*8  ANORM            ! Second norm of matrix A
+      INTEGER SOLVER           ! Type of solver
+      INTEGER E_PTR,F_PTR      ! Pointers to REAL*8 workspace
+      INTEGER I_PTR            ! Pointer to INTEGER workspace
+      INTEGER E_LEN,F_LEN      ! Lengths of REAL*8 workspace
+      INTEGER OUTPUTCODE       ! Flag to print verbose output
+      CHARACTER*(*) ERROR      ! String containing error message
+
+      SOLVER=SOLV_LU
+
+C     Allocate memory
+      CALL DIR_ALLOC(LDA,M,N,SOLVER,E_PTR,F_PTR,I_PTR,E_LEN,F_LEN,
+     &               ERROR,*9999)
+
+C     Factorise the system
+      CALL DIR_FACTOR(A,LDA,M,N,%VAL(I_PTR),SOLVER,%VAL(E_PTR),
+     &                %VAL(F_PTR),F_LEN,ANORM,ERROR,*9999)
+
+C     Solve for the given right hand side
+      CALL DIR_SOLVE(A,LDA,LDA,M,N,X,B,%VAL(I_PTR),SOLVER,
+     &               %VAL(E_PTR),%VAL(F_PTR),F_LEN,ANORM,OUTPUTCODE,
+     &               ERROR,*9999)
+
+C     Clear memory
+      CALL DIR_FREE(SOLVER,E_PTR,F_PTR,I_PTR,ERROR,*9999)
+
+      RETURN
+
+C     Catch errors
+ 9999 CONTINUE
+      WRITE(*,'(a)') 'An error occurred in the LAPACK solvers'
+      WRITE(*,'(a)') ERROR
+      RETURN
+      END
+\end{verbatim}
+\end{small}
+\caption{\label{f2.1} The {\tt solver} interface to the LAPACK direct linear
+  solvers for dense systems. Note that the pointers {\tt E\_PTR}, {\tt F\_PTR}
+  and {\tt I\_PTR} should be of type {\tt INTEGER*4} on $32$ bit machines, and 
+  {\tt INTEGER*8} on $64$ bit machines.}
+\end{figure}
+
+
+\subsection{LAPACK $\mathbf{L \, U}$ Decomposition}\label{s2.1}
+
+The LAPACK $\mathbf{L \, U}$ solver solves a general Dense square linear 
+system,
+\begin{equation}\label{e2.1.1}
+\mathbf{A \, x = b}.
+\end{equation}
+It consists of two routines, {\tt DGETRF} which generates the $\mathbf{L \, U}$
+factorisation, and {\tt DGETRS} which uses the factorisation to solve for a 
+given right hand side ($\mathbf{b}$).
+
+The factorisation routine {\tt DGETRF} factorises the original matrix 
+$\mathbf{A}$ into upper and lower triangular matrices,
+\begin{equation}\label{e2.1.2}
+\mathbf{L \, U = A}.
+\end{equation}
+
+The solution routine {\tt DGETRS} first solves for the temporary vector
+$\mathbf{y}$
+\begin{equation}\label{e2.1.3}
+\mathbf{L \, y = b},
+\end{equation}
+and then solves
+\begin{equation}\label{e2.1.4}
+\mathbf{U \, x = y},
+\end{equation}
+for $\mathbf{x}$.
+
+The solver overwrites the $\mathbf{A}$ matrix to store the $\mathbf{L}$ and 
+$\mathbf{U}$ matrices. The only additional storage is the pivot index needed
+bye the solver, an integer vector of length $m$, which is stored in the
+memory pointed too by the {\tt I\_PTR} pointer.
+
+The number of operations required for the factorisation is on the order of 
+$O(n^3)$, whilst the number of operations for each solution for a right hand 
+side is $O(n^2)$.
+
+\clearpage
+
+
+\subsection{LAPACK Cholesky Factorisation}\label{s2.2}
+
+For symmetric positive definite systems the Cholesky factorisation is more
+efficient than the $\mathbf{L \, U}$ decomposition described above. A symmetric
+system is one which
+\begin{equation}\label{e2.2.1}
+\mathbf{A}^T = \mathbf{A},
+\end{equation}
+whilst positive definite systems are defined by
+\begin{equation}\label{e2.2.2}
+\mathbf{v \, A \, v} > 0, \;\; {\text{for all vectors}} \;\; \mathbf{v}.
+\end{equation}
+
+The factorisation routine {\tt DPOTRF} factorises the original matrix 
+$\mathbf{A}$ into it's lower triangular factor,
+\begin{equation}\label{e2.2.3}
+\mathbf{L} \, \mathbf{L}^T = \mathbf{A}.
+\end{equation}
+
+The solution routine {\tt DPOTRS} first solves for the temporary vector
+$\mathbf{y}$
+\begin{equation}\label{e2.2.4}
+\mathbf{L \, y = b},
+\end{equation}
+and then solves
+\begin{equation}\label{e2.2.5}
+\mathbf{L}^T \, \mathbf{x} = \mathbf{y},
+\end{equation}
+for $\mathbf{x}$.
+
+The solver overwrites the lower triangle of the $\mathbf{A}$ matrix to store 
+the $\mathbf{L}$ and matrix. No additional storage is needed. This means that
+no calls to {\tt DIR\_ALLOC} and {\tt DIR\_FREE} are needed.
+
+The number of operations required for the factorisation is still on the order 
+of $O(n^3)$, but a third less operations are required than $\mathbf{L \, U}$
+decomposition.
+
+
+\subsection{LAPACK Least Squares Solver}\label{s2.3}
+
+The Least Squares solver used in CMISS can solve a system where the number
+of equations does not equal the number of unknowns. For a square or
+over-determined system (one where the number of equations is equal or greater
+than the number of unknowns, $m \ge n$), the solver uses a $\mathbf{Q \, R}$ 
+factorisation (generated by {\tt DGEQRF}) where,
+\begin{equation}\label{e2.3.1}
+\mathbf{A} = \mathbf{Q} \, \mathbf{R},
+\end{equation}
+where $\mathbf{R}$ is an upper trapezoidal matrix, and $\mathbf{Q}$ is
+orthogonal,
+\begin{equation}\label{e2.3.2}
+\mathbf{Q} \, \mathbf{Q}^T = \mathbf{1}.
+\end{equation}
+The solution algorithm will then solve for
+\begin{equation}\label{e2.3.3}
+\min \left| \mathbf{b} - \mathbf{A} \, \mathbf{x} \right|.
+\end{equation}
+
+If the system is under-determined (the number of equations is less than the 
+number of unknowns, $m < n$), the solver uses {\tt DGELQF} to generate a
+$\mathbf{L \, Q}$ factorisation,
+\begin{equation}\label{e2.3.4}
+\mathbf{A} = \mathbf{L} \, \mathbf{Q},
+\end{equation}
+where $\mathbf{L}$ is a lower triangular matrix and $\mathbf{Q}$ is
+orthogonal. The solution algorithm will then solve for the minimum norm 
+solution of 
+\begin{equation}\label{e2.3.5}
+\mathbf{A \, x} = \mathbf{b}.
+\end{equation}
+
+The solver overwrites the $\mathbf{Q}$ with the $\mathbf{Q \, R}$ or 
+$\mathbf{L \, Q}$ factorisation, and a vector of length $m$ in storage. 
+An addition vector of length $m$ is required as workspace by the decomposition
+routines.
+
+
+\subsection{LAPACK Singular Value Decomposition}\label{s2.4}
+
+The LAPACK single value decomposition routine {\tt DGESVD} decomposes the 
+$m$ by $n$ matrix $\mathbf{A}$ into the system,
+\begin{equation}\label{e2.4.1}
+\mathbf{A} = \mathbf{U} \, \mathbf{W} \,\mathbf{V}^T,
+\end{equation}
+where $\mathbf{U}$ is a $m$ by $n$ orthogonal matrix, 
+$\mathbf{W}$ is a $n$ by $n$ diagonal matrix where all off-diagonal entries
+are zero, and $\mathbf{V}$ is a $n$ by $n$ orthogonal matrix.
+
+The $\mathbf{U}$ is returned in $\mathbf{A}$, overwriting the original system,
+the $\mathbf{V}$ is returned in a $n$ by $n$ array, whilst the $\mathbf{W}$
+matrix is returned as a vector of length $n$.
+
+The solver routine returns a solution $\mathbf{x}$ to the linear least squares
+system,
+\begin{equation}\label{e2.4.2}
+\min \left( 
+       \Sigma \left( \mathbf{b} - \mathbf{A} \, \mathbf{x} \right)^2 
+     \right).
+\end{equation}
+
+
+\subsection{A Summary of the LAPACK Solvers}\label{s2.5}
+
+For a typical square Dense linear system the LAPACK $\mathbf{L \, U}$ solver
+is most commonly used. It is more robust than the Cholesky solver, less 
+restrictive than this solver (it does not require symmetry and positive 
+definiteness), and requires less storage and operations than the Least 
+Squares $\mathbf{Q \, R}$ and SVD solvers.
+
+However, in cases where the system is singular (or numeric roundoff causes the
+system to act this way) then the Least squares solvers may be required, since
+they are even more robust than the $\mathbf{L \, U}$ scheme.
+
+For the case of a square symmetric positive definite system the Cholesky 
+solver may be used -- it is faster and requires marginally less storage 
+than the $\mathbf{L \, U}$ solver. However, numerical rounding may cause 
+the system to loose it's positive definite nature, and the solver will 
+fail trying to calculate the square root of a negative number. In this case
+the $\mathbf{L \, U}$ solver will be more robust.
+
+For over or under-determined systems either the $\mathbf{Q \, R}$ and SVD
+solvers can be used. These methods are extremely robust and will produce a 
+solution. The meaning of the solution generate it left as an exercise to the 
+user.
+
+

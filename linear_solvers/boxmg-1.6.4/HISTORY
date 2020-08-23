@@ -1,0 +1,279 @@
+===============================================================================
+HISTORY:                                               boxmg-1.6.4 (2004/03/10)
+===============================================================================
+
+boxmg-1.6.4 (2004-2--7)
+   - Changes made by T. Austin to add OpenMP support for the code.
+   - Also new utils provided that allows for linking to CMISS.
+
+boxmg-1.6.4 (2004/03/10)
+   - Improvements in the 2D and 3D interpolation operator.
+   - Corrected inconsistencies in the indexing of the 2D interpolation 
+     operator for fine-only grid points.
+   - Minor bug fixes in 3D local block construction of the coarse-grid 
+     operator along boundaries.
+   - Added the block-local construction option for constructing the
+     coarse-grid operators in 2D definite problems.
+   - Eliminated the use of magic numbers in tests on the relaxation 
+     parameters for the non-periodic code.  The periodic code needs
+     to be reworked before this elimination is possible. 
+   - Shortened the names of the coarse-grid operator setup routines to
+     accomodate complilers (e.g., Portland Group, Absoft) with a limit
+     of 31 characters, i.e., *SETUP_cg_ITLI* -> *SETUP_ITLI*.
+   - Similarly, the parameter names associated with relaxation were 
+     shortened, i.e., BMG_RELAX_GS_RB* -> BMG_GS_RB*.
+
+boxmg-1.6.3 (2004/02/03)
+   - Added new coarse-grid operator options to the 3D code.
+     * A parameter to select the coarse-grid operator type, 
+       BMG_iPARMS(id_BMG[23]_CG_TYPE), has been added.  In previous
+       releases the coarse-grid operator was an approximation to the
+       true operator based on approximating the interpolation by a
+       product of collapsed operators, IzIyIx.  This is still available, 
+       but the true I^{T}LI is now included, and set as the default.
+     * A parameter to select the coarse-grid operator construction method,
+       BMG_iPARMS(id_BMG[23]_CG_CONSTRUCT), has been added.  At present
+       this only plays a role in the true I^{T}LI computation, and 
+       specifies either explicit construction (explicit), or a local block 
+       sampling approach (block). 
+   - Reorganized the code to include boxmg-extras within the boxmg
+     package as the subdirectory extras.  This change is intended to 
+     make building boxmg more convenient for users and it will make
+     the pending move to GNU Autotools much easier.
+
+boxmg-1.6.2 (2003/09/14)
+   - An error handler has been added to return error codes 
+     in BMG_iPARMS(id_BMG[23]_Err_Code).  If the error occurs in
+     an external routine, then the external error code is returned 
+     in BMG_iPARMS(id_BMG[23]_Ext_Err_Code).
+   - Corrected minor bugs in the build system related to the handling 
+     of the BOXMGlibp and NEWLIB variables.
+   - The BMG_BCs_* variable names in BMG_parameters.h had to be
+     shortened (e.g, indefinite -> indef) for some compilers.
+
+boxmg-1.6.1 (2003/09/08)
+   - NAME CHANGES: working to improve adherence to a consistent
+     and protected name space of BMG[23]* routines we have
+     updated the names of the main solver:
+         * boxmg -> BMG2_SymStd_SOLVE_boxmg
+         * bmg3d -> BMG3_SymStd_SOLVE_boxmg
+     Codes will not link until the calls are updated. Other
+     Additionally, internal routines have been renamed as well, e.g.,
+     bmgkey -> BMG3_SymStd_GET_pointers.
+   - fixed bugs in periodic code (setup and solve) for the case of only 
+     one grid, specifically with Nx=2, Ny=2 and NOG=1 (Scott MacLachlan)
+   - implemented a PCG solver for two and three dimensions
+         * BMG[23]_SymStd_SOLVE_pcg 
+     with the option for identity, diagonal, or BoxMG preconditioning 
+     that uses the BoxMG data structures.  Updates to workspace
+     arrays, and BMG[23]_SymStd_SETUP_PtrWork were necessary.
+   - fixed a loop bound error in BMG3_SymStd_SETUP_cg_ITLI.
+   - replaced the four-pass (color) GS relaxation with a true 8-color
+     GS relaxation on 27-point stencils in BMG3_SymStd_relax_GS.
+   - added support for the Portland Group f77 compilers (serial).
+   - added DUMP routines, supporting interactive and file I/O for the 
+     stencil and restriction operators on all grids.
+
+boxmg-1.6.0 (2003/06/30) 
+   - a major rewrite of plane relaxation memory management. Now
+     complete copies of the planes and all coarse grid operators are
+     maintained and used as needed.  This increases the memory usage,
+     but eliminates significant and repeated memory->memory copying
+     that consumed between 20 and 30% of the runtime, depending on
+     problem size.  This change also facilitates the use of plane
+     relaxation on non-cubic grids (i.e., Nx.NE.Ny.NE.Nz).
+   - bmg3d INTERFACE updated: this rewrite greatly simplified the 
+     calling interface to bmg3d, elminating the explicit declaration
+     of numerous arrays that were required for 2D plane relaxation.
+   - temporary space used in the formation of the variational
+     coarse-grid operators is now borrowed from the plane relaxation 
+     workspace, so be aware that even for point relaxation
+     NBMG_iWORK_PL, and NBMG_rWORK_PL, cannot be zero.
+   - added the setup parameter value BMG_SETUP_only to allow complete
+     separation of the setup and solve phases
+   - fixed an inconsistency in the pointer shift calculations and
+     memory checks in BMG[23]_SymStd_SETUP_PtrWork.f.
+   - fixed a bug in BMG3_SymStd_SETUP_relax.f that caused incorrect
+     pointer data to be used for point relaxation if NOG.NE.NOGm
+   - fixed a minor bug in the formation of the variational coarse-grid 
+     operator (BMG3_SymStd_SETUP_interp_OI.f)
+   - fixed the space routines to accomodate the case of only one grid
+     (i.e., NOG=1).  However, for the moment the default behavior is 
+     to halt execution in this case.
+
+boxmg-1.5.3 (2002/07/18)
+   - added option for BMG[23]_SymStd_SETUP_PtrWork.f to return
+     required dimensions for NRWORK and NIWORK for use with
+     wrappers from more reasonable languages (e.g., C).
+   - fixed a bug in BMG3_SymStd_SETUP_PtrGrd.f that overwrote
+     the passed in dimensions Nx, Ny (Dhavide Aruliah)
+   - fixed a bug in BMG3_SymStd_SETUP_relax.f that incorrectly
+     restricted the fine-grid stencil in plane relaxation 
+     of the finest 3D grid to be 5-point operator. 
+   - updated make to check compenents of the library during 
+     the build phase of both the library and the tests. 
+     This required correcting the name of AFLAGS -> ARFLAGS.
+
+boxmg-1.5.2 (2001/04/16)
+   - adopted a simpler nomenclature for machine architecture
+     ( e.g., Linux-intel instead of Linux-2.2.x-i686 )
+   - improved architecture defaults
+   - added option to use the vendor supplied "TUNED_MATH" libraries.
+   - moved dimension parameter declarations NpWORK and NiNWORK
+     to the include file BMG_workspace.h.  Consistency changes
+     were made in BMG[23]_SymStd_SETUP_PtrWork.f 
+   - support for HP-UX has been dropped until we can find a 
+     suitable test machine.
+
+boxmg-1.5.1 (2001/02/08)
+   - updated INSTALL documentation 
+   - added default settings for OS,VERSION,CPU (based on information 
+     from uname) to the ./make/global macros.
+   - default compiler on SGI/IRIX is set to be mipspro.
+   - added array dimension information (e.g., NSO, NCI etc.) to 
+     BMG_iPARMS to fix lost dimensionality information in bmg3d 
+     (this fixes the SegFaults on SGI/Irix systems). 
+   - restored conditional for residual I/O after relaxation 
+     in the periodic case.
+
+boxmg-1.5.0 (2001/01/08)
+   - incorporated 2D periodic code into boxmg.  Thus far it's
+     virtually unchanged, but is driven through boxmg.  There is 
+     still no support for 3D periodic or indefinite problems.
+   - created new parameter arrays (BMG_iPARMS, BMG_rPARMS) to hold all
+     cycling parameters.  Also, introduced a routine to setup suitable
+     default parameters.  Necessarily, this changed the calling
+     arguments to boxmg and bmg3d.
+   - internal consistency changes to the old wrappers bbmg, bbmgp have
+     been made, however, we discourage their use as they will be
+     replaced with a better more comprehensive set of wrappers in an
+     upcoming release.
+   - eliminated the unsupported and confusing parameter ICOEF
+   - replaced boxspace.f and boxspace3.f with pure space allocation
+     routines BMG2_SymStd_SETUP_space.f and BMG3_SymStd_SETUP_space.f
+     In addition, added SETUP routines to do the workspace pointer
+     calculations and the internal grid dependent pointer calculations.
+   - splitup the setup phase of the 3D code (mgcf.f and mgcf23.f) and
+     made use of new space calculation routines.
+   - splitup the relaxation setup of 3D code (similar to 2D).
+   - switched from using LINPACK to LAPACK routines for the coarsest
+     grid solve and introduce LAPACK routines for line relaxation
+   - corresponding changes were made to the workspace SOR and a
+     seperate residual vector was added.
+
+boxmg-1.4.0 (2000/03/09)
+   - significant rewrite of the mg-cycling code
+     * previous mg-cycling was not truly recursive and could
+       not be symmetrized (an option to chose between truly
+       recursive and old-style cycling is being considered)
+     * added option to perform symmetric cycles for preconditioning
+     * the 2D periodic code (boxmgp.f etc.) has NOT been rewritten yet
+     * new source code adopted a more verbose naming convention
+       (e.g., BMG2_SymStd_restrict.f)
+   - split up the large overloaded mgcoef.f and mgcf.f routines
+     into a set of "SETUP" routines
+   - rewrote the restriction code to perform just restriction 
+     and removed restriction calculations from the relaxation 
+   - modified the "interpolation and add" routine accordingly and renamed
+   - wrote relaxation driver and split up relaxation algorithms
+   - rewrote TOL checking to do either an absolute or relative criteria
+   - added the IOFLAG logical array to control I/O and debugging
+   - continued enhancement of package wide INCLUDE files
+   - eliminated many unused variables (ALPHL, ALPHM, ITAU, IPR)
+     in the argument list  of boxmg, boxmgp, and bmg3d
+   - eliminated the call to PUTF, the user does not need to provide
+     this dummy routine any more.
+   - adopted a common timer routine wrapper (BMG_timer)
+   - consistent changes were made to bbmg, bbmgp
+   - added additional storage scenarios to boxspace, boxspace3
+     (no examples yet)
+   - added an example to verify the symmetry of the multigrid cycle
+
+boxmg-1.3.2 (2000/01/28)
+   - testing of COMPAQ (on the Alpha) and ABSOFT (on Intel) compiler,
+     * fixed several portability issues
+     * compiler dependent setup in ARCH files
+   - memory allocation bug fix
+   - updates to many routines to facilitate array bound checking
+     (this is still not complete but were getting there)
+   - continuing development of package wide INCLUDE files
+ 
+boxmg-1.3.1 (1999/11/30)
+   - expanded 2D nonperiodic direct call to test more cases
+     (IVW=1,2, ISKIP =0,2, IU=0,1)
+   - fixed Makefiles to have executables depend on the library
+   - rewrote 2D space allocation to use syntax and style of 
+     the 3D case
+   - commented (heavily) the 2D driver (boxmg.f)
+
+boxmg-1.3.0 (1999/11/22)
+   - merged boxmg2D-1.0.4 and boxmg3D-0.2.1
+   - missing conditions on ISKIP were added to boxmg.f to be
+     consistent with the calls from the 3D code
+   - the number of grids computed in boxmg.f, M, was added as
+     an argument, corrections to the calls from the 2D examples 
+     and wrappers
+   - the minimum number of coarse grid points for the 2D case NXYO
+     was added to calls from to boxmg from the 3D code
+   - Makefiles have been updated accordingly.
+   - tests were renamed to be more descriptive.
+
+-------------------------------------
+Previous History from the 2D boxmg:
+-------------------------------------
+
+boxmg2D-1.0.4 (1999/11/16)
+   - IMPLICIT NONE is used throughout the library
+   - most "magic numbers" elmininated  (still more work here).
+
+boxmg2D-1.0.3 (1999/11/11)
+   - archive name changed from boxmg-1.0.x to boxmg2D-1.0.x 
+   - added this HISTORY file
+   - Makefile improvements and directory structure rearrangement 
+
+boxmg-1.0.2 (1999/01/22)
+   - Makefile updates, including explicit definition of SHELL 
+
+boxmg-1.0.1 (1998/12/14)
+   - the initial alpha re-release of the symmetric 2D black box 
+     multigrid code, based on Joel and Victor's release on mgnet.
+     It's clear the work just begun.
+   - IMPLICIT DOUBLE PRECISION (A-H,O-Z) is used within most of
+     black box as a quick way to get this port rolling.
+   - bug fixes in the course grid construction routines 
+     (both periodic and nonperiodic) are included (JDM).
+   - IMPLICIT NONE is used in the example driver routines
+     and their subroutines.  
+   - An a priori space estimates subroutine and utility
+     routine has been included.
+
+-------------------------------------
+Previous History from the 3D boxmg:
+-------------------------------------
+
+boxmg3D-0.2.0 (1999/11/08)
+   - library routines have been updated to use IMPLICIT NONE 
+   - "magic numbers" have been changed to variables, e.g.,
+     1D0 --> rONE, with REAL*8 rONE, rONE=1 
+     (still needs some work, these should be PARAMETERS)
+   - variable array bound (*) eliminated in all but the SO and SOR arrays.
+   - use of slatec routines for error handling has been eliminated.
+   - still no a priori space estimates
+
+boxmg3D-0.2.1 (1999/11/16)
+   - an a priori work space allocation routine has been added
+   - an example using a direct call to bmg3d with this work 
+     space subroutine has been added
+
+boxmg3D-0.1.0 (1999/05/14)
+   - the initial alpha release of the symmetric 3D black box 
+     multigrid code, based on Joel's old cray code.  It does 
+     run, but the work has really just begun.
+   - IMPLICIT DOUBLE PRECISION (A-H,O-Z) is used within
+     black box as a quick way to get the things started
+   - IMPLICIT NONE is used in the example driver routine
+     and it's subroutines.  
+   - No a priori space estimates exist, just run the code
+     with bad allocation and let it spit out the necessary
+     values.  We'll fix this soon.
+

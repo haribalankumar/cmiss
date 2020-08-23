@@ -1,0 +1,28 @@
+* BINARYREADFILE argument data type mismatch at position 5: <BR> * line *    Actual arg * in module * is type * <BR> * line *    Actual arg * in module * is type *
+* BINARYWRITEFILE argument data type mismatch at position 5: <BR> * line *    Actual arg * in module * is type * <BR> * line *    Actual arg * in module * is type *
+* CPU_TIMER argument arrayness mismatch at position 2: <BR> * line * Dummy arg CPU_TIME in module CPU_TIMER is scalar <BR> * line * Actual arg * in module * is whole array
+* REAL_TIMER argument arrayness mismatch at position 2: <BR> * line * Dummy arg REAL_TIME in module REAL_TIMER is scalar <BR> * line * Actual arg * in module * is whole array
+* FSKREAD argument data type mismatch at position 1: <BR> * line *    Actual arg * in module * is type * <BR> * line *    Actual arg * in module * is type *
+* FSKWRITE argument data type mismatch at position 1: <BR> * line *    Actual arg * in module * is type * <BR> * line *    Actual arg * in module * is type *
+* WRITE_STRING argument arrayness mismatch at position 3: <BR> * line * Dummy arg STRING in module WRITE_STRING is array <BR> * line * Actual arg * in module * is scalar
+DISPLAY_ERROR_MESSAGE-DISPLAY_ERROR_MESSAGE2 DISPLAY_ERROR_MESSAGE2 argument arrayness mismatch at position 2: <BR> * line * Dummy arg MESSAGE in module DISPLAY_ERROR_MESSAGE2 is array <BR> * line * Actual arg MESSAGE in module DISPLAY_ERROR_MESSAGE is scalar
+DENODS-PARSIL PARSIL argument arrayness mismatch at position 4: <BR> * line *    Dummy arg IL in module PARSIL is array <BR> * line *    Actual arg NE in module DENODS is scalar
+UPGREL-ILIST_COPY ILIST_COPY argument arrayness mismatch at position 2: <BR> * line *    Dummy arg LIST_FROM in module ILIST_COPY is array <BR> * line *    Actual arg NE_NEW in module UPGREL is scalar
+REFINE_SETNODE-ILIST_COPY ILIST_COPY argument arrayness mismatch at position 2: <BR> * line *    Dummy arg LIST_FROM in module ILIST_COPY is array <BR> * line *    Actual arg NODE in module REFINE_SETNODE is scalar
+OPNODEG-ILISTMBR ILISTMBR argument usage mismatch at position 2: <BR> * line *    Dummy arg I in module ILISTMBR is used before set <BR> * line *    Actual arg N in module OPNODEG is not set
+OPLINEG-ILISTMBR ILISTMBR argument usage mismatch at position 2: <BR> * line *    Dummy arg I in module ILISTMBR is used before set <BR> * line *    Actual arg N in module OPLINEG is not set
+OPGRIDG-ILISTMBR ILISTMBR argument usage mismatch at position 2: <BR> * line *    Dummy arg I in module ILISTMBR is used before set <BR> * line *    Actual arg N in module OPGRIDG is not set
+OPGAUSG-ILISTMBR ILISTMBR argument usage mismatch at position 2: <BR> * line *    Dummy arg I in module ILISTMBR is used before set <BR> * line *    Actual arg N in module OPGAUSG is not set
+OPFACEG-ILISTMBR ILISTMBR argument usage mismatch at position 2: <BR> * line *    Dummy arg I in module ILISTMBR is used before set <BR> * line *    Actual arg N in module OPFACEG is not set
+OPELEMG-ILISTMBR ILISTMBR argument usage mismatch at position 2: <BR> * line *    Dummy arg I in module ILISTMBR is used before set <BR> * line *    Actual arg N in module OPELEMG is not set
+CALCUL-SUBSTR SUBSTR argument arrayness mismatch at position 2: <BR> * line * Dummy arg STRING in module SUBSTR is array <BR> * line * Actual arg STRING in module CALCUL is scalar
+FEM_DYNAM-CRASH CRASH varying number of arguments: <BR> * line *    Defined in module CRASH with 3 arguments <BR> * line *    Invoked in module FEM_DYNAM with 2 arguments
+FEM_DYNAM-CRASH CRASH argument data type mismatch at position 1: <BR> * line *    Dummy arg DUMMY in module CRASH is type real <BR> * line *    Actual arg ERROR in module FEM_DYNAM is type char
+FEM_DYNAM-CRASH CRASH argument data type mismatch at position 2: <BR> * line *    Dummy arg ERROR in module CRASH is type char <BR> * line *    Actual arg 9999 in module FEM_DYNAM is type label
+FEM-FEM_DYNAM FEM_DYNAM varying number of arguments: <BR> * line *   Defined in module FEM_DYNAM with * arguments <BR> * line *    Invoked in module FEM with * arguments
+GET_INDEX-GET_INDEX_CORE GET_INDEX_CORE varying number of arguments: <BR> * line * Defined in module GET_INDEX_CORE with * arguments <BR> * line * Invoked in module GET_INDEX with * arguments
+GET_LABEL-GET_LABEL_CORE GET_LABEL_CORE varying number of arguments: <BR> * line * Defined in module GET_LABEL_CORE with * arguments <BR> * line * Invoked in module GET_LABEL with * arguments
+GET_STRING-GET_STRING_CORE GET_STRING_CORE varying number of arguments: <BR> *, line * Defined in module GET_STRING_CORE with * arguments <BR> * line * Invoked in module GET_STRING with * arguments
+SET_LABEL-SET_LABEL_CORE SET_LABEL_CORE varying number of arguments: <BR> * line * Defined in module SET_LABEL_CORE with * arguments <BR> * line * Invoked in module SET_LABEL with * arguments
+SET_STRING-SET_STRING_CORE SET_STRING_CORE varying number of arguments: <BR> * line * Defined in module SET_STRING_CORE with * arguments <BR> * line * Invoked in module SET_STRING with * arguments
+GET_STRING-GET_STRING_CORE GET_STRING_CORE varying number of arguments: <BR> * line * Defined in module GET_STRING_CORE with * arguments <BR> * line * Invoked in module GET_STRING with * arguments

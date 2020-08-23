@@ -1,0 +1,33 @@
+      SUBROUTINE FREE_MEMORY(ADDR_PTR,ERROR,*)
+
+C#### Subroutine: FREE_MEMORY
+C###  Description:
+C###    FREE_MEMORY deallocates memory previous allocated with
+C###    GET_MEMORY.
+C###  See-Also: ALLOCATE_MEMORY,GET_MEMORY
+
+      IMPLICIT NONE
+!     Parameter List
+      INTEGER*4 ADDR_PTR
+      CHARACTER ERROR*(*)
+!     Local Variables
+      INTEGER CERROR(50),CERRLEN,ERR
+
+      CALL ENTERS('FREE_MEMORY',*9999)
+
+      ERR=0
+      CALL FREEMEMORY(ADDR_PTR,ERR,CERROR)
+      IF(ERR.NE.0) THEN
+        CALL CSTRINGLEN(CERRLEN,CERROR)
+        CALL C2FSTRING(CERROR,CERRLEN,ERROR)
+        GOTO 9999
+      ENDIF
+
+      CALL EXITS('FREE_MEMORY')
+      RETURN
+ 9999 CALL ERRORS('FREE_MEMORY',ERROR)
+      CALL EXITS('FREE_MEMORY')
+      RETURN 1
+      END
+
+

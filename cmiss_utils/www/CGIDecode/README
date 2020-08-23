@@ -1,0 +1,20 @@
+This directory contains the source for a simple library that allows CGI
+clients to isolate themselves from the grubby details of obtaining
+the CGI data via GET or POST, and from having to detail with 
+url-encoded data.
+
+Version
+=======
+
+0.2 - This needs a lot of work before it would be "releaseable". Even so
+      it does the job when used properly.
+
+
+
+Work To Do
+==========
+
+disposeCGI(), general Fix'N'Tidy. Cope with empty pair better. Test
+under more extreme conditions. Make portable to more than just an
+SGI. Fill out CGI fields for client use. Add more support for
+differing input (INPUT type, FORM based maps, etc).

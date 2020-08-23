@@ -1,0 +1,4 @@
+!  scal01.cmn
+      REAL*8 SCALE
+      COMMON /SCAL01R/ SCALE
+

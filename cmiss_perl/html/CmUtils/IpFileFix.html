@@ -1,0 +1,210 @@
+<HTML>
+<HEAD>
+<TITLE>The CmUtils::IpFileFix package provides a simple mechanism for writing
+scripts to update CMISS ipfiles.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aIpFileFix">CmUtils::IpFileFix</A></LI>
+<UL>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#CHANGES">CHANGES</A></LI>
+<LI><A HREF="#Script%20files">Script files</A></LI>
+<LI><A HREF="#Loading%20the%20module">Loading the module</A></LI>
+</UL>
+<LI><A HREF="#fixfiles()"><B>fixfiles()</B></A></LI>
+<LI><A HREF="#Modification%20functions">Modification functions</A></LI>
+<LI><A HREF="#add_before()"><B>add_before()</B></A></LI>
+<LI><A HREF="#add_after()"><B>add_after()</B></A></LI>
+<LI><A HREF="#match()"><B>match()</B></A></LI>
+<LI><A HREF="#delete()"><B>delete()</B></A></LI>
+<LI><A HREF="#replace()"><B>replace()</B></A></LI>
+<LI><A HREF="#EXPERTS">EXPERTS</A></LI>
+<UL>
+<LI><A HREF="#new"><B>new</B></A></LI>
+<LI><A HREF="#read"><B>read</B></A></LI>
+<LI><A HREF="#write"><B>write</B></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aIpFileFix">CmUtils::IpFileFix</A></H1>
+
+<P>The <I>CmUtils::IpFileFix</I> package provides a simple mechanism for writing
+scripts to update CMISS ipfiles.</P><H2><A NAME="VERSION">VERSION</A></H2>
+
+<P>0.3 (18 June 2002)</P><H2><A NAME="CHANGES">CHANGES</A></H2>
+
+<P>0.3</P>
+<P>GBS: Now gives sensible error message if run not using perl &gt;= 5.6.0</P>
+<P>0.2 </P>
+<P>GBS: Added documentation.</P>
+<P>GBS: Made pattern-checking optional for <CODE>add_before</CODE> and <CODE>add_after</CODE>, and
+     removed it from the <CODE>replace</CODE>.</P><H2><A NAME="Script%20files">Script files</A></H2>
+
+<P>The current set of scripts (in <I>$CMISS_ROOT/cmiss_utils/filefixes/20010215/</I>)
+have been rewritten to use this module, and subsequent fixes are most easily
+copied from these files.</P>
+<P>Each script should be named according to the files to be changed (e.g.
+<I>fixipopti.pl</I>) because the list of files to be changed is automatically
+generated from the script name.  The file suffix is determined by the letters
+between &quot;fixip&quot; and the next &quot;.&quot; or &quot;_&quot;, allowing multiple scripts for one file
+type by including a description that starts with an underscore following the
+filetype (e.g. <I>fixipopti_10dec99.pl</I>).</P><H2><A NAME="Loading%20the%20module">Loading the module</A></H2>
+
+<P>The following header should be used to load the module.</P>
+<PRE>  #!/usr/local/bin/perl -w
+  use strict;
+  use CmUtils::IpFileFix qw(fixfiles);</PRE>
+
+<P>The standard interface is through the <I>fixfiles()</I> routine.  See below in the
+<A HREF="#EXPERTS">/EXPERTS</A> section for lower-level interaction.</P><H1><A NAME="fixfiles()"><B>fixfiles()</B></A></H1>
+
+<P>This routine takes one named argument called <I>filter</I> which should specify a
+code reference containing the commands required to &quot;fix&quot; each ipfile.  This is
+most easily defined as an anonymous subroutine.  The subroutine is called with
+one argument, which is a pointer to the file being processed.</P>
+<PRE>  fixfiles(
+    filter =&gt; sub {
+      my $file = shift;
+      ...
+    }
+  );</PRE>
+
+<P>Earlier scripts processed the file line-by-line, but this led to confusion and
+inefficiencies.  The <CODE>fixfiles</CODE> routine reads the entire file before calling
+the subroutine defined by <I>filter</I> for processing.</P><H1><A NAME="Modification%20functions">Modification functions</A></H1>
+
+<P>One or more file modification functions describe the actions to take to update
+the ipfiles, and are specified in the <I>filter</I> subroutine in the region <CODE>...</CODE>
+above.</P>
+<P>All functions have a named interface, which means that the arguments may occur
+in any order.  Arguments are typically given as strings, although regular
+expressions may be used for greater flexibility.  <B>In all cases where answers
+will be included in the match, regular expressions should be used, as they
+allow for various answers/formats/spaces.</B>  Arguments given as strings will be
+quoted in any pattern matches that are done, and are therefore treated as
+literals.</P>
+<P>Because the file is read into a single multi-line variable, if you want to tie
+your regular expression to the start/end of any line, you will need to use the
+multi-line <CODE>(?m)</CODE> option:</P>
+<PRE>  qr/(?m)^  Enter/</PRE>
+
+<P>otherwise <CODE>^</CODE> and <CODE>$</CODE> will only match the start and end of the file.</P>
+<P>Alternatively, if you wish to treat the file as one single line (for matching
+across more than one line), use the single-line <CODE>(?s)</CODE> option:</P>
+<PRE>  qr/(?s)this.*that/</PRE>
+
+<P>in which case the <CODE>.</CODE> will also match newlines.  The <CODE>\n</CODE> character may
+always be used to specify a known newline.</P><H1><A NAME="add_before()"><B>add_before()</B></A></H1>
+
+<PRE>  $file-&gt;add_before(target =&gt; &quot;&quot;, insert =&gt; &quot;&quot; [, unless =&gt; &quot;&quot;]);</PRE>
+
+<P>Adds a string <I>insert</I> before another string/regexp <I>target</I>.  Most often, a
+third string <I>unless</I> needs to be checked so that the addition is not applied
+several times.</P>
+<PRE>  $file-&gt;add_before(
+    target =&gt; &quot; USE_MINOS     (0 or 1)&quot;,
+    insert =&gt; &quot; USE_MAPS      (0 or 1)[1]: 0\n&quot;,
+    unless =&gt; &quot; USE_MAPS      (0 or 1)&quot;
+  );</PRE>
+
+<PRE>  $file-&gt;add_before(
+    target =&gt; qr/(?m)^ USE_MINOS/,
+    insert =&gt; &quot; USE_MAPS      (0 or 1)[1]: 0\n&quot;,
+    unless =&gt; qr/USE_MAPS/
+  );</PRE>
+<DL><DT><A NAME="unless">unless</A></DT>
+<DD>
+String/regexp to test for.  The string insertion is made <I>unless</I> this
+matches.</DD>
+<DT><A NAME="target">target</A></DT>
+<DD>
+String/regexp before which the new string is inserted.  As always, a string is
+treated as a literal.</DD>
+<DT><A NAME="insert">insert</A></DT>
+<DD>
+
+<P>New string to be inserted.  Makes no sense for this to be a regexp.  Multi-line
+strings are most easily defined using <CODE>&lt;&lt;</CODE>.</P>
+<PRE>  $file-&gt;add_before(
+    target =&gt; &quot; Do you want to use parallel element stiffness computations&quot;,
+    insert =&gt; &lt;&lt;EOF,
+ Specify the convergence criteria [1]:
+   (1) Ratio of unconstrained to constrained residuals
+   (2) Ratio of unconstrained residuals to maximum Gauss point value
+    1
+EOF
+    unless =&gt; &quot;Specify the convergence criteria&quot;
+  );</PRE>
+</DD>
+</DL>
+<H1><A NAME="add_after()"><B>add_after()</B></A></H1>
+
+<PRE>  $file-&gt;add_after(target =&gt; &quot;&quot;, insert =&gt; &quot;&quot; [, unless =&gt; &quot;&quot;]);</PRE>
+
+<P>Adds a string <I>insert</I> after another string/regexp <I>target</I>, unless a third
+string <I>unless</I> is matched.  As for <CODE>add_before</CODE>.</P><H1><A NAME="match()"><B>match()</B></A></H1>
+
+<P>Returns the result of attempting to match a given <I>pattern</I> in the file.  Most
+often, a regular expression should be used, so that varying formatting will
+give correct answers.  Results may be captured (using <CODE>()</CODE>) for later use if
+necessary.</P>
+<PRE>  my ($nodenum) = $file-&gt;match(pattern =&gt; qr/number of nodes:\s*(\d+)/);
+  
+  my @values = $file-&gt;match(
+    pattern =&gt; qr/values for C2.*:\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)/
+  );</PRE>
+
+<PRE>  my @values = map {split} $file-&gt;match(pattern =&gt; qr/for C2.*:(.*)\n/);</PRE>
+
+<P>If the argument is a string, it will do a literal string match:</P>
+<PRE>  if ( $file-&gt;match(pattern =&gt; &quot;number of nodes:\n&quot;) ) {
+    ...
+  }</PRE>
+<H1><A NAME="delete()"><B>delete()</B></A></H1>
+
+<P>Deletes the first occurence of the given <I>string</I> from the file.</P>
+<PRE>  $file-&gt;delete(string =&gt; &quot; (default 1)&quot;);
+  $file-&gt;delete(string =&gt; qr/(?m)^ Enter the step limit.*$/);</PRE>
+
+<P>Global deletion (if ever needed) could be accomplished with:</P>
+<PRE>  my $pattern = &quot;something&quot;;
+  while ($file-&gt;match(pattern =&gt; $pattern)) {
+    $file-&gt;delete(string =&gt; $pattern);
+  }</PRE>
+<H1><A NAME="replace()"><B>replace()</B></A></H1>
+
+<P>Replaces one given string or regexp with another string.</P>
+<PRE>  $file-&gt;replace(target =&gt; &quot;nubmer&quot;, replace =&gt; &quot;number&quot;);</PRE>
+<DL><DT><A NAME="target">target</A></DT>
+<DD>
+String/regexp searched for in the file.  As always, a string is treated as a
+literal.</DD>
+<DT><A NAME="replace">replace</A></DT>
+<DD>
+Replacement string.  Makes no sense for this to be a regexp.</DD>
+</DL>
+<H1><A NAME="EXPERTS">EXPERTS</A></H1>
+
+<P>The variable holding the file is actually a blessed hash, with a single entry
+<CODE>{text}</CODE> containing the entire file as a single string.  Any manipulations
+that cannot be done with the provided routines may be performed directly on the
+<CODE>$file-&gt;{text}</CODE> entry e.g.</P>
+<PRE>  $file-&gt;{text} =~ tr[A-Z][a-z];</PRE>
+
+<P>Additionally, files may be read and written directly.</P><H2><A NAME="new"><B>new</B></A></H2>
+
+<P>Creates a CmUtils::IpFileFix hash.  An optional argument specifies the filename.</P>
+<PRE>  $file = new CmUtils::IpFileFix;
+  $file = new CmUtils::IpFileFix (&quot;file.ippara&quot;);</PRE>
+<H2><A NAME="read"><B>read</B></A></H2>
+
+<P>Stores a file in the <CODE>{text}</CODE> entry of the file hash.</P>
+<PRE>  $file-&gt;read($filename);</PRE>
+<H2><A NAME="write"><B>write</B></A></H2>
+
+<P>Writes the <CODE>{text}</CODE> entry in the file hash to an output file.</P>
+<PRE>  $file-&gt;write(&quot;output.ipfile&quot;);</PRE>
+
+</BODY>
+</HTML>

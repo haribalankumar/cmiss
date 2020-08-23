@@ -1,0 +1,12 @@
+!  ipma50.cmn
+      INTEGER   IMAT5(6,3,5)         !IMAT5(ktyp56,ktyp55,ktyp52)
+      INTEGER   IL_thickness,IL_sarcomere,IL_time_delay,IL_density,
+     '          IL_fluid_conductivity,IL_porosity,IL_compliance
+      COMMON /IPMA50I/ IMAT5,IL_thickness,IL_sarcomere,IL_time_delay,
+     '          IL_density,IL_fluid_conductivity,IL_porosity,
+     '          IL_compliance
+      REAL*8    RMAT5(35,6,3,5),RMAT6(30),b(3),b_inc(3),T_inc  !RMAT5(nm,ktyp56,ktyp55,ktyp52)
+      COMMON /IPMA50R/ RMAT5,RMAT6,b,b_inc,T_inc
+      CHARACTER CMAT5(35,6,3,5)*40,CMAT6(30)*40 !CMAT5(nm,ktyp56,ktyp55,ktyp52)
+      COMMON /IPMA50C/ CMAT5,CMAT6
+

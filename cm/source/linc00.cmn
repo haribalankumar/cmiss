@@ -1,0 +1,7 @@
+! linc00.cmn
+C     Parameters used in LINCAL for scale factor iterative calculation.
+
+      INTEGER LINC_ITMAX !max number of iterations
+      REAL*8 LINC_TOL !convergence tolerance
+      COMMON /LINC00I/ LINC_ITMAX
+      COMMON /LINC00R/ LINC_TOL

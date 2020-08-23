@@ -1,0 +1,304 @@
+      SUBROUTINE ZGTG5A(nb,nr,FEXT,DXNZN,DZNXN,JAC,TG,TNA,ACTIVE_STRESS
+     &     ,ERROR,*)
+
+C#### Subroutine: ZGTG5A
+C###  Description:
+C###    ZGTG5A adds active fibre stress to TG array.
+C****
+C**** KTYP59(nr)=1 SS tension-length-ca relation (OLD)
+C**** ============
+C**** FEXT(4,ng,ne) is current intracellular calcium concentration
+C**** Tref is the max isometric tension at ext.ratio=1
+C**** T0_beta is the non-dimensional slope parameter
+C**** Ca_c50 is the c50 for the [Ca]i saturation curve (0<c<1)
+C**** Ca_h is the Hill coefficient for the [Ca]i saturation curve
+C**** Cai (0<Cai<1) is the Ca variable indicating degree of activation
+C****
+C DPN 27 March 2001 - this is no longer implemented....
+C**** KTYP59(nr)=2 Steady State HMT
+C**** ============
+C**** FEXT(4,ng,ne) is current intracellular calcium concentration
+C**** Tref is the max isometric tension at ext.ratio=1
+C**** T0_beta is the non-dimensional slope parameter
+C**** Ca_c50 is the c50 for the [Ca]i saturation curve (0<c<1)
+C**** Ca_h is the Hill coefficient for the [Ca]i saturation curve
+C**** Cai (0<Cai<1) is the Ca variable indicating degree of activation
+C ... DPN
+C****
+C**** KTYP59(nr)=2 Coupled to grid problem for dynamic HMT
+C**** ============
+C**** YG(1,ng,ne) is current muscle fibre tension computed from HMT
+C**** model in CELL and trasferred to YG array using:
+C**** "fem update gauss gridvars yqs 5 yg 1"
+
+      IMPLICIT NONE
+      INCLUDE 'acti00.cmn'
+      INCLUDE 'acti01.cmn'
+      INCLUDE 'b01.cmn'
+      INCLUDE 'geom00.cmn'
+      INCLUDE 'nonl00.cmn'
+      INCLUDE 'cbdi02.cmn'
+      INCLUDE 'ktyp50.cmn'
+!     Parameter List
+      INTEGER nb,nr
+      REAL*8 DXNZN(3,3),DZNXN(3,3),FEXT(NIFEXTM),
+     &  TG(3,3),TNA,ACTIVE_STRESS,JAC
+      CHARACTER ERROR*(*)
+!     Local Variables
+      INTEGER i,j,NITB
+      REAL*8 Cai,lambda,TCa
+
+      CALL ENTERS('ZGTG5A',*9999)
+
+      NITB=NIT(nb)
+      TNA=0.0d0
+
+      IF(KTYP59(nr).EQ.1) THEN   !SS tension-length-Ca relation (OLD)
+        lambda = FEXT(1)
+        Cai = FEXT(4)
+        IF(Cai.LT.0.0d0) THEN
+          WRITE(OP_STRING,'('' Cannot handle negative Cai='','
+     '      //'D12.3,''; continuing using zero active stress'')') Cai
+          CALL WRITES(IOER,OP_STRING,ERROR,*9999)
+          GOTO 9998
+        ENDIF
+        TNA = Ca_max*Cai**Ca_h/(Cai**Ca_h + Ca_c50**Ca_h)
+     '    *Tref*(1.d0+T0_beta*(lambda-1.d0))
+
+      ELSE IF(KTYP59(nr).EQ.2) THEN !Dynamic HMT (from grid problem)
+
+C NEW: MPN 5Jun2000: coupling to grid problem for active tension calcs
+
+C       NOTE: ASSUMES YG(1) contains tension at the
+C             current (Gauss) point after issuing sth like:
+C             "fem update gauss gridvars yqs 5 yg 1"
+
+C        TNA=YG(1)
+        TNA=ACTIVE_STRESS
+
+C MPN 17July2000: archived
+C OLD: MPN 5Jun2000 replacing old fading memory model
+
+      ELSE IF(KTYP59(nr).EQ.3) THEN
+C
+C     OR 15-08-06
+C     
+C     ENHANCES 2nd PKST TG(KTYP59S1,KTYP59S2) BY AN ACTIVE
+C     STRESS COMPONENT WHICH IS CALCULATED WITHIN A CELLML
+C     FILE
+        
+        TNA=ACTIVE_STRESS
+
+      ELSE IF(KTYP59(nr).EQ.4) THEN !Read TCA from ipacti file
+C MPN/VYW: 6Aug2014 changing to read TCa directly from ipacti file
+        lambda = FEXT(1)
+        TCa = FEXT(4)
+        IF(TCa.LT.0.0d0) THEN
+          WRITE(OP_STRING,'('' Cannot handle negative TCa='','
+     '      //'D12.3,''; continuing using zero active stress'')') TCa
+          CALL WRITES(IOER,OP_STRING,ERROR,*9999)
+          GOTO 9998
+        ENDIF
+        TNA = TCa*(1.d0+T0_beta*(lambda-1.d0))
+
+      ENDIF !KTYP59(nr)
+
+      IF(DOP) THEN
+C KAT 14May01: Can't branch out of critical section.
+C              Critical section is not essential.
+CC$      call mp_setlock()
+        WRITE(OP_STRING,'('' TNA='',D13.6)') TNA
+        CALL WRITES(IODI,OP_STRING,ERROR,*9999)
+CC$      call mp_unsetlock()
+      ENDIF
+
+C**** Transform TG into TC whose 1 dirn lines up with the def fibre axis
+C new MPN 5-May-96: transforming the coordinate system so must use
+C                   tensor transformation (ie operate on both indices)
+      IF (KTYP59S(nr).EQ.1) THEN 
+
+C!!! KAT 2007-03-16:
+C
+C The code below is equivalent to the following:
+C 
+C   (1)  TG^total = TG^passive + DXNZN . TNA . DXNZN^t
+C 
+C where TNA is a matrix with only one (diagonal) entry for the active tension
+C   in the fibre direction,
+C DXNZN is the deformation gradient tensor expressed in terms of orthogonal
+C   local material coordinates,
+C and TG^passive contains the passive "contravariant cpts of 2nd
+C   Piola-Kirchhoff stress tensor wrt undeformed Nu coordinates".
+C 
+C But I believe that the following would be more appropriate:
+C
+C   (2)  TG^total = TG^passive + JAC DXNZN ( DZNXN_ff / JAC ) TNA DXNZN^t
+C
+C where JAC is det(DZNXN),
+C and DZNXN_ff is the (scalar) diagonal entry of DZNXN corresponding to
+C the fibre direction.  (This equation is simplified below.)
+C
+C My reasoning behind this is discussed below:
+C
+C If TNA contains a stress generated by a fibre contraction,
+C then the Cauchy stress should depend on the density of fibres, which
+C would mean a factor of undeformed area / deformed area.
+C
+C What we want is the (reciprocal of the) ratio of areas of the plane
+C normal to the deformed fibre and the (generally different) plane
+C normal to that undeformed fibre.:
+C
+C   (3)  norm( fibre-column( DZNXN ) ) / JAC
+C
+C (Note that a 1st PK stress is something like a force per
+C  unit undeformed area for directions in undeformed coordinates, but
+C  I think we want to interpret the active stress from the cell
+C  models as a force per unit undeformed area for directions in
+C  deformed coordinates.)
+C
+C The deformed and undeformed nu (so called material) coordinates are
+C actually chosen with the coordinate systems is rotated such that
+C the fibre coordinate of the deformed system corresponds to the
+C deformed fibre direction of the undeformed system.
+C
+C   (4)  DZNXN _e_^f = DZNXN_ff _e_^f
+C
+C where _e_^f is a unit vector with 1 in the fibre coordinate position
+C and 0 in the others, and DZNXN_ff is the diagonal element of DZNXN.
+C (But sheet normal and traverse within sheet nu directions do not
+C necessarily correspond to the same material vector.)
+C
+C Therefore only the diagonal entry of the fibre-column of DZNXN is
+C non-zero, and so from (3) the Cauchy stress due to active tension
+C should be
+C
+C   (5)  ( DZNXN_ff / JAC ) TNA
+C
+C (where TNA is a matrix with only one diagonal non-zero entry
+C corresponding to the fibre coordinate for the active tension from
+C the cell model or something similar)
+C
+C Also following from (4)
+C
+C   (6)  (1/DZNXN_ff) _e_^f = DXNZN _e_^f
+C
+C So only the diagonal entry of the fibre column of DXNZN is
+C non-zero and is (1/DZNXN_ff).
+C
+C Transforming (5) into a 2nd PK stress and adding the passive
+C stress gives equation (2) above for the total 2PK stress.
+C Using (6), (2) simplifies to:
+C
+C   TG^total = TG^passive + TNA DXNZN^t
+C
+C (So because of our carefully selected coordinate systems is looks like
+C  the active tension is being interpreted as a 1st PK stress.)
+C
+C Apply (6) again, this simplifies to
+C
+C   TG^total = TG^passive + (1/DZNXN_ff) TNA
+C
+C or
+C
+C   TG^total = TG^passive + DXNZN_ff TNA
+C
+C (The 192 multiplications can be reduced to 1 multiplication or to
+C  1 division and the inverse is not required)
+
+
+C
+C     OR 15-08-06
+C
+C     Cauchy-type stress. Hence TG, the 2nd Piola-Kirchhoff stress
+C     tensor first gets mapped to the reference configuration then the
+C     Cauchy-type stress added, and then it needs to get mapped back
+C
+
+C new VYW/MPN 12Apr2011
+C     implementing efficient (and correct method) of adding in active tension 
+C     based on KAT's comments above. Treats TNA as a 1st PK stress.
+        IF (KTYP59(nr).EQ.3) THEN
+          TG(KTYP59S1(nr),KTYP59S2(nr))=TG(KTYP59S1(nr),KTYP59S2(nr))
+     &         +TNA/DZNXN(1,1)
+        ELSE
+          TG(1,1)=TG(1,1)+TNA/DZNXN(1,1)
+        ENDIF
+ 
+C old-start VYW/MPN 12Apr2011
+C        DO mz=1,NITB
+C          DO nz=1,NITB
+C            SUM=0.0d0
+C            DO mix=1,NITB
+C              DO nix=1,NITB
+C                SUM=SUM+TG(mix,nix)*DZNXN(mz,mix)*DZNXN(nz,nix)
+C              ENDDO             !nix
+C            ENDDO               !mix
+CC!!! This should be divided by JAC if it is a transformation from
+CC!!! 2nd PK to Cauchy (but see KAT 2007-03-16 above).
+C            TC(mz,nz)=SUM/JAC
+C          ENDDO                 !nz
+C        ENDDO                   !mz
+C
+CC**** Add active stress (in the 1,1 dirn as fibres generate the force)
+CC     WRITE(*,*) 'Jacobian = ',JAC
+C        IF (KTYP59(nr).EQ.3) THEN
+C          TC(KTYP59S1(nr),KTYP59S2(nr))=TC(KTYP59S1(nr),KTYP59S2(nr))
+C     &         +TNA
+C        ELSE
+C          TC(1,1)=TC(1,1)+TNA
+C        ENDIF
+C       
+CC**** Rotate TC back into TG with the original orientation
+CC new MPN 5-May-96: rotating the coordinate system so must use
+CC     tensor transformation (ie rotate both indices)
+C        DO mix=1,NITB
+C          DO nix=1,NITB
+C            SUM=0.0d0
+C            DO mz=1,NITB
+C              DO nz=1,NITB
+C                SUM=SUM+TC(mz,nz)*DXNZN(mix,mz)*DXNZN(nix,nz)
+C              ENDDO             !nix
+C            ENDDO               !mix
+CC!!! This should be multiplied by JAC if it is a transformation from
+CC!!! Cauchy to 2nd PK (but see KAT 2007-03-16 above).
+C           TG(mix,nix)=SUM*JAC
+C          ENDDO                 !nz
+C       ENDDO                   !mz
+C old-end VYW/MPN 12Apr2011
+
+      ELSE                      
+C
+C     OR 15-08-06
+C
+C     If we have already a 2nd Piolo-Kirchhoff type stress, hence we can
+C     add these two stresses directly.
+C        
+        IF (KTYP59(nr).EQ.3) THEN
+          TG(KTYP59S1(nr),KTYP59S2(nr))=TG(KTYP59S1(nr),KTYP59S2(nr))
+     &         +TNA
+        ELSE
+          TG(1,1)=TG(1,1)+TNA
+        ENDIF
+      ENDIF
+
+      IF(DOP) THEN
+C KAT 14May01: Can't branch out of critical section.
+C              Critical section is not essential.
+CC$      call mp_setlock()
+
+C        WRITE(OP_STRING,'('' TC(1,1)='',D13.6)') TC(1,1)
+C        CALL WRITES(IODI,OP_STRING,ERROR,*9999)
+        WRITE(OP_STRING,'('' TG:'',12X,3D12.4,/(16X,3D12.4))')
+     '    ((TG(i,j),j=1,3),i=1,3)
+        CALL WRITES(IODI,OP_STRING,ERROR,*9999)
+CC$      call mp_unsetlock()
+      ENDIF
+
+ 9998 CALL EXITS('ZGTG5A')
+      RETURN
+ 9999 CALL ERRORS('ZGTG5A',ERROR)
+      CALL EXITS('ZGTG5A')
+      RETURN 1
+      END
+
+

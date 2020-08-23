@@ -1,0 +1,28 @@
+      SUBROUTINE GET_REAL(REALS_PTR,ALLOCATED_REALS,
+     &  INDEX,VALUE,ERROR,*)
+
+C#### Subroutine: GET_REAL
+C###  Description:
+C###    Gets a real value from an array.
+
+      IMPLICIT NONE
+
+!     Parameter List
+      POINTER REALS_PTR
+      INTEGER ALLOCATED_REALS,INDEX
+      REAL*8 VALUE
+      CHARACTER ERROR*(*)
+
+      CALL ENTERS('GET_REAL',*9999)
+
+      CALL GET_REAL_CORE(%VAL(REALS_PTR),ALLOCATED_REALS,
+     &  INDEX,VALUE,ERROR,*9999)
+
+      CALL EXITS('GET_REAL')
+      RETURN
+ 9999 CALL ERRORS('GET_REAL',ERROR)
+      CALL EXITS('GET_REAL')
+      RETURN 1
+      END
+
+

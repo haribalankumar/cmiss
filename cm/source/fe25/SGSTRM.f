@@ -1,0 +1,28 @@
+      SUBROUTINE SGSTRM(INDEX,ISEG,ISSTRM,CSEG,ERROR,*)
+
+C#### Subroutine: SGSTRM
+C###  Description:
+C###    SGSTRM creates streamline segment ISSTRM.
+
+      IMPLICIT NONE
+!     Parameter List
+      INTEGER INDEX,ISEG(*),ISSTRM
+      CHARACTER CSEG(*)*(*),ERROR*(*)
+!    Local Variables
+      INTEGER INDEX_OLD,iw
+
+      CALL ENTERS('SGSTRM',*9999)
+      CALL OPEN_SEGMENT(ISSTRM,ISEG,iw,'STRM',INDEX,INDEX_OLD,
+     '  1,1,CSEG,ERROR,*9999)
+
+C     CALL POLYLINE()
+
+      CALL CLOSE_SEGMENT(ISSTRM,iw,ERROR,*9999)
+      CALL EXITS('SGSTRM')
+      RETURN
+ 9999 CALL ERRORS('SGSTRM',ERROR)
+      CALL EXITS('SGSTRM')
+      RETURN 1
+      END
+
+

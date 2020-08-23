@@ -1,0 +1,110 @@
+ ======== readme for harwell =======
+     
+ MA28 consists of four user callable routines for the solution of 
+ sparse linear equations where the coefficient matrix may be 
+ unsymmetric and numerical pivoting may be required for stability.  A 
+ call to MA28AD must precede a call to MA28BD and a call to MA28AD or 
+ MA28BD must precede a call to MA28CD or MA28ID.  The BLOCK DATA 
+ subprograms contained in the files blkdta000.f, blkdta001.f, and 
+ blkdta002.f initialize COMMON data and need to be linked with the 
+ other routines.
+     
+ Most of the Harwell Subroutine Library routines are in Fortran 77.  A 
+ few are in Fortran 90. There are many packages for the solution of 
+ sparse linear and nonlinear equations (including MA48, which 
+ supersedes MA28).  Further details can be found on WWW page:
+        http://www.dci.clrc.ac.uk/Activity.asp?HSL
+
+ The MA28 package is not in the public domain. It is part of the 
+ Harwell Subroutine Library, which is a general library of mathematical 
+ subroutines written in Fortran.  A researcher may use MA28 without 
+ charge SOLELY for research purposes.  For details of how to obtain
+ an academic licence please contact the following:
+
+ Lesley Vernon
+ AEA Technology Engineering Software,
+ Building 404, Harwell, Didcot, Oxfordshire OX11 QJ England
+
+ email: HSL@aeat.co.uk
+
+ Telephone: +44 1235 433824
+ Fax: +44 (0)1235 434294
+
+ Contact Lesley Vernon or Lawrence Daniels at the above address for
+ further information, e.g. for embedding MA28 in software that is 
+ sold.
+
+-------
+
+From: Iain Duff <I.Duff@rl.ac.uk>
+Date: Fri, 29 Sep 2000 17:05:17 +0100 (BST)
+Subject: Availability of HSL mathematical software
+
+HSL (formerly the Harwell Subroutine Library)
+
+We are delighted to announce the availability of many of our codes to
+the numerical analysis community.  The details are below.
+
+Our codes and Web sites should be in place by Tuesday October 3rd.
+
+The commercial version of HSL 2000 will be launched by AEA Technology
+on October 16th.
+
+HSL 2000
+========
+
+HSL (formerly the Harwell Subroutine Library) is a collection of ISO
+Fortran  codes  for  large  scale  scientific computation written by
+members of the  Numerical  Analysis  Group  at  Rutherford  Appleton
+Laboratory  and  by  other experts and collaborators. As the Library
+has evolved, many of the older  packages  have  been  superseded  by
+newer   versions,   with   increases   in   functionality,  improved
+interfaces, or speed of execution.  From October 2000, HSL  will  be
+divided  into two parts, the main library, HSL 2000; and an archive,
+HSL Archive. The HSL Archive comprises  packages  that  have  either
+been superseded by more modern codes, or that we no longer feel able
+to support. Many new packages are to be introduced as  part  of  the
+release   of   HSL  2000.   These  include  new  sparse  matrix  and
+optimization codes and new codes for use on parallel computers.
+
+
+Free use of HSL 2000 by UK academics
+------------------------------------
+
+While HSL 2000 continues to be  a  commercial  product,  it  is  now
+freely available for UK academics (those whose email address ends in
+.ac.uk, and who access the codes from a .ac.uk machine) for academic
+research or teaching purposes. This innovation is a direct result of
+much of the  core funding for the Group  being  provided by a  grant
+from EPSRC (GR/M78502).
+
+
+Free academic use of HSL Archive by everyone
+--------------------------------------------
+
+In addition, the HSL Archive is now freely available to  anyone  (UK
+and  elsewhere), so long as the codes are not then incorporated into
+a commercial product; no support is associated with free  access  to
+the HSL Archive.
+
+
+How to access the codes
+-----------------------
+
+Access is by way of the HSL WWW page
+
+ http://www.cse.clrc.ac.uk/Activity/HSL
+
+Access to both HSL 2000 (for .ac.uk) and  the  HSL  Archive  are  by
+means   of   short-lived  individual  password-controlled  accounts.
+Potential users are asked for brief details of the use  they  intend
+to  make  of  the  package(s)  they aim to download.  Users are also
+asked to accept a conditions-of-use form, and are not  permitted  to
+divulge  their userid and password to anyone else, nor to distribute
+any codes they obtain to a third party.
+
+Information on the commercial use of HSL 2000 can be found by  links
+from the above Web page.
+
+The RAL Numerical Analysis Group
+29th September 2000

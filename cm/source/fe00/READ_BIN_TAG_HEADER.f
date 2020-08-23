@@ -1,0 +1,67 @@
+      SUBROUTINE READ_BIN_TAG_HEADER(FILEID,ERROR,*)
+
+C#### Subroutine: READ_BIN_TAG_HEADER
+C###  Description:
+C###    READ_BIN_TAG_HEADER reads a tag header from the binary file
+C###    given by FILEID.
+
+      IMPLICIT NONE
+      INCLUDE 'b01.cmn'
+      INCLUDE 'cbdi02.cmn'
+      INCLUDE 'binf00.cmn'
+      INCLUDE 'mach00.inc'
+!     Parameter List
+      INTEGER FILEID
+      CHARACTER ERROR*(*)
+!     Local Variables
+
+      CALL ENTERS('READ_BIN_TAG_HEADER',*9999)
+
+      CALL BINREADFILE(FILEID,INTTYPE,2,INTDATA,REAL4DATA,
+     '  REAL8DATA,CHARDATA,LOGDATA,SINTDATA,ERROR,*9999)
+      TAGINDEX=INTDATA(1)
+      TAGHEADERBYTES=INTDATA(2)
+
+      CALL BINREADFILE(FILEID,CHARTYPE,TAGHEADERBYTES,INTDATA,
+     '  REAL4DATA,REAL8DATA,TAGHEADER,LOGDATA,SINTDATA,ERROR,*9999)
+
+      IF(FILEBINVERTYPE(FILEID).EQ.CHAR(2)) THEN
+        CALL BINREADFILE(FILEID,INTTYPE,1,INTDATA,REAL4DATA,
+     '    REAL8DATA,TAGHEADER,LOGDATA,SINTDATA,ERROR,*9999)
+        NUMBERSUBTAGS=INTDATA(1)
+      ELSE
+        NUMBERSUBTAGS=0
+      ENDIF
+
+      IF(NUMBERSUBTAGS.EQ.0) THEN
+        CALL BINREADFILE(FILEID,INTTYPE,1,INTDATA,REAL4DATA,
+     '    REAL8DATA,TAGHEADER,LOGDATA,SINTDATA,ERROR,*9999)
+        NUMTAGBYTES=INTDATA(1)
+      ENDIF
+
+      IF(DOP) THEN
+C KAT 14May01: Can't branch out of critical section.
+C              Critical section is not essential.
+CC$      call mp_setlock()
+        WRITE(OP_STRING,'('' Tag index : '',I5,'
+     '    //'/'' Tag header bytes : '',I5)') TAGINDEX,TAGHEADERBYTES
+        CALL WRITES(IODI,OP_STRING,ERROR,*9999)
+        IF(TAGHEADERBYTES.GT.0) THEN
+          WRITE(OP_STRING,'('' Tag Header: '',A)')
+     '      TAGHEADER(1:TAGHEADERBYTES)
+          CALL WRITES(IODI,OP_STRING,ERROR,*9999)
+        ENDIF
+        WRITE(OP_STRING,'('' Number of sub tags : '',I5,'
+     '    //'/'' Number of tag bytes : '',I10)') NUMBERSUBTAGS,
+     '    NUMTAGBYTES
+        CALL WRITES(IODI,OP_STRING,ERROR,*9999)
+CC$      call mp_unsetlock()
+      ENDIF
+
+      CALL EXITS('READ_BIN_TAG_HEADER')
+      RETURN
+ 9999 CALL ERRORS('READ_BIN_TAG_HEADER',ERROR)
+      CALL EXITS('READ_BIN_TAG_HEADER')
+      RETURN 1
+      END
+

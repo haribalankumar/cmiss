@@ -1,0 +1,55 @@
+      REAL*8 FUNCTION EVTIME_FCN(NTIME_INTERP,NTIME_POINTS,NVARINDEX,
+     '  EVALTIME,TIME_VALUES)
+
+C#### Function: EVTIME_FCN
+C###  Type: REAL*8
+C###  Description:
+C###    EVTIME evaluates a time variable value given a time.
+C**** Created by Martin Buist, 22 November 1999.
+
+      IMPLICIT NONE
+
+      INCLUDE 'geom00.cmn'
+
+!     Parameter List
+      INTEGER NTIME_INTERP(NTIMEVARSM),NTIME_POINTS(NTIMEVARSM),
+     '  NVARINDEX
+      REAL*8 EVALTIME,TIME_VALUES(2,0:NTIMEPOINTSM+1,NTIMEVARSM)
+!     Local Variables
+      INTEGER i
+      REAL*8 ALPHA
+
+      EVTIME_FCN=0.0d0
+      !Before first time point
+      IF(EVALTIME.LT.TIME_VALUES(1,1,NVARINDEX)) THEN
+        EVTIME_FCN=TIME_VALUES(2,0,NVARINDEX)
+      !After last time point
+      ELSE IF(EVALTIME.GT.TIME_VALUES(1,NTIME_POINTS(NVARINDEX),
+     '    NVARINDEX)) THEN
+        EVTIME_FCN=TIME_VALUES(2,(NTIME_POINTS(NVARINDEX)+1),
+     '    NVARINDEX)
+      ELSE
+        IF(NTIME_INTERP(NVARINDEX).EQ.1) THEN
+          DO i=1,NTIME_POINTS(NVARINDEX)-1
+            IF((EVALTIME.GE.TIME_VALUES(1,i,NVARINDEX)).AND.
+     '        (EVALTIME.LE.TIME_VALUES(1,i+1,NVARINDEX)))
+     '        EVTIME_FCN=TIME_VALUES(2,i,NVARINDEX)
+          ENDDO !i
+        ELSE IF(NTIME_INTERP(NVARINDEX).EQ.2) THEN
+          DO i=1,NTIME_POINTS(NVARINDEX)-1
+            IF((EVALTIME.GE.TIME_VALUES(1,i,NVARINDEX)).AND.
+     '        (EVALTIME.LE.TIME_VALUES(1,i+1,NVARINDEX))) THEN
+              ALPHA=(TIME_VALUES(1,i+1,NVARINDEX)-EVALTIME)/
+     '          (TIME_VALUES(1,i+1,NVARINDEX)-
+     '          TIME_VALUES(1,i,NVARINDEX))
+              EVTIME_FCN=(ALPHA*TIME_VALUES(2,i,NVARINDEX))+
+     '          ((1.0d0-ALPHA)*TIME_VALUES(2,i+1,NVARINDEX))
+            ENDIF
+          ENDDO !i
+        ENDIF
+      ENDIF
+
+      RETURN
+      END
+
+

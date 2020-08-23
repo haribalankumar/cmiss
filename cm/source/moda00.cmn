@@ -1,0 +1,4 @@
+!  moda00.cmn
+      INTEGER NTMAX
+      COMMON /MODA00I/ NTMAX
+

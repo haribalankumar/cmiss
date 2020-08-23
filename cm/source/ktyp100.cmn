@@ -1,0 +1,4 @@
+!  ktyp100.cmn
+      INTEGER KTYP100
+      COMMON /KTYP100I/ KTYP100
+

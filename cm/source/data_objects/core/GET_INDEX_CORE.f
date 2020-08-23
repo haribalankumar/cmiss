@@ -1,0 +1,39 @@
+      SUBROUTINE GET_INDEX_CORE(LABELS_PTR,TOTAL_LABELS,
+     &  ALLOCATED_LABELS,LABEL,INDEX,ERROR,*)
+
+C#### Subroutine: GET_INDEX_CORE
+C###  Description:
+C###    The core routine that searches for the index of a label.
+
+      IMPLICIT NONE
+
+!     Parameter List
+      INTEGER ALLOCATED_LABELS,INDEX,TOTAL_LABELS
+      CHARACTER LABEL*(*),LABELS_PTR(ALLOCATED_LABELS)*(*),ERROR*(*)
+!     Local Variables
+      INTEGER i,IB1,IB2,IE1,IE2
+      LOGICAL FOUND
+
+      CALL ENTERS('GET_INDEX_CORE',*9999)
+      
+      FOUND=.FALSE.
+      INDEX=0
+      i=1
+      DO WHILE ((.NOT.FOUND).AND.(i.LE.TOTAL_LABELS))
+        CALL STRING_TRIM(LABEL,IB1,IE1)
+        CALL STRING_TRIM(LABELS_PTR(i),IB2,IE2)
+        IF(LABEL(IB1:IE1).EQ.LABELS_PTR(i)(IB2:IE2))THEN
+          INDEX=i
+          FOUND=.TRUE.
+        ENDIF
+        i=i+1
+      ENDDO
+
+      CALL EXITS('GET_INDEX_CORE')
+      RETURN
+ 9999 CALL ERRORS('GET_INDEX_CORE',ERROR)
+      CALL EXITS('GET_INDEX_CORE')
+      RETURN 1
+      END
+
+

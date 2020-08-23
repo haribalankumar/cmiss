@@ -1,0 +1,85 @@
+<HTML>
+<HEAD>
+<TITLE>FieldSets are a collection of one or more Fields.  Each Node has a FieldSet
+associated with it which defines the values stored at the Node.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aObjects%3a%3aFieldSet">CmUtils::Objects::FieldSet</A></LI>
+<LI><A HREF="#FieldSet%20structure">FieldSet structure</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#METHODS">METHODS</A></LI>
+<UL>
+<LI><A HREF="#new()"><B>new()</B></A></LI>
+<LI><A HREF="#copy()"><B>copy()</B></A></LI>
+<LI><A HREF="#addField(Field)"><B>addField(Field)</B></A></LI>
+<LI><A HREF="#updateField(Field)"><B>updateField(Field)</B></A></LI>
+<LI><A HREF="#deleteField(FieldName)"><B>deleteField(FieldName)</B></A></LI>
+<LI><A HREF="#getFieldNames(%5bFieldName(s)%5d)"><B>getFieldNames([FieldName(s)])</B></A></LI>
+<LI><A HREF="#getFields(%5bFieldName(s)%5d)"><B>getFields([FieldName(s)])</B></A></LI>
+<LI><A HREF="#getFieldsMatching(%5bPattern%5d)"><B>getFieldsMatching([Pattern])</B></A></LI>
+<LI><A HREF="#getField(FieldName)"><B>getField(FieldName)</B></A></LI>
+<LI><A HREF="#numberOfFields()"><B>numberOfFields()</B></A></LI>
+<LI><A HREF="#isSame(FieldSet)"><B>isSame(FieldSet)</B></A></LI>
+<LI><A HREF="#numValues(%5bnumber%5d)"><B>numValues([number])</B></A></LI>
+<LI><A HREF="#list(FH)"><B>list(FH)</B></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aObjects%3a%3aFieldSet">CmUtils::Objects::FieldSet</A></H1>
+
+<P>FieldSets are a collection of one or more Fields.  Each Node has a FieldSet
+associated with it which defines the values stored at the Node.</P><H1><A NAME="FieldSet%20structure">FieldSet structure</A></H1>
+<DL><DT><A NAME="FIELDS">FIELDS</A></DT>
+<DD>
+A set of Fields which are part of this FieldSet</DD>
+<DT><A NAME="NUMVALS">NUMVALS</A></DT>
+<DD>
+For speed in reading in <I>exnode</I> files, this is the total number of values
+defined by all Fields in this FieldSet</DD>
+</DL>
+<H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>0.51 (20 February 2001)</P><H1><A NAME="METHODS">METHODS</A></H1>
+<H2><A NAME="new()"><B>new()</B></A></H2>
+
+<P>Returns a new FieldSet.</P><H2><A NAME="copy()"><B>copy()</B></A></H2>
+
+<P>Returns an identical copy of an existing FieldSet.</P><H2><A NAME="addField(Field)"><B>addField(Field)</B></A></H2>
+
+<P>Adds a Field to the list of Fields of this FieldSet.  Returns the 
+index of the last Field.</P><H2><A NAME="updateField(Field)"><B>updateField(Field)</B></A></H2>
+
+<P>Updates a Field in the list of Fields of this FieldSet.  Returns the 
+index of the last Field.</P><H2><A NAME="deleteField(FieldName)"><B>deleteField(FieldName)</B></A></H2>
+
+<P>Deletes Field named FieldName in the FieldSet.  Returns the total number of 
+defined Fields in the FieldSet.</P><H2><A NAME="getFieldNames(%5bFieldName(s)%5d)"><B>getFieldNames([FieldName(s)])</B></A></H2>
+
+<P>If FieldName(s) are specified, returns a list of names of all Fields with 
+these names that exist in the FieldSet, in the order they are specified.  
+If no argument is given, returns a list of names of ALL Fields, sorted in
+alphabetical order.</P><H2><A NAME="getFields(%5bFieldName(s)%5d)"><B>getFields([FieldName(s)])</B></A></H2>
+
+<P>If FieldName(s) are specified, returns a list of all Fields with these names
+that exist in the FieldSet, in the order they are specified.  If no argument is 
+given, returns a list of ALL Fields, sorted in alphabetical order.</P><H2><A NAME="getFieldsMatching(%5bPattern%5d)"><B>getFieldsMatching([Pattern])</B></A></H2>
+
+<P>If Pattern is specified, returns a list of all Fields matching /Pattern/i that
+exist in the FieldSet.  If no argument is given, returns a list of  ALL Fields,
+sorted in alphabetical order.</P><H2><A NAME="getField(FieldName)"><B>getField(FieldName)</B></A></H2>
+
+<P>Returns the Field named FieldName from the FieldSet.</P><H2><A NAME="numberOfFields()"><B>numberOfFields()</B></A></H2>
+
+<P>Returns the number of Fields defined in the FieldSet.</P><H2><A NAME="isSame(FieldSet)"><B>isSame(FieldSet)</B></A></H2>
+
+<P>Returns True if the FieldSet is the same as the owner FieldSet, otherwise
+returns False.</P><H2><A NAME="numValues(%5bnumber%5d)"><B>numValues([number])</B></A></H2>
+
+<P>Optional argument sets the number of values in this FieldSet.  Returns the
+number of values in the FieldSet.</P><H2><A NAME="list(FH)"><B>list(FH)</B></A></H2>
+
+<P>List the contents of this FieldSet to the filehandle <I>FH</I> (default to STDOUT).
+Set the &quot;verbose&quot; flag ($s-&gt;verbose(1)) to see extended information.</P>
+</BODY>
+</HTML>

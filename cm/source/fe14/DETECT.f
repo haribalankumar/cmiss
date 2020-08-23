@@ -1,0 +1,26 @@
+      SUBROUTINE DETECT(iw,ISEG,ISEGNUM,CLASS,ERROR,*)
+
+C#### Subroutine: DETECT
+C###  Description:
+C###    DETECT changes ISEGNUM to CLASS='DETECTABLE' or 'UNDETECTABLE'
+
+      IMPLICIT NONE
+      INCLUDE 'disp00.cmn'
+!     Parameter List
+      INTEGER ISEG(*),ISEGNUM,iw
+      CHARACTER CLASS*(*),ERROR*(*)
+
+      CALL ENTERS('DETECT',*9999)
+
+      IF(WINDOW_TYPE(1:5).EQ.'MOTIF') THEN
+        CALL DETECT_GX(iw,ISEG,ISEGNUM,CLASS,ERROR,*9999)
+      ENDIF
+
+      CALL EXITS('DETECT')
+      RETURN
+ 9999 CALL ERRORS('DETECT',ERROR)
+      CALL EXITS('DETECT')
+      RETURN 1
+      END
+
+

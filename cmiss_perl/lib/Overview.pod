@@ -1,0 +1,207 @@
+=head1 Overview
+
+Perl modules for CMISS
+
+This document describes the Perl modules written for use with the CMISS (F<cm> and F<cmgui>) program and with CMISS datafiles.  Please take responsibility for adding to this document when new modules are created.
+
+The Perl modules are located in F</product/cmiss/cmiss_perl/lib>, and this directory is automatically added to the perl path on startup.  There are several groups of modules which are grouped into subdirectories.
+
+=head1 NOTE:
+
+These modules work best using modules of Perl v5.6.0 (or later), but efforts have been made to get most things working for standard modules under Perl 5.004 and 5.005.  Documentation will not print for these earlier versions of Perl, and some modules require external modules to be installed.  To ensure that the v5.6.0 modules are used, set the C<CMISS_PERLINC> environment variable to include the appropriate directories, and/or set the C<CMISS_PERL> environment variable to the appropriate executable.  On the EngSci UNIX machines, set:
+
+  setenv CMISS_PERL   /usr/local/perl5.6/bin/perl
+  setenv CMISS64_PERL /usr/local/perl5.6/bin-64/perl
+
+=head1 CmUtils
+
+contains utility routines for use on the CMISS command line, in CMISS scripts, in Perl scripts and on the shell command line (where applicable).
+
+=head2 L<CmUtils::Exporter>
+
+This is a sub-class of the standard F<Exporter.pm> which overrides the C<import> routine to store a list of routines imported into the C<cmiss> package (the default namespace for CMISS programs) along with the file they came from.  All CMISS utilities which export routines should be sub-classes of this module.
+
+=head2 L<CmUtils>
+
+Inherits from L<CmUtils::Exporter>, and provides basic utility routines mainly for using from the CMISS command line.  Type C<h 'CmUtils'> for a list of all of the routines defined.  Here are the most useful ones.
+
+=over 8
+
+=item h
+
+This routine attempts to provide help documentation on defined subroutines and modules, also objects.  For example:
+
+C<h 'h'> will list information on itself
+
+C<h 'CmUtils'> will list information on the F<CmUtils> module
+
+C<h 'CmUtils','ask'> will list information on all headings containing the word "ask" in the F<CmUtils> module
+
+C<h 'CMISS::File'> will list information on the F<CMISS/File.pm> module
+
+C<h $ngroup> will list information on the type of the object C<$ngroup>, which could quite possibly be a NodeGroup
+
+=item man
+
+Prints the full manpage for a module, this one by default.
+
+=item pdefined
+
+Prints a list of all variables that have been defined, along with their contents (except for objects).  This is simply a wrapper to the other "print" routines: C<proutine>, C<phash>, C<parray>, C<pscalar> and C<pother>.
+
+=item getcurrentdir, getcurrentpath
+
+These routines return the current directory name or full path name.
+
+=item step, range
+
+These routines are used to defined a list of numbers, particularly for a loop.  For example:
+
+C<foreach $value (step(4,20,4)) { ... }> gives C<$value> the values 4,8,12,16 and 20 in turn
+
+C<foreach $value (range(4,20,3)) { ... }> gives C<$value> the values 4,12 and 20
+
+=back
+
+=head2 L<CmUtils::Utils>
+
+Several useful routines for using in CMISS scripts or command files.
+
+=over 8
+
+=item doCmiss
+
+Accepts multiple CMISS commands (in one or more strings) and executes them
+sequentially.  e.g.
+
+  doCmiss(<<EOF);
+    fem define node;p
+    fem define elem;p
+EOF
+
+=item list_to_string
+
+Converts a LIST of numbers to the shortest string describing that list.  e.g.
+
+  list_to_string(4,5,15,6,7,8,9,12,14,8..10)
+
+is converted to
+
+  4..10,12,14,15
+
+List is sorted prior to condensing.  Duplicate entries are ignored.
+
+=back
+
+=head2 L<CmUtils::CmConvert>
+
+A set of high-level routines for converting between CMISS file formats.  At the moment, supports C<ipnode>, C<ipdata>, C<exnode>, C<exdata>, C<ipfibr> and C<ipfiel>.  Also, this is an example of how to use the L<CMISS::File> module.
+
+  use CmUtils::CmConvert qw/toExnode/;
+  h 'toExnode';
+  toExnode("file.ipnode");
+
+See the help on these routines for a list of all available options.
+
+=head2 L<CmUtils::CmCombine>
+
+Routines for combining multiple CMISS files (of the same format) into another file, including options for renumbering etc.
+
+=head2 L<CmUtils::CoordSys>
+
+Routines to convert coordinates from one coordinate system to another.  Requires the C<Math::Trig> module.
+
+=head2 L<CmUtils::InplaceEdit>
+
+Routine which edits a file "inplace" - the equivalent of  "C<perl -pi -e...
+file>". This reads each line, applies a modification to it, and writes it back
+out to the same file.  Advantage is that a system command is not required (with
+its memory and speed overheads).
+
+=head2 L<CmUtils::RenumIp>
+
+Routines to renumber nodes and/or elements in both an F<ipnode> and F<ipelem>
+file.
+
+=head2 L<CmUtils::RotationTransform>
+
+Routines to convert a 6-element rotation matrix (as given by the F<rotate> program) into a 16-element list as required by F<cmgui>.  This module requires the C<PDL> and C<Math::Trig> modules to be available.
+
+=head2 L<CmUtils::ViewNormal>
+
+Routines which alter the view of a F<cmgui> 3D window to be normal to
+a 4-node F<exnode> file - used for viewing echo/MRI images.  This module requires the C<PDL> module to be available.
+
+=head2 L<CmUtils::Pod::Usage>,  L<CmUtils::Pod::Text::Colour> and
+L<CmUtils::Pod::Text::Mono>
+
+Routines modified from standard modules for printing the documentation.  The text is not currently coloured, not until we can distinguish between F<cm> and F<cmgui>.
+
+
+=head1 CMISS and CMISS/File
+
+contains routines which construct objects for working with CMISS datafiles.
+
+=head2 L<CMISS>
+
+Base class for the CMISS File library which defines common methods (C<debug>, C<verbose>, C<listMethods> and C<help>).
+
+=head2 L<CMISS::File>
+
+Layer on top of the file reading/writing routines, which can probably be used for almost all interactions with the CMISS File library.
+
+  use CMISS::File;
+  $group = cmRead('file.ipnode');
+  $options->{format}='exdata';
+  cmWrite('newfile', $group, $options);
+
+C<cmRead> returns a NodeGroup, which contains all the information from a CMISS file.  An C<exnode> file may contain more than one NodeGroup.
+
+There are also more specific routines.
+
+=head1 CMISS/File
+
+The specific file reading/writing routines.
+
+=head2 L<CMISS::File::Exnode>
+
+=head2 L<CMISS::File::Ipnode>
+
+=head2 L<CMISS::File::Ipdata>
+
+=head2 L<CMISS::File::Ipfiel>
+
+=head2 L<CMISS::File::Ipfibr>
+
+=head1 CMISS
+
+The routines which define the objects containing Node and Field data.  All objects have documented methods which must be used for accessing/changing data.
+
+=head2 L<CMISS::NodeGroup>
+
+Definition for the NodeGroup object.  Contains a list of all fields and nodes defined for this group.  If C<$group> is a NodeGroup, (as in the L<CMISS::File> documentation above) then you can do the following:
+
+  $group->listMethods()
+  $group->listFields()
+  $group->listNodes()
+  $group->verbose(1)
+  $group->listNodes()
+
+and more.
+
+=head2 L<CMISS::FieldSet>
+
+A FieldSet is a particular definition of a Field description (versions, components, derivatives etc) - if there are multiple different numbers of versions, there will be multiple FieldSets.  A FieldSet may have one or more Fields.
+
+=head2 L<CMISS::Field>
+
+A Field contains the definition of what will be stored at each node, and is a collection of Components.
+
+=head2 L<CMISS::Component>
+
+A Component contains the definition of what is stored for a particular component of a node.
+
+=head2 L<CMISS::Node>
+
+Each node is defined according to this definition, where the values are stored in a linear array with pointers into it from the appropriate Field/Component description.
+

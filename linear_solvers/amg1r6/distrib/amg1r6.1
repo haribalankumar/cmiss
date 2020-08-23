@@ -1,0 +1,398 @@
+---  SECTION 1. ---
+
+INFORMATION ON IMPLEMENTING AMG1R6
+________________________________________
+
+AMG1R6 IS AN UPDATED VERSION OF AMG1R5. IN ADDITION TO CONTAINING SOME 
+BUG FIXES, IT HAS BEEN MODIFIED TO CORRECTLY HANDLE "STRETCHED" MESH
+FINITE ELEMENT DISCRETIZATIONS.
+
+IN ORDER TO AVOID PROBLEMS IN MAILING AMG1R6, IT HAS BEEN BROKEN UP INTO
+TWO PARTS, MAILED SEPARATELY. THIS IS THE FIRST PART, AND CONTAINS THE
+FOLLOWING SECTIONS. FOR CONVENIENCE IN LOCATING THESE, EACH HAS A HEADER
+OF THE FORM  ---  SECTION N. ---
+
+1. THIS MESSAGE, INCLUDING A DESCRIPTION OF THE STORAGE SCHEME USED BY
+AMG1R6.
+
+2. A SAMPLE DRIVER CALLING AMG1R6 VIA THE INTERFACE ROUTINE AUX1R6. IT
+DISCRETIZES A SIMPLE POISSON PROBLEM AND THEN SOLVES THE RESULTING
+SYSTEM OF EQUATIONS WITH THE AMG ROUTINE.
+
+3. THE OUTPUT PRODUCED BY THE SAMPLE DRIVER WITH THE ROUTINES AUX1R6 AND
+AMG1R6.
+
+4. THE YALE SPARSE MATRIX ROUTINE NDRV, ALONG WITH OTHER NEEDED ROUTINES
+(SEE COMMENTS BELOW REGARDING THE AMG1R6 MODULE)
+
+5. A SAMPLE ROUTINE CTIME (SEE COMMENTS BELOW REGARDING THE AMG1R6
+MODULE)
+
+
+PART 2 CONTAINS THE AMG1R6-MODULE. IT IS SELF-CONTAINED. A FEW
+COMMENTS ARE NECESSARY HERE: 
+
+  1. THE FIRST ROUTINE IS AN INTERFACE ROUTINE. IT IS CALLED BY YOUR 
+     PROGRAM AND IN TURN CALLS THE AMG-SOLVER AMG1R6. THE INTERFACE ROUTINE 
+     (NAME AUX1R6) SETS SOME AMG-PARAMETERS TO DEFAULT VALUES AND THUS 
+     CONTAINS FEWER ARGUMENTS THAN AMG1R5 ITSELF, MAKING IT EASIER TO USE 
+     FOR A CASUAL USER. IF YOU DON'T WANT THESE PARAMETERS TO BE SET TO 
+     DEFAULT VALUES, YOU CAN USE AMG1R6 DIRECTLY, OF COURSE.
+
+  2. IF ON THE COARSEST MULTIGRID LEVEL THE SOLUTION SHOULD BE CAL-
+     CULATED WITH A DIRECT SOLVER (SEE AMG1R6-ARGUMENT NSOLCO), THEN
+     THE SUBROUTINE NDRV OF THE YALE SPARSE MATRIX PACKAGE IS CALLED
+     FOR THIS PURPOSE. IF YOU HAVEN'T ACCESS TO THIS PACKAGE, EITHER
+     USE GAUSS-SEIDEL RELAXATION ON THE COARSEST GRID (NSOLCO=10) OR
+     REPLACE THE DIRECT SOLVER NDRV BY YOUR OWN ROUTINE. 
+
+     NOTE: THIS PACKAGE IS NOW INCLUDED IN PART 2.
+
+  3. FOR TIMING PURPOSES, A SUBROUTINE CTIME(TIME) IS CALLED, WHICH
+     RETURNS THE ELAPSED CPU-TIME IN SECONDS (DATA TYPE: REAL), RECKONED
+     FROM SOME STARTING POINT. THIS IS THE LAST ROUTINE IN PART 2,
+     AND THE SYSTEM-DEPENDENT ROUTINE "TIMER" WILL HAVE TO BE REPLACED.
+     IF TIMINGS ARE UNNECESSARY, THE SIMPLEST FIX IS TO COMMENT OUT THE CALL. 
+
+
+THE RULES FOR HOW TO STORE THE SYSTEM MATRIX ARE EXPLAINED IN THE
+COMMENT BLOCK OF AMG1R6. HOWEVER, THE NOMENCLATURE USED THERE MAY
+BE CONFUSING. SO AN EXAMPLE IS GIVEN BELOW.
+
+
+
+
+    EXAMPLE FOR STORAGE SCHEME:
+
+
+    ( A      A      0      0      0  ) ( U  )       ( F  )
+    (  11     12                     ) (  1 )       (  1 )
+    (                                ) (    )       (    )
+    ( A      A      A      0      0  ) ( U  )       ( F  )
+    (  21     22     23              ) (  2 )       (  2 )
+    (                                ) (    )       (    )
+    ( 0      A      A      A      0  ) ( U  )   =   ( F  )
+    (         32     33     34       ) (  3 )       (  3 )
+    (                                ) (    )       (    )
+    ( 0      0      A      A      A  ) ( U  )       ( F  )
+    (                43     44     45) (  4 )       (  4 )
+    (                                ) (    )       (    )
+    ( A      0      0      0      A  ) ( U  )       ( F  )
+    (  51                          55) (  5 )       (  5 )
+    (                                ) (    )       (    )
+
+    WE HAVE NNU = 5 AND NNA = 14
+
+    THE DIFFERENT USER-SUPPLIED ARRAYS LOOK LIKE THIS:
+
+ARRAY  A : A   A   A   A   A   A   A   A   A   A    A    A    A    A
+            11  12  22  21  23  25  33  32  34  44   43   45   55   51
+
+INDEX (I): 1   2   3   4   5   6   7   8   9   10   11   12   13   14
+           +       +               +           +              +
+           +   +++++               +           +              +
+           +   +   +++++++++++++++++           +              +
+           +   +   +   +++++++++++++++++++++++++              +
+           +   +   +   +   ++++++++++++++++++++++++++++++++++++
+           +   +   +   +   +   +++++++++++++++++++++++++++++++++++++++++
+           +   +   +   +   +   +
+ARRAY IA : 1   3   7  10  13  15
+INDEX (I): 1   2   3   4   5   6
+
+
+ARRAY JA : 1   2   2   1   3   5   3   2   4   4   3   5   5   1
+                 *               *           *           *
+INDEX (J): 1   2   3   4   5   6   7   8   9   10   11   12   13   14
+
+           '*' DENOTES THE BEGINNING OF POINTERS TO NEXT EQUATION
+
+ARRAY  U : U   U   U   U   U
+            1   2   3   4   5
+
+           WITH THESE VALUES THE 3-RD EQUATION FOR INSTANCE READS
+           AS FOLLOWS:
+           I = 3
+           J1= IA(3)             = 7
+           J2= IA(3+1)-1= 10 - 1 = 9
+
+           A(7) U(JA(7)) + A(8) U(JA(8)) + A(9) U(JA(9) = F
+                                                           3
+           A    U        +  A   U        + A    U       = F
+            33   3           32  2          34   4         3
+
+
+
+
+
+
+---  SECTION 2. ---
+
+C@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+C
+C     TEST DRIVER FOR AMG1R6  (VIA INTERFACE ROUTINE AUX1R6)
+C
+C     RELEASE 1.1, JUNE 1985
+C
+C@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+C
+C    -------------------------------------------------------------
+C    ] POISSON EQUATION ON (0,1) X (0,1)                         ]
+C    ] WITH DIRICHLET BOUNDARY CONDITIONS:                       ]
+C    ]                                                           ]
+C    ]                                                           ]
+C    ]           U   + U    =   F(X,Y)                           ]
+C    ]            XX    YY                                       ]
+C    ]                   U  =   G(X,Y)                           ]
+C    ]                                                           ]
+C    ]                                                           ]
+C    -------------------------------------------------------------
+C
+C
+      IMPLICIT REAL*8 (A-H,O-Z)
+      REAL*4 TOLD,TNEW,TSETA,TAMG
+C
+      DIMENSION A(3228),JA(3060),IA(395),U(394),F(394),IG(1187)
+C
+      NDA=3228
+      NDJA=3060
+      NDIA=395
+      NDIG=1187
+      NDU=394
+      NDF=394
+C
+C===> DEFAULT VALUES (DEFINITION OF PROBLEM)
+C
+      CXX    =-1.0D0
+      CYY    =-1.0D0
+C
+      NX     = 16
+      NY     = 16
+      H      = 1.D0/DFLOAT(NX)
+C
+C===> DEFAULT VALUES (AMG1R6: SETUP PHASE, OUTPUT)
+C
+      MATRIX = 12
+C
+C     SWITCHES
+C
+      ISWTCH = 4
+      IFIRST = 13
+      IOUT   = 12
+      IPRINT = 10606
+C
+C===> DEFAULT VALUES (AMG1R6: SOLUTION PHASE)
+C
+      EPS    = 1.D-12
+C
+C===> DEFINE PROBLEM
+C
+100   CALL CTIME(TOLD)
+      CALL SETA(CXX,CYY,NX,NY,H,A,JA,IA,F,
+     +          NNU,NROW,NCOL)
+      CALL CTIME(TNEW)
+      TSETA=TNEW-TOLD
+C
+C===> SOLVE PROBLEM
+C
+      TOLD=TNEW
+      CALL AUX1R6(A,IA,JA,U,F,IG,
+     +           NDA,NDIA,NDJA,NDU,NDF,NDIG,NNU,MATRIX,
+     +           EPS,IFIRST,ISWTCH,IOUT,IPRINT,
+     +           IERR)
+      CALL CTIME(TNEW)
+      TAMG=TNEW-TOLD
+      WRITE (6,9000) TSETA,TAMG
+      STOP
+C
+9000  FORMAT(///'***** CPU-TIME (SETA):',F10.2,' SEC *****'
+     *         /'***** CPU-TIME (AMG) :',F10.2,' SEC *****'/)
+      END
+C
+C.......................................................................
+C
+C     SETA                                             SUBROUTINE
+C
+C.......................................................................
+C
+      SUBROUTINE SETA(CXX,CYY,NX,NY,H,A,JA,IA,F,
+     *                NNU,NROW,NCOL)
+C
+C     SET UP MATRIX A AND RHS. POINTS ARE STORED COLUMNWISE (FROM BOTTOM
+C     TO TOP) STARTING WITH THE LEFTMOST COLUMN.
+C
+C     NROW = #POINTS IN X-DIRECTION,  NCOL = #POINTS IN Y-DIRECTION
+C
+      IMPLICIT REAL*8 (A-H,O-Z)
+C
+      DIMENSION A(*),JA(*),IA(*),F(*)
+C
+C===> PREPARATION
+C
+      NROW=NX-1
+      NCOL=NY-1
+      NNU=NROW*NCOL
+C
+      HD2=H*0.5D0
+      HQ=H*H
+C
+C===> SET UP MATRIX A
+C
+      JPOS=1
+      DO 1000 NL=1,NNU
+        I=1+(NL-1)/NCOL
+        J=NL-(I-1)*NCOL
+        X=I*H
+        Y=J*H
+C
+        DW  =  CXX
+        DE  =  CXX
+        DS  =  CYY
+        DN  =  CYY
+C
+        DWN = 0.0D0
+        DWS = 0.0D0
+        DEN = 0.0D0
+        DES = 0.0D0
+C
+100     D0  =-(DW+DE+DN+DS+DWN+DWS+DEN+DES)
+C
+C       MATRIX ELEMENTS (HOMOGENEOUS DIRICHLET BC'S)
+C
+           A(JPOS)=D0
+           JA(JPOS)=NL
+           IA(NL)=JPOS
+             JPOS=JPOS+1
+C
+        IF (I.EQ.1) GOTO 400
+C
+        IF (J.EQ.1) GOTO 300
+           A(JPOS)=DWS
+           JA(JPOS)=NL-NCOL-1
+             JPOS=JPOS+1
+300        A(JPOS)=DW
+           JA(JPOS)=NL-NCOL
+             JPOS=JPOS+1
+        IF (J.EQ.NCOL) GOTO 400
+           A(JPOS)=DWN
+           JA(JPOS)=NL-NCOL+1
+             JPOS=JPOS+1
+C
+400     IF (J.EQ.1) GOTO 600
+           A(JPOS)=DS
+           JA(JPOS)=NL-1
+             JPOS=JPOS+1
+600     IF (J.EQ.NCOL) GOTO 800
+           A(JPOS)=DN
+           JA(JPOS)=NL+1
+             JPOS=JPOS+1
+C
+800     IF (I.EQ.NROW) GOTO 1000
+C
+        IF (J.EQ.1) GOTO 900
+           A(JPOS)=DES
+           JA(JPOS)=NL+NCOL-1
+             JPOS=JPOS+1
+900        A(JPOS)=DE
+           JA(JPOS)=NL+NCOL
+             JPOS=JPOS+1
+        IF (J.EQ.NCOL) GOTO 1000
+           A(JPOS)=DEN
+           JA(JPOS)=NL+NCOL+1
+             JPOS=JPOS+1
+1000  CONTINUE
+      IA(NNU+1)=JPOS
+C
+C===> SET RIGHT HAND SIDE TO ZERO
+C
+      DO 1010 I=1,NNU
+        F(I) = 0.D0
+1010  CONTINUE
+      RETURN
+      END
+
+---  SECTION 3. ---
+
+CHECK: A PROBABLY SYMMETRIC
+CHECK: A PROBABLY POSITIVE TYPE
+CHECK: MATRIX A WAS SYMMETRICALLY STORED
+INTERPOLATION OPERATOR NO.  1 COMPLETED. C-POINTS ADDED IN PWINT:   0
+COARSE  GRID  OPERATOR NO.  2 COMPLETED
+INTERPOLATION OPERATOR NO.  2 COMPLETED. C-POINTS ADDED IN PWINT:   4
+COARSE  GRID  OPERATOR NO.  3 COMPLETED
+INTERPOLATION OPERATOR NO.  3 COMPLETED. C-POINTS ADDED IN PWINT:   4
+COARSE  GRID  OPERATOR NO.  4 COMPLETED
+INTERPOLATION OPERATOR NO.  4 COMPLETED. C-POINTS ADDED IN PWINT:   1
+COARSE  GRID  OPERATOR NO.  5 COMPLETED
+INTERPOLATION OPERATOR NO.  5 COMPLETED. C-POINTS ADDED IN PWINT:   0
+COARSE  GRID  OPERATOR NO.  6 COMPLETED
+
+************* CYCLING..... *************
+
+CYCLE  0:   RES=0.201E+02
+
+CYCLING BETWEEN GRIDS 1 AND  4:
+
+CYCLE  1:   RESCG=0.154E+00   RES=0.629E-01   CFAC=0.313E-02
+CYCLE  2:   RESCG=0.300E-02   RES=0.133E-02   CFAC=0.211E-01
+CYCLE  3:   RESCG=0.756E-04   RES=0.324E-04   CFAC=0.244E-01
+CYCLE  4:   RESCG=0.231E-05   RES=0.102E-05   CFAC=0.314E-01
+CYCLE  5:   RESCG=0.821E-07   RES=0.406E-07   CFAC=0.400E-01
+CYCLE  6:   RESCG=0.290E-08   RES=0.146E-08   CFAC=0.360E-01
+CYCLE  7:   RESCG=0.898E-10   RES=0.422E-10   CFAC=0.289E-01
+CYCLE  8:   RESCG=0.255E-11   RES=0.122E-11   CFAC=0.289E-01
+CYCLE  9:   RESCG=0.908E-13   RES=0.491E-13   CFAC=0.402E-01
+
+
+**************** CONVERGENCE *****************
+L2-NORM OF RESIDUAL BEFORE CYCLING = 0.201E+02
+L2-NORM OF RESIDUAL AFTER  CYCLING = 0.491E-13
+CONVERGENCE FACTOR                 = 0.245E-14
+CONVERGENCE FACTOR PER CYCLE       = 0.238E-01
+
+
+************** WORK COUNT ***************
+
+  PREP       SEC       SOL      SEC/CYCLE
+-----------------------------------------
+1 RWSRT      0.00   11 INTADD      0.00
+2 PRE-COL    0.00   12 RESCAL      0.00
+3 CHK-COL    0.00   13 RELAX       0.01
+4 INTERPOL   0.00   14 V-*         0.00
+5 RESTRICT   0.00   15 OTHERS      0.00
+6 OPDFN      0.00   16 CONJ-GRAD   0.00
+7 TRUNC      0.00   17 YALE-SMP    0.00
+8 OTHERS     0.00   18 ------      0.00
+-----------------------------------------
+  SUM        0.00      SUM         0.01
+-----------------------------------------
+
+
+********* SPACE REQUIREMENTS *********
+
+VECTOR      NEEDED      THEOR. MINIMUM
+--------------------------------------
+  A           3228              3001
+  JA          3048              3001
+  IA           392               386
+  U            391               385
+  F            391               385
+  IG          1187               995
+--------------------------------------
+
+
+******************* COMPLEXITIES ********************
+SPACE OCCUPIED BY ALL OPERATORS / SPACE OF OPERATOR  
+ON THE FINEST GRID   =     2.18   (A-COMPLEXITY)     
+TOTAL NUMBER OF GRID POINTS / NUMBER OF POINTS IN    
+THE  FINEST  GRID    =     1.71   (O-COMPLEXITY)     
+TOTAL SPACE USED BY AMG1R6 / SPACE OCCUPIED BY USER- 
+DEFINED  PROBLEM     =     2.93   (S-COMPLEXITY)     
+SPACE USED DURING SOLUTION PHASE / SPACE OCCUPIED BY 
+USER-DEFINED PROBLEM =     2.76
+*****************************************************
+
+
+
+**** CPU-TIME (SETA):      0.00 SEC *****
+**** CPU-TIME (AMG) :      0.05 SEC *****
+

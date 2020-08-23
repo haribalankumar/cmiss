@@ -1,0 +1,35 @@
+#-------------------------------------------------------------------------------
+# Compaq Alpha configuration
+#-------------------------------------------------------------------------------
+
+# The long integer versions (umfpack_*l_*) assume that the vendor-supplied BLAS
+# CANNOT handle long (integer*8) integer arguments.  The Make.generic, and
+# both options below, all compile UMFPACK in LP64 mode (32-bit int's, 64-bit
+# long's, and 64-bit pointers).
+
+# If the DXML BLAS can handle long integer arguments, then
+# add -DLONGBLAS to the CONFIG string.
+
+# Compare your output with the umfpack_*_demo.out64 files.
+
+CFLAGS = -O2 -std1
+RANLIB = ranlib
+
+# BLAS options:
+
+# 1: with the vendor-supplied BLAS
+CONFIG = -DNCBLAS -LP64
+LIB = -ldxml -lm
+
+# 2: with no BLAS (this will be slow)
+# CONFIG = -DNBLAS -LP64
+# LIB = -lm
+
+#-------------------------------------------------------------------------------
+# For compiling the MATLAB mexFunction.  Uses MATLAB's internal BLAS.
+
+MEX = mex -inline -O -LP64
+UMFPACKMEX = umfpack
+
+# If you do not have MATLAB, uncomment this line:
+# UMFPACKMEX = 

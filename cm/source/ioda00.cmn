@@ -1,0 +1,4 @@
+!  ioda00.cmn
+      INTEGER NDTOLD
+      COMMON /IODA00I/ NDTOLD
+

@@ -1,0 +1,57 @@
+#!/bin/sh
+
+UNAME=`uname`
+
+case $UNAME in
+  #
+  # Linux
+  #
+  "Linux")
+    BLURB="Building for a Linux platform"
+    LIST="DEBUG= OPT="
+    ;;
+
+  #
+  # IBM/AIX
+  #
+  "AIX")
+    BLURB="Building for an IBM AIX Platform"
+    LIST="ABI=32 ABI=32,MP= ABI=64 ABI=64,MP= ABI=32,OPT= ABI=32,MP=,OPT= ABI=64,OPT= ABI=64,MP=,OPT="
+    ;;
+
+  #
+  # SGI/IRIX 32 bit
+  #
+  "IRIX")
+    BLURB="Building for an IRIX box"
+    LIST="ABI=n32 ABI=n32,OPT="
+    ;;
+
+  #
+  # SGI/IRIX 64 bit
+  #
+  "IRIX64")
+    BLURB="Building for an IRIX 64 box"
+    #LIST="ABI=n32,OPT= ABI=n32,OPT=,MP= ABI=64,OPT= ABI=64,OPT=,MP="
+    LIST="ABI=n32 ABI=n32,OPT= ABI=64 ABI=64,OPT= ABI=n32,MP= ABI=n32,OPT=,MP= ABI=64,MP= ABI=64,OPT=,MP="
+    ;;
+
+  #
+  # Unknown
+  #
+  *)
+    echo "Unknown platform"
+    exit -1
+    ;;
+esac
+
+echo $BLURB
+
+for OPTION in $LIST
+do
+  SWITCH=`echo $OPTION | sed 's/,/ /g'`
+
+  gmake clean
+  gmake $SWITCH
+done
+gmake clean

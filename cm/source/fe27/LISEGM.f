@@ -1,0 +1,76 @@
+      SUBROUTINE LISEGM(ISAXES,ISBASE,ISCONO,ISCONT,ISDANO,ISDAPR,
+     '  ISDATA,ISDATR,ISEG,ISELNO,ISFACE,ISFANO,ISFIBR,ISGAUS,ISGRAD,
+     '  ISGRID,ISHIST,ISINCR,ISLINE,ISLINO,ISMAP,ISMATE,ISNONO,
+     '  ISREAC,ISRULE,ISSECT,ISSTRA,ISSTRE,ISSTRM,ISSURF,ISVELO,
+     '  NEELEM,NPNODE,CSEG,STRING,ERROR,*)
+
+C#### Subroutine: LISEGM
+C###  Description:
+C###    LISEGM lists segments CSEG(nosg).
+
+      IMPLICIT NONE
+      INCLUDE 'mxch.inc'
+      INCLUDE 'cbdi02.cmn'
+      INCLUDE 'cbdi10.cmn'
+      INCLUDE 'geom00.cmn'
+!     Parameter List
+      INTEGER ISAXES(NWM),ISBASE(99),ISCONO(NHM,NEM),
+     '  ISCONT(NHM,NEM,NGRSEGM),ISDANO(NWM,NEM),ISDAPR(NWM,NEM),
+     '  ISDATA(NWM,NGRSEGM),ISDATR(NWM,NEM),ISEG(*),ISELNO(NWM,NEM),
+     '  ISFACE(NWM,NFM),ISFANO(NWM,NFM),
+     '  ISFIBR(NWM,NEM,NGRSEGM),ISGAUS(NWM),
+     '  ISGRAD(NEM,NGRSEGM),ISGRID(NWM),ISHIST(0:NPM),ISINCR(NWM),
+     '  ISLINE(NWM,2*NGRSEGM),ISLINO(NWM),ISMAP(NGRSEGM),
+     '  ISMATE(NWM,NEM),ISNONO(NWM,NPM),ISREAC(NWM),ISRULE(NWM),
+     '  ISSECT(NGRSEGM),ISSTRA(NEM,NGRSEGM),
+     '  ISSTRE(NEM,NGRSEGM),ISSTRM(NEM,NGRSEGM),
+     '  ISSURF(NWM,NGRSEGM),ISVELO(NEM,NGRSEGM),
+     '  NEELEM(0:NE_R_M,0:NRM),NPNODE(0:NP_R_M,0:NRM)
+      CHARACTER CSEG(*)*(*),ERROR*(*),STRING*(MXCH)
+!     Local Variables
+      INTEGER IBEG,IEND
+      LOGICAL ABBREV,FULL
+
+      CALL ENTERS('LISEGM',*9999)
+      IF(CO(noco+1).EQ.'?') THEN
+        CALL STRING_TRIM(STRING,IBEG,IEND)
+
+C---------------------------------------------------------------------
+
+C#### Command: FEM list segments
+C###  Parameter:    <full>
+C###  Description:
+C###    Lists segments to screen with a more complete listing if 'full'
+C###    is included.
+
+        OP_STRING(1)=STRING(1:IEND)//' <full>'
+        CALL WRITES(IOH1,OP_STRING,ERROR,*9999)
+
+C---------------------------------------------------------------------
+
+      ELSE IF(CO(noco+1).EQ.'??') THEN
+        CALL DOCUM('fe27','doc','LISEGM',ERROR,*9999)
+      ELSE
+        IF(ABBREV(CO(noco+1),'FULL',1)) THEN
+          FULL=.TRUE.
+        ELSE
+          FULL=.FALSE.
+        ENDIF
+
+        CALL OPSEGM(ISAXES,ISBASE,ISCONO,ISCONT,ISDANO,ISDAPR,
+     '    ISDATA,ISDATR,ISEG,ISELNO,ISFACE,ISFANO,ISFIBR,ISGAUS,
+     '    ISGRAD,ISGRID,ISHIST,ISINCR,ISLINE,ISLINO,ISMAP,
+     '    ISMATE,ISNONO,ISREAC,ISRULE,ISSECT,ISSTRA,ISSTRE,
+     '    ISSTRM,ISSURF,ISVELO,NEELEM,NPNODE,
+     '    CSEG,FULL,ERROR,*9999)
+
+      ENDIF
+
+      CALL EXITS('LISEGM')
+      RETURN
+ 9999 CALL ERRORS('LISEGM',ERROR)
+      CALL EXITS('LISEGM')
+      RETURN 1
+      END
+
+

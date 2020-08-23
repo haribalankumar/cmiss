@@ -1,0 +1,43 @@
+      SUBROUTINE MINOSOPTI(INTWORK,REALWORK,ERROR,*)
+
+C#### Subroutine: MINOSOPTI
+C###  Description:
+C###    MINOSOPTI is a buffer routine to MINOSOPTIA the minimisation
+C###    routine using MINOS routine.
+
+      IMPLICIT NONE
+      INCLUDE 'geom00.cmn'
+      INCLUDE 'ofst00.cmn'
+!     Parameter List
+      INTEGER INTWORK(NIWM)
+      REAL*8 REALWORK(NRWM)
+      CHARACTER ERROR*(*)
+!     Local Variables
+      INTEGER i
+
+      CALL ENTERS('MINOSOPTI',*9999)
+
+      DO I=1,NOPM
+        REALWORK(OS_FGRADM+I-1)=0.0d0
+      ENDDO
+      DO I=1,NCOM
+        REALWORK(OS_CM+I-1)=0.0d0
+      ENDDO
+      DO I=1,NZ_MINOSM
+        REALWORK(OS_CJACM+I-1)=0.0d0
+      ENDDO
+      CALL MINOSOPTIA(INTWORK(OS_HAM),INTWORK(OS_HSM),
+     '  INTWORK(OS_KAM),REALWORK(OS_AM),REALWORK(OS_BLM),
+     '  REALWORK(OS_BUM),REALWORK(OS_PAOPTI),REALWORK(OS_PIM),
+     '  REALWORK(OS_PMIN),REALWORK(OS_PMAX),REALWORK(OS_RCM),
+     '  REALWORK(OS_XNM),REALWORK(OS_ZM),INTWORK,REALWORK,
+     '  ERROR,*9999)
+
+      CALL EXITS('MINOSOPTI')
+      RETURN
+ 9999 CALL ERRORS('MINOSOPTI',ERROR)
+      CALL EXITS('MINOSOPTI')
+      RETURN 1
+      END
+
+

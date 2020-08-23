@@ -1,0 +1,53 @@
+\begin{thebibliography}{100}
+
+\bibitem{anderson:1992a}
+E.~Anderson, Z.~Bai, C.~Bischof, J.~Demmel, J~Dongarra, J.~Du Croz,
+  A.~Greenbaum, S.~Hammarling, A.~McKenney, A.~Ostrouchov, D.~Sorenson.
+\newblock {\em {LAPACK} users' guide},
+\newblock SIAM, Philadelphia, 1992.
+
+\bibitem{barrett:1993a}
+R.~Barrett, M.~Berry, T.~F. Chan, J.~Demmel, J.~Donato, J.~Dongarra,
+  V.~Eijkhout, R.~Pozo, C.~Romine, and H.~{van der Vorst}.
+\newblock {\em Templates for the Solution of Linear Systems}.
+\newblock SIAM, Philadelphia, 1994.
+
+\bibitem{hestenes:1952a}
+M.~R. Hestenes and E.~Stiefel.
+\newblock Methods of conjugate gradients for solving linear systems.
+\newblock {\em Journal of Research of the National Bureau of Standards},
+  49(6):409--437, 1952.
+
+\bibitem{kershaw:1978a}
+D.~S. Kershaw.
+\newblock The incomplete {Cholesky}-conjugate gradient method for the iterative
+  solution of systems of linear equations.
+\newblock {\em Journal of Computational Physics}, 26:43--65, 1978.
+
+\bibitem{press:1992a}
+W.~H. Press, S.~A. Teukolsky, W.~T. Vetterling, and B.~P. Flannery.
+\newblock {\em Numerical Recipes in {Fortran}}.
+\newblock Cambridge University Press, Cambridge, second edition, 1992.
+
+\bibitem{reid:1971a}
+J.~Reid.
+\newblock On the method of conjugate gradients for the solution of large sparse
+  systems of linear equations.
+\newblock In J.~Reid, editor, {\em Large Sparse Sets of Linear Equations}.
+  Academic Press, London, 1971.
+
+\bibitem{saad:1986a}
+Y.~Saad and M.~Schultz.
+\newblock {GMRES}: A generalized minimal residual algorithm for solving
+  nonsymmetric linear systems.
+\newblock {\em {SIAM} Journal of Scientific and Statistical Computing},
+  7:856--869, 1986.
+
+\bibitem{shewchuk:1994a}
+J.~R. Shewchuk.
+\newblock An introduction to the conjugate gradient method without the
+  agonizing pain.
+\newblock Technical Report CMU-CS-94-125, School of Computer Science, Carnegie
+  Mellon University, March 1994.
+
+\end{thebibliography}

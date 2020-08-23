@@ -1,0 +1,53 @@
+      SUBROUTINE BINRESETNUMTAG(FILEID,NUMTAGS,ERROR,*)
+
+C#### Subroutine: BINRESETNUMTAG
+C###  Description:
+C###    BINRESETNUMTAG resets the number of tags in a
+C###    binary file specified by FILEID to the specified number of tags.
+
+      IMPLICIT NONE
+      INCLUDE 'binf00.cmn'
+      INCLUDE 'mach00.cmn'
+      INCLUDE 'mach00.inc'
+!     Parameter List
+      INTEGER FILEID,NUMTAGS
+      CHARACTER ERROR*(*)
+!     Local Variables
+      INTEGER CERROR(50),ERR,NUMSKIPBYTES,NUMHEADBYTES(1),NUMTGS(1)
+
+      CALL ENTERS('BINRESETNUMTAG',*9999)
+
+C***  Rewind the file to the beginning
+      CALL BINSETFILE(FILEID,0,ERROR,*9999)
+C***  Skip the identity and machine (ip=2) header sections
+      CALL BINSKIPCMHEADER(FILEID,2,ERROR,*9999)
+C***  Skip the file type and version
+      IF(FILEBINVERTYPE(FILEID).EQ.CHAR(2)) THEN
+        NUMSKIPBYTES=4*INTSIZE
+      ELSE
+        NUMSKIPBYTES=INTSIZE+SPSIZE
+      ENDIF
+      CALL BINSKIPFILE(FILEID,NUMSKIPBYTES,ERROR,*9999)
+C***  Skip the file header
+      CALL BINREADFILE(FILEID,INTTYPE,1,NUMHEADBYTES,REAL4DATA,
+     '  REAL8DATA,CHARDATA,LOGDATA,SINTDATA,ERROR,*9999)
+      CALL BINSKIPFILE(FILEID,NUMHEADBYTES(1),ERROR,*9999)
+C***  Set the file position
+      CALL BINSETFILE(FILEID,1,ERROR,*9999)
+C***  Write the new number of tags
+      NUMTGS(1)=NUMTAGS
+      CALL BINWRITEFILE(FILEID,INTTYPE,1,NUMTGS,REAL4DATA,REAL8DATA,
+     '  CHARDATA,LOGDATA,SINTDATA,ERROR,*9999)
+      NUMTAGS=NUMTGS(1)
+C***  Go to the end of the file
+      CALL BINSETFILE(FILEID,2,ERROR,*9999)
+
+      CALL EXITS('BINRESETNUMTAG')
+      RETURN
+ 9999 CALL ERRORS('BINRESETNUMTAG',ERROR)
+      CALL EXITS('BINRESETNUMTAG')
+      CALL BINARYCLOSEFILE(FILEID,ERR,CERROR)
+      RETURN 1
+      END
+
+

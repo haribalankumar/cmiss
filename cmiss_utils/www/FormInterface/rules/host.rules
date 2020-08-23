@@ -1,0 +1,12 @@
+-- Host Rules File --------------------------------------------------------
+--
+
+define HOST as
+  <
+  HEAD hostname
+  TAG  username
+  TAG  os
+  TAG  ncpu
+  TAG  home-directory
+  >
+

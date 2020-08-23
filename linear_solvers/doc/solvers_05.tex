@@ -1,0 +1,102 @@
+
+\section{An Overview of the Library}\label{s5.0}
+
+\subsection{The Layout of the Library}\label{s5.1}
+
+The solver library is contained in the directory {\tt linear\_solvers} within
+{\tt /product/cmiss}. Within the directory are the following sub-directories.
+
+{\tt blas}:
+The source for the BLAS (Basic Linear Algebra Subprograms) library.
+Most vendors provide an optimised version of this library, but it is often 
+missing from Linux systems and so is provided for convenience. If a vendor 
+version of the library is available it should be used in preference to this 
+generic version, since it is likely that it will provided better performance.
+
+{\tt cblas}:
+The C interface source to BLAS (Basic Linear Algebra Subprograms).
+Again, this is missing on some systems.
+
+{\tt doc}:
+A directory containing this report, and documentation of the other libraries.
+
+{\tt harwell}:
+The Harwell {\tt MA28AD} sparse $\mathbf{L \, U}$ solver. This is
+no longer used since it gives poor performance and the licensing restricts 
+academic use only.
+
+{\tt lapack-3.0}:
+The LAPACK library. As with the BLAS library this library is
+sometimes missing from Linux and other platforms, and so is provided here for 
+convenience. In addition, the IBM implementation in their ESSL library is
+missing some routines used within CMISS, and so the library is built on that 
+platform.
+
+{\tt lib}:
+The directory into which the libraries are built. 
+
+{\tt solver}:
+The solver library, containing the iterative solvers and the interfaces to the
+other libraries used within CMISS. Will also build a test code allowing the
+different solvers to be compared and debugged.
+
+{\tt superLU-1.0\_omp}:
+The shared memory multi-threaded version of SuperLU, a sparse $\mathbf{L \, U}$
+solver. 
+
+{\tt superLU-2.0.3}:
+The single threaded version of SuperLU, a sparse $\mathbf{L \, U}$ solver. 
+
+{\tt timer}:
+Used to contain timing routines. No longer used.
+
+{\tt umfpack-2.2.1}:
+The Fortran version of the Umfpack sparse $\mathbf{L \, U}$ solver. This is
+no longer used since it's licence restricts it to academic use only. In 
+addition, unlike later versions of Umfpack and SuperLU it does not perform
+it's own memory allocation, requiring the user to provide workspace for the 
+factorisation. Since this cannot be predetermined it either results in massive
+over-allocation of memory, or an extremely annoying repetition of running the 
+code, only for it to die complaining of lack of memory. Believe me, you don't 
+want to do this. Use the later versions of Umfpack instead.
+
+{\tt umfpack-4.0}:
+A more modern C implementation of Umfpack, that performs it's own memory 
+allocation. A sparse $\mathbf{L \, U}$ solver, it is only available in a 
+single threaded version.
+
+{\tt xblas}:
+The Xtended BLAS library -- local code adding missing operations to the BLAS 
+library. It also provides OpenMP versions of some of the operations, allowing
+control of parallelisation of some vector operations.
+
+To build all the libraries run {\tt gmake} in the {\tt linear\_solvers} 
+directory. To build all versions of the library (Debug, Optimised, 
+Multi-threaded, and $32$ and $64$ bit pointers, run the {\tt make\_all} script.
+The platform dependent compiler options are set in the {\tt Makefile.inc} file.
+An overview of the build process is given in the {\tt README} file in the top 
+directory.
+
+
+\subsection{Some Rough Guidelines for using the Library}\label{s5.2}
+
+Here are a few rough rules for using the linear solvers.
+
+\begin{itemize}
+\item When solving direct systems use LAPACK LU. If this fails to converge, 
+      or if the system is under or over determined switch to LAPACK's SVD
+      solver.
+\item For sparse systems the Umfpack 4.0 is generally the better of the two 
+      direct solvers. For parallel jobs however you will have to use SuperLU.
+\item For really large sparse systems an attempt should be made to use the
+      iterative methods. The factorisation time for the direct solvers is
+      of order $O(n^3)$ but is less than this for the iterative methods.
+\item Generally GMRES of BiCGSTAB combined with Incomplete LU is the most
+      robust of the iterative solvers.
+\item For sparse diagonally dominant systems that Merryn sometimes produces, 
+      the Incomplete LU solver really flies.
+\item The iterative methods have problems with systems that have zero's on 
+      the diagonals or which aren't diagonally dominant. For these problems 
+      first check your equations, and if you are sure they are OK then shift 
+      to a direct method.
+\end{itemize}

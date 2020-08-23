@@ -1,0 +1,143 @@
+      SUBROUTINE IPCELL_COMMON(VARIANT,ERROR,*)
+
+C#### Subroutine: IPCELL_COMMON
+C###  Description:
+C###  Perfoms task common to IPCELL and IPCELL_CELLML, namely checking
+C###  the sizes of parameter lists and setting the offsets into the
+C###  various cell modelling arrays.
+
+C *** DPN 11-01-2003: Initially this code was in IPCELL, but I have
+C     moved it here as IPCELL_CELLML uses the same code.
+
+      IMPLICIT NONE
+
+      INCLUDE 'cbdi02.cmn'
+      INCLUDE 'cell02.cmn'
+      INCLUDE 'cellml.cmn'
+      INCLUDE 'geom00.cmn'
+
+      ! Parameters
+      INTEGER VARIANT
+      CHARACTER ERROR*(*)
+      ! Local variables
+      INTEGER CURRENT_OFFSET,ERR,SIZE
+
+      CALL ENTERS('IPCELL_COMMON',*9999)
+
+C cpb Trading memory for speed here. If the number of variables is
+C greater than one then the arrays can be dropped down an index. If
+C the variables are zero then no memory is allocated and tests must
+C always be performed on the pointer.
+      CALL ASSERT(CELL_NUM_VARIANTS.GE.1,
+     '  '>>Must have more than zero cell variants',
+     '  ERROR,*9999)
+      CALL ASSERT(CELL_NUM_VARIANTS.LE.NQVM,
+     '  '>>Increase NQVM',
+     '  ERROR,*9999)
+      CALL ASSERT(CELL_NUM_STATE(VARIANT).GE.1,
+     '  '>>Must have more than zero state variables',
+     '  ERROR,*9999)
+      CALL ASSERT(CELL_NUM_STATE(VARIANT).GE.CELL_NUM_ODE(VARIANT),
+     '  '>>Number of ODE variables must be <= number of state '
+     '  //'variables',ERROR,*9999)
+      CALL ASSERT(CELL_NUM_PARAMETERS(VARIANT).GE.1,
+     '  '>>Must have more than zero parameter variables',
+     '  ERROR,*9999)
+C     Global array sizes
+      SIZE = CELL_NUM_STATE(VARIANT)+CELL_NUM_DERIVED(VARIANT)
+      IF (SIZE.GT.NIQST) NIQST = SIZE
+      SIZE = 1+CELL_NUM_MODEL(VARIANT)+CELL_NUM_CONTROL(VARIANT)
+     '  +CELL_NUM_AII(VARIANT)+CELL_NUM_AIO(VARIANT)
+      IF (SIZE.GT.NQIT) NQIT = SIZE
+      SIZE = CELL_NUM_PARAMETERS(VARIANT)+CELL_NUM_PROTOCOL(VARIANT)
+     '  +CELL_NUM_ARI(VARIANT)+CELL_NUM_ARO(VARIANT)
+      IF (SIZE.GT.NQRT) NQRT = SIZE
+      NQVT=CELL_NUM_VARIANTS
+      CALL ASSERT(NIQST.LE.NIQSM,'>>Increase NIQSM',ERROR,*9999)
+      IF(NQIT.GT.NQIM) THEN
+        CALL FLAG_ERROR(0,' ')
+        CALL WRITE_CHAR(IOER,'Increase NQIM to at least ',ERR)
+        CALL WRITE_INT(IOER,NQIT,ERR)
+        CALL WRITE_CHAR(IOER,NEWLINE,ERR)
+        GOTO 9998
+      ENDIF
+      IF(NQRT.GT.NQRM) THEN
+        CALL FLAG_ERROR(0,' ')
+        CALL WRITE_CHAR(IOER,'Increase NQRM to at least ',ERR)
+        CALL WRITE_INT(IOER,NQRT,ERR)
+        CALL WRITE_CHAR(IOER,NEWLINE,ERR)
+        GOTO 9998
+      ENDIF
+      CALL ASSERT(NQVT.LE.NQVM,'>>Increase NQVM',ERROR,*9999)
+
+C     YQS offsets
+      CELL_STATE_OFFSET(VARIANT)=1
+      IF(CELL_NUM_DERIVED(VARIANT).EQ.0) THEN
+        CELL_DERIVED_OFFSET(VARIANT)=CELL_STATE_OFFSET(VARIANT)
+      ELSE
+        CELL_DERIVED_OFFSET(VARIANT)=CELL_STATE_OFFSET(VARIANT)
+     '    +CELL_NUM_STATE(VARIANT)
+      ENDIF
+C     ICQS offsets
+      !CELL_VARIANT_OFFSET=1 - made a parameter so we can always rely
+      !                        on this bing true
+      CURRENT_OFFSET=1
+      IF(CELL_NUM_MODEL(VARIANT).EQ.0) THEN
+        CELL_MODEL_OFFSET(VARIANT)=CELL_VARIANT_OFFSET
+      ELSE
+        CELL_MODEL_OFFSET(VARIANT)=CELL_VARIANT_OFFSET+CURRENT_OFFSET
+        CURRENT_OFFSET=CELL_NUM_MODEL(VARIANT)
+      ENDIF
+      IF(CELL_NUM_CONTROL(VARIANT).EQ.0) THEN
+        CELL_CONTROL_OFFSET(VARIANT)=CELL_MODEL_OFFSET(VARIANT)
+      ELSE
+        CELL_CONTROL_OFFSET(VARIANT)=CELL_MODEL_OFFSET(VARIANT)
+     '    +CURRENT_OFFSET
+        CURRENT_OFFSET=CELL_NUM_CONTROL(VARIANT)
+      ENDIF
+      IF(CELL_NUM_AII(VARIANT).EQ.0) THEN
+        CELL_AII_OFFSET(VARIANT)=CELL_CONTROL_OFFSET(VARIANT)
+      ELSE
+        CELL_AII_OFFSET(VARIANT)=CELL_CONTROL_OFFSET(VARIANT)
+     '    +CURRENT_OFFSET
+        CURRENT_OFFSET=CELL_NUM_AII(VARIANT)
+      ENDIF
+      IF(CELL_NUM_AIO(VARIANT).EQ.0) THEN
+        CELL_AIO_OFFSET(VARIANT)=CELL_AII_OFFSET(VARIANT)
+      ELSE
+        CELL_AIO_OFFSET(VARIANT)=CELL_AII_OFFSET(VARIANT)+CURRENT_OFFSET
+        CURRENT_OFFSET=CELL_NUM_AIO(VARIANT)
+      ENDIF
+C     RCQS offsets
+      CELL_PARAMETERS_OFFSET(VARIANT)=1
+      CURRENT_OFFSET=CELL_NUM_PARAMETERS(VARIANT)
+      IF(CELL_NUM_PROTOCOL(VARIANT).EQ.0) THEN
+        CELL_PROTOCOL_OFFSET(VARIANT)=CELL_PARAMETERS_OFFSET(VARIANT)
+      ELSE
+        CELL_PROTOCOL_OFFSET(VARIANT)=CELL_PARAMETERS_OFFSET(VARIANT)
+     '    +CURRENT_OFFSET
+        CURRENT_OFFSET=CELL_NUM_PROTOCOL(VARIANT)
+      ENDIF
+      IF(CELL_NUM_ARI(VARIANT).EQ.0) THEN
+        CELL_ARI_OFFSET(VARIANT)=CELL_PROTOCOL_OFFSET(VARIANT)
+      ELSE
+        CELL_ARI_OFFSET(VARIANT)=CELL_PROTOCOL_OFFSET(VARIANT)
+     '    +CURRENT_OFFSET
+        CURRENT_OFFSET=CELL_NUM_ARI(VARIANT)
+      ENDIF
+      IF(CELL_NUM_ARO(VARIANT).EQ.0) THEN
+        CELL_ARO_OFFSET(VARIANT)=CELL_ARI_OFFSET(VARIANT)
+      ELSE
+        CELL_ARO_OFFSET(VARIANT)=CELL_ARI_OFFSET(VARIANT)+CURRENT_OFFSET
+        CURRENT_OFFSET=CELL_NUM_ARO(VARIANT)
+      ENDIF
+
+      CALL EXITS('IPCELL_COMMON')
+      RETURN
+ 9998 ERROR=' '
+ 9999 CALL ERRORS('IPCELL_COMMON',ERROR)
+      CALL EXITS('IPCELL_COMMON')
+      RETURN 1
+      END
+
+

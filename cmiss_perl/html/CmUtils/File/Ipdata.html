@@ -1,0 +1,73 @@
+<HTML>
+<HEAD>
+<TITLE>Routines for reading and writing ipdata files.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aFile%3a%3aIpdata">CmUtils::File::Ipdata</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#CHANGES">CHANGES</A></LI>
+<LI><A HREF="#SUBROUTINES">SUBROUTINES</A></LI>
+<UL>
+<LI><A HREF="#readIpdata"><B>readIpdata</B></A></LI>
+<LI><A HREF="#writeIpdata"><B>writeIpdata</B></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aFile%3a%3aIpdata">CmUtils::File::Ipdata</A></H1>
+
+<P>Routines for reading and writing <I>ipdata</I> files.</P><H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>0.5 (12 October 2000)
+0.6 (08 August 2001)</P><H1><A NAME="CHANGES">CHANGES</A></H1>
+
+<P>version 0.6
+- added necessary field validity check for writing Ipdata files JMB</P><H1><A NAME="SUBROUTINES">SUBROUTINES</A></H1>
+<H2><A NAME="readIpdata"><B>readIpdata</B></A></H2>
+<DL><DT><A NAME="PARAMETERS">PARAMETERS</A></DT>
+<DD>
+(filename)</DD>
+<DT><A NAME="USAGE">USAGE</A></DT>
+<DD>
+
+<PRE>  $group = readIpdata(&quot;newfile&quot;);</PRE>
+</DD>
+<DT><A NAME="FUNCTION">FUNCTION</A></DT>
+<DD>
+Returns a NodeGroup read from <I>filename</I> (or <I>filename.ipdata</I>).  Creates a
+single FieldSet relevant to an <I>ipdata</I> file.  It has a <I>coordinates</I> Field
+with <I>x</I>, <I>y</I> and <I>z</I> Components, and a <I>weights</I> Field  with the same
+Components.</DD>
+</DL>
+<H2><A NAME="writeIpdata"><B>writeIpdata</B></A></H2>
+<DL><DT><A NAME="PARAMETERS">PARAMETERS</A></DT>
+<DD>
+(filename, group, options)</DD>
+<DT><A NAME="USAGE">USAGE</A></DT>
+<DD>
+
+<PRE>  writeIpdata(&quot;newfile&quot;, $group, \%options);</PRE>
+</DD>
+<DT><A NAME="FUNCTION">FUNCTION</A></DT>
+<DD>
+Writes a NodeGroup to an <I>ipdata</I> file.  Options are passed through
+the <I>options</I> hash to control the subset of the NodeGroup which will be
+printed.</DD>
+<DT><A NAME="OPTIONS">OPTIONS</A></DT>
+<DD>
+<DL><DT><A NAME="nodes">nodes</A></DT>
+<DD>
+A array of node structures which will be output.  A number of routines are
+available to get nodes from a group (e.g. <B>getNodes</B>.  See CmUtils::Objects::NodeGroup).
+If not set, all nodes will be printed.</DD>
+<DT><A NAME="fields">fields</A></DT>
+<DD>
+An field name which will be printed.  If not set, the &quot;coordinates&quot; field
+will be printed if it exists, with weights of 1.0.  If two fields are
+specified, the second one will be written as the weights.</DD>
+</DL>
+</DD>
+</DL>
+
+</BODY>
+</HTML>

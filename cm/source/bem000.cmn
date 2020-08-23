@@ -1,0 +1,12 @@
+!  bem000.cmn
+      INTEGER BEMLOOPTYPE,IGREN(9),NGLIMITS(2,50,2)
+!  NGLIMITS(ni,nb,2) stores the number of gauss points used in
+!  each ni direction for the low and high order scheme.
+      REAL*8 DLIM(12,16) !12 basis functions and 16 different elements
+      LOGICAL BEMCURVATURECORRECTION,BEMLOGGAUSS,
+     '  BEMOVERDETERMINED(0:9,9),OPTI3DLAPLACE
+      COMMON /BEM000I/ BEMLOOPTYPE,IGREN,NGLIMITS
+      COMMON /BEM000R/ DLIM
+      COMMON /BEM000L/ BEMCURVATURECORRECTION,BEMLOGGAUSS,
+     '  BEMOVERDETERMINED,OPTI3DLAPLACE
+

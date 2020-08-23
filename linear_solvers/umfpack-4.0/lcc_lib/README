@@ -1,0 +1,2 @@
+For use with the MATLAB mex command, when compiling
+the UMFPACK mexFunction with the lcc compiler on Windows.

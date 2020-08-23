@@ -1,0 +1,4 @@
+!  b08.cmn
+      REAL*8 A1,A2,A3
+      COMMON /B08R/ A1,A2,A3
+

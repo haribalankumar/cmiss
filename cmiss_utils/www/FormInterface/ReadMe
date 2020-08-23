@@ -1,0 +1,10 @@
+
+									WEBCMISS: the WEB Interface to CMISS
+									------------------------------------
+
+1/ Accounts
+
+On the webserver, the directory $HOME/webcmiss has the src, bin and etc
+subdirectories. The source code for the interface lives in src, whilst the
+configuration files containing the list of users etc live in etc. 
+

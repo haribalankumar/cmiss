@@ -1,0 +1,139 @@
+cm is proprietary software available for academic use only.
+
+It's use is restricted by the terms of all the licences in the Licences
+directory.
+
+cm has benefited much (and hopefully vice versa) from the involvement of
+University of Auckland staff and postgraduate students.
+
+Much of the code is copyright 1996-2006, Auckland UniServices Limited
+  C/- The University of Auckland
+  Private Bag 92019,
+  Auckland 1,
+  NEW ZEALAND
+
+It is distributed in binary form under the CMISS-UniServices licence.
+
+Portions of code have been developed by other parties who have made their
+source code available.
+
+perl
+
+  Copyright (C) 1993, 1994, 1995, 1996, 1997, 1998, 1999,
+    2000, 2001, 2002, 2003, 2004, 2005 by Larry Wall and others.
+  All rights reserved.
+
+  Available from http://www.perl.org/ under the Artistic licence.
+
+
+libcellml-c++
+
+  Copyright (c) 2003, Bioengineering Institute, The University of Auckland.
+  All rights reserved.
+
+  Available from http://sourceforge.net/projects/cellml under the
+  Bioengineering-Institute-BSD licence.
+
+xerces-c
+
+  Copyright 1999-2004 The Apache Software Foundation.
+
+  This product includes software developed by
+  The Apache Software Foundation (http://www.apache.org/).
+
+  Portions of this software were originally based on the following:
+    - software copyright (c) 1999, IBM Corporation., http://www.ibm.com.
+
+  Available from http://xml.apache.org/xerces-c/index.html under the Apache
+  License, Version 2.0.  (http://www.apache.org/licenses/LICENSE-2.0)
+
+openmotif
+
+  (c) Copyright 1989 - 1994, 1996 - 1999 The Open Group and others. All Rights Reserved.
+
+  Available from http://www.motifzone.org/ under the Motif license
+  (http://www.opengroup.org/openmotif/license/).
+
+UMFPACK
+
+  Copyright (c) 2002 by Timothy A. Davis.  All Rights Reserved.
+
+  Available from http://www.cise.ufl.edu/research/sparse/umfpack under the
+  UMFPACK licence.
+
+superlu
+
+  Copyright (c) 2003, The Regents of the University of California, through
+  Lawrence Berkeley National Laboratory (subject to receipt of any required
+  approvals from U.S. Dept. of Energy).  All rights reserved.
+
+  Available from http://crd.lbl.gov/~xiaoye/SuperLU/ under the SuperLU licence.
+
+lsoda
+
+  linda r. petzold  and  alan c. hindmarsh,
+  computing and mathematics research division, l-316
+  lawrence livermore national laboratory
+  livermore, ca 94550.
+
+
+  From ODEPACK, available from http://www.netlib.org/odepack/.
+
+pppack
+
+  C. De Boor, "A practical guide to splines"
+
+  Available from http://www.netlib.org/pppack/.
+
+CURFIT
+
+  Curve and Surface Fitting with Splines, by P. Dierckx,
+  Monographs on Numerical Analysis, Oxford University Press, 1993
+
+  From FITPACK, available from http://www.netlib.org/dierckx/.
+
+reference lapack
+
+  @BOOK{laug,
+    AUTHOR = {Anderson, E. and Bai, Z. and Bischof, C. and
+              Blackford, S. and Demmel, J. and Dongarra, J. and
+              Du Croz, J. and Greenbaum, A. and Hammarling, S. and
+              McKenney, A. and Sorensen, D.},
+    TITLE = {{LAPACK} Users' Guide},
+    EDITION = {Third},
+    PUBLISHER = {Society for Industrial and Applied Mathematics},
+    YEAR = {1999},
+    ADDRESS = {Philadelphia, PA},
+    ISBN = {0-89871-447-8 (paperback)} }
+
+  Available from http://www.netlib.org/lapack/.
+
+reference blas
+
+  C. L. Lawson, R. J. Hanson, D. Kincaid, and F. T. Krogh, Basic Linear
+  Algebra Subprograms for FORTRAN usage, ACM Trans. Math. Soft., 5 (1979),
+  pp. 308--323.
+
+  J. J. Dongarra, J. Du Croz, S. Hammarling, and R. J. Hanson, An extended set
+  of FORTRAN Basic Linear Algebra Subprograms, ACM Trans. Math. Soft., 14
+  (1988), pp. 1--17.
+
+  J. J. Dongarra, J. Du Croz, S. Hammarling, and R. J. Hanson, Algorithm 656:
+  An extended set of FORTRAN Basic Linear Algebra Subprograms, ACM
+  Trans. Math. Soft., 14 (1988), pp. 18--32.
+
+  J. J. Dongarra, J. Du Croz, I. S. Duff, and S. Hammarling, A set of Level 3
+  Basic Linear Algebra Subprograms, ACM Trans. Math. Soft., 16 (1990),
+  pp. 1--17.
+
+  J. J. Dongarra, J. Du Croz, I. S. Duff, and S. Hammarling, Algorithm 679: A
+  set of Level 3 Basic Linear Algebra Subprograms, ACM Trans. Math. Soft., 16
+  (1990), pp. 18--28.
+
+  Available from http://www.netlib.org/blas/.
+
+linpack
+
+  Copyright 1984, Jack Dongarra, Jim Bunch, Cleve Moler and Pete Stewart
+
+  Available from http://www.netlib.org/linpack/.

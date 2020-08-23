@@ -1,0 +1,73 @@
+--
+-- Rules for parsing the embedded comments within conforming files
+-- (such as the CMISS FORTRAN source, etc)
+--
+
+
+-- Definition of CMISS comments ---------------------------------------------
+--
+
+
+define MODULE as
+  <
+  HEAD Module
+  TAG  Description
+  TAG  See-Also[0..1]  -- Optional
+  TAG  Routines[0..1]  -- Optional
+  TAG  Routine[0..N]   -- Zero, One or More
+  >
+
+
+define BLOCKDATA as
+  <
+  HEAD BlockData
+  TAG  Description[0..1] -- Optional
+  >
+
+
+define SUBROUTINE as
+  <
+  HEAD Subroutine
+  TAG  Description
+  TAG  See-Also[0..1]  -- See-Also is an optional element
+  >
+
+
+define FUNCTION as
+  <
+  HEAD Function
+  TAG  Description
+  TAG  Type[0..1]      -- Optional
+  TAG  See-Also[0..1]  -- Optional
+  TAG  Returns[0..1]   -- Optional
+  TAG  See-Also[0..1]  -- Optional
+  >
+
+
+define COMMAND as
+  <
+  HEAD Command
+  TAG  Description
+  TAG  Parameter[0..N]  -- There can be zero, one, or more parameters
+  TAG  See-Also[0..1]  -- Optional
+  TAG  See-Example[0..1]  -- Optional
+  >
+
+
+define VARIABLE as
+  <
+  HEAD Variable
+  TAG  Description
+  TAG  Type[0..1]      -- Optional
+  TAG  Set-Up[0..1]    -- Where var is first set up (Optional)
+  TAG  See-Also[0..1]  -- Optional
+  >
+
+
+define COMMENT as
+  <
+  HEAD Comment
+  TAG  Description
+  TAG  See-Also[0..1]  -- Optional
+  >
+

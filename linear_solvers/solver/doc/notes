@@ -1,0 +1,12 @@
+Harwell:
+
+The ma28ad() solver is an old code. As part of the SL license it is
+available for free use to academics provided it is not incorperated
+into a commercial product.
+
+Umfpack is available for educational, research, and benchmarking purposes 
+by non-profit organizations and the U.S. government. Comercial usage
+requires use of the ma38() routines in HSL, which requires purchase
+of a license.
+
+

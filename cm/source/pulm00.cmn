@@ -1,0 +1,76 @@
+!  pulm00.cmn
+      INTEGER
+     &  ARTERY_INLET,CAP_INLET,CAP_OUTLET,CAP_MESH,CIRC_MODEL(2),
+     &  FACTORS,INLETS(0:20),LADDER,LAST_NX,MAX_ALVEOLI,MAX_PATH,
+     &  N_ALVEOLI,NE_BLOCK(0:1000),NEREPM,NETALV,nm_a,nm_a0,nm_b,nm_C0,
+     &  nm_Dh,nm_flow,nm_Hd,nm_length,nm_Rseg,nm_pob,nm_pcb,
+     &  NP_INLET(0:20),NP_NE,NP_OUTLET(0:20),nr_precap,
+     &  OUTLETS(0:20),VEIN_OUTLET
+      COMMON /PULM00I/
+     &  ARTERY_INLET,CAP_INLET,CAP_OUTLET,CAP_MESH,CIRC_MODEL,
+     &  INLETS,LADDER,LAST_NX,N_ALVEOLI,NE_BLOCK,NETALV,
+     &  NP_INLET,NP_OUTLET,nr_precap,OUTLETS,VEIN_OUTLET
+      PARAMETER
+     &  (FACTORS=9,MAX_PATH=50000,MAX_ALVEOLI=25,
+     &  NEREPM=50,nm_a=8,nm_a0=5,nm_b=9,nm_C0=6,nm_Dh=4,nm_flow=12,
+     &  nm_Hd=7,nm_length=10,nm_Rseg=11,nm_pob=13,nm_pcb=14,NP_NE=200)
+      REAL*8
+     &  alpha_a,alpha_c,alpha_v,ALV_ANGLE(MAX_ALVEOLI,3),
+     &  ALVEOLUS_DEPTH,ANGLE_X,ANGLE_Y,ANGLE_Z,BLOCKED,area_scale,
+     &  F_cap,F_rec,F_sheet,
+     &  H0,initial_LPM,K_cap,L_a(13),L_art_terminal,L_c,low_limit,
+     &  L_scale,L_v(13),L_vein_terminal,mu_app(13),mu_c,P_alveolar,
+     &  Plb_c,P_pleural,Ptm_max,Pub_a_v,Pub_c,rad_a(13),rad_v(13),
+     &  R_art_terminal,R_vein_terminal,scale_factor,sigma_cap,sigma_rec,
+     &  T_LAST,total_cap_area,V(3),z_bound
+      COMMON /PULM00R/
+     &  alpha_a,alpha_c,alpha_v,ALV_ANGLE,ALVEOLUS_DEPTH,ANGLE_X,
+     &  ANGLE_Y,ANGLE_Z,BLOCKED,area_scale,F_cap,F_rec,
+     &  F_sheet,H0,initial_LPM,K_cap,L_a,L_art_terminal,L_c,L_scale,
+     &  low_limit,L_v,L_vein_terminal,mu_app,mu_c,P_alveolar,Plb_c,
+     &  P_pleural,Ptm_max,Pub_a_v,Pub_c,rad_a,rad_v,R_art_terminal,
+     &  R_vein_terminal,scale_factor,sigma_cap,sigma_rec,T_LAST,
+     &  total_cap_area,V
+      PARAMETER
+     &  (z_bound=0.0235d0)
+      LOGICAL
+     &  ARTERY_MESH,CAPILLARY_MESH,CIRCULATION,EXTRA_ALVEOLAR_VESSELS,
+     &  FEED_VESSEL,FIRST_PROJECT,INLET_VESSEL,OUTLET_VESSEL,
+     &  VORONOI_ALV,VEIN_MESH
+      COMMON /PULM00L/
+     &  ARTERY_MESH,CAPILLARY_MESH,CIRCULATION,EXTRA_ALVEOLAR_VESSELS,
+     &  FEED_VESSEL,FIRST_PROJECT,INLET_VESSEL,OUTLET_VESSEL,
+     &  VORONOI_ALV,VEIN_MESH
+      CHARACTER
+     &  ALVEOLI_NAMES(MAX_ALVEOLI)*(30),ARTERY_NAME*(30),
+     &  CAPILLARY_NAME*(30),COUPLE_VIA_LPM,SHEET_FLOW,VEIN_NAME*(30)
+      COMMON /PULM00C/
+     &  ALVEOLI_NAMES,ARTERY_NAME,CAPILLARY_NAME,COUPLE_VIA_LPM,
+     &  SHEET_FLOW,VEIN_NAME
+
+!scale_factor=0.300d0/1.0d0 for test alveoli, should work this out
+!for a given mesh - could use same method as real alveolar mesh
+
+!All stored in CE for each element (or capillary segment)
+!nm_Dh=4=hydraulic diameter (Dh)
+!nm_a0=5=length of tissue portion of circum of capillary @ Ptp=Ptm=0
+!nm_C0=6=length of membrane portion of circum capillary @ Ptm=0
+!nm_Hd=7=vessel hematocrit
+!nm_a=8=major axis of elliptical x-section
+!nm_b=9=minor axis of elliptical x-section
+!nm_length=10=length of capillary segment
+!nm_Rseg=11=resistance in segment
+!nm_flow=12=blood flow in segment
+!nm_pob=13=blood partial pressure of O2 (AJS 2006)
+!nm_pcb=13=blood partial pressure of CO2 (AJS 2006)
+
+!scale_factor scales cmiss units to mm units (relative to alveolus diam)
+
+C.. KSB 02/2004 - removed
+!nm_flowRBC=9=RBC flow in segment ->removed, don't need to store
+!nm_uapp=10=apparent viscosity ->removed this don't need to store
+C.. removed 28/06/04      
+!nm_Ac=4=local x-sectional area of capillary !! removed this, don't need to store (28/06/04)
+!nm_Rfactor=10=Refd/(2*Ac*Dh**2) - removed this 12/07/04 - don't need to store      
+!nm_tt=14=RBC transit time in segment - removed 12/07/04, now stored in local array
+!nm_Hdold=12=vessel hematocrit from previous iteration - removed 12/07/04 now calculated in CALC_HEMATOCRIT

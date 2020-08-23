@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+<TITLE>Converts a 6 element translation/axis</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aRotationTransform">CmUtils::RotationTransform</A></LI>
+<UL>
+<LI><A HREF="#angle2trans"><B>angle2trans</B></A></LI>
+<LI><A HREF="#degangle2trans"><B>degangle2trans</B></A></LI>
+<LI><A HREF="#readDat"><B>readDat</B></A></LI>
+<LI><A HREF="#VARIABLES">VARIABLES</A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aRotationTransform">CmUtils::RotationTransform</A></H1>
+
+<P>Converts a 6 element translation/axis-rotation vector (as provided by the
+'rotate' program) into a 16 element transformation matrix.  This module
+requires the <CODE>PDL</CODE> and <CODE>Math::Trig</CODE> modules to be installed.  The 
+transformation matrix is returned as a 1D 16-element list.</P><H2><A NAME="angle2trans"><B>angle2trans</B></A></H2>
+
+<P>Expects an array/list/ptr-to-array of 6 numbers:
+  x-trans y-trans z-trans rot/x rot/y rot/z
+where the rotations about the axes are given in radians.</P><H2><A NAME="degangle2trans"><B>degangle2trans</B></A></H2>
+
+<P>Expects an array/list/ptr-to-array of 6 numbers:
+  x-trans y-trans z-trans rot/x rot/y rot/z
+where the rotations about the axes are given in degrees.</P><H2><A NAME="readDat"><B>readDat</B></A></H2>
+
+<P>Expects a file name.  File contains 6 numbers:
+  x-trans y-trans z-trans rot/x rot/y rot/z
+as output from the 'rotate' program.</P><H2><A NAME="VARIABLES">VARIABLES</A></H2>
+<DT><A NAME="%24CmUtils%3a%3aRotationTransform%3a%3aTranspose">$CmUtils::RotationTransform::Transpose</A></DT>
+<DD>
+
+<P>Set this to '0' for returned matrix
+not to be transposed.  By default the matrix is returned by 
+column (as required for CMGUI).</P><H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>1.02 (28 March 2001)</P><H1><A NAME="CHANGES">CHANGES</A></H1>
+
+<P>1.02 - now using PDL::Lite for speed</P></DD>
+
+</BODY>
+</HTML>

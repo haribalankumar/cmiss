@@ -1,0 +1,34 @@
+===============================================================================
+README                                                             boxmg-extras
+===============================================================================
+
+  This extras subdirectory contains versions of the BLAS and LAPACK
+  that we use with Black Box Multigrid [1,2].  In addition there is a
+  random number generator that is used by one of our examples. These
+  routines are provided to make configuring and testing the Black Box
+  Multigrid library easier.  They are freely available from netlib,
+
+    http://www.netlib.org/
+
+  The versions that we've included here have been modified slightly to
+  improve portability (in our opinion).  These modifications should be
+  benign but there is absolutely no guarentee, either written or
+  implied, that this is the case (see license for the usual legal
+  stuff).  Finally, we have also included our machine-dependent timing
+  routine (i.e., wrapper) BMG_timer.
+
+  ------------
+  References:
+  ------------
+
+  [1] J. E. Dendy, Jr., "Black Box Multigrid", J. Comput. Phys.,
+      48, 366, (1982).
+
+  [2] J. E. Dendy, Jr., "Black Box Multigrid for Periodic and 
+      Singular Problems", Appl. Math. and Comput., 23, 1, (1988).
+
+ 
+ *********************************************************************
+
+
+

@@ -1,0 +1,6 @@
+!  cspi00.cmn
+!      INTEGER MPLUN                 ! is MAP logical unit number
+      LOGICAL MAPOPN
+!      COMMON /CSPI0OI/ MPLUN
+      COMMON /CSPI00L/ MAPOPN
+

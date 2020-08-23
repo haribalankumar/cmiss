@@ -1,0 +1,26 @@
+      SUBROUTINE GET_STRING_CORE(STRINGS_PTR,ALLOCATED_STRINGS,
+     &  INDEX,VALUE,ERROR,*)
+
+C#### Subroutine: GET_STRING_CORE
+C###  Description:
+C###    The core routine for getting a string from an array.
+
+      IMPLICIT NONE
+
+!     Parameter List
+      INTEGER ALLOCATED_STRINGS,INDEX
+      CHARACTER STRINGS_PTR(ALLOCATED_STRINGS)*(*),VALUE*(*)
+      CHARACTER ERROR*(*)
+
+      CALL ENTERS('GET_STRING_CORE',*9999)
+
+      VALUE=STRINGS_PTR(INDEX)
+
+      CALL EXITS('GET_STRING_CORE')
+      RETURN
+ 9999 CALL ERRORS('GET_STRING_CORE',ERROR)
+      CALL EXITS('GET_STRING_CORE')
+      RETURN 1
+      END
+
+

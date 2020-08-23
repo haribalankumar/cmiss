@@ -1,0 +1,15 @@
+      BLOCK DATA BLKIO
+
+      IMPLICIT NONE
+      INCLUDE 'inout00.cmn'
+
+C KAT 13May99: These don't appear to be used
+C      DATA IOCM/IOCMX/,IOAM/IOAMX/,IOLM/IOLMX/,IOIM/IOIMX/,IORM/IORMX/
+      DATA AYES/IOAMX*'Y'/,    ANO/IOAMX*'N'/
+      DATA LTRUE/IOLMX*.TRUE./,LFALSE/IOLMX*.FALSE./
+      DATA IZERO/IOIMX*0/,     IONE/IOIMX*1/
+      DATA RZERO/IORMX*0.0D0/, RONE/IORMX*1.0D0/
+      DATA CDATA(1)/' '/
+      END
+
+

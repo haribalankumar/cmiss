@@ -1,0 +1,4 @@
+!  gks001.cmn
+      INTEGER NINDICES
+      COMMON /GKS001I/ NINDICES
+

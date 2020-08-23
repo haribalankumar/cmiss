@@ -1,0 +1,24 @@
+      SUBROUTINE ADD_FIELD(LABEL,ERROR,*)
+
+C#### Subroutine: ADD_FIELD
+C###  Description:
+C###    Adds a new field.
+
+      IMPLICIT NONE
+      INCLUDE 'field00.cmn'
+
+!     Parameter List
+      CHARACTER LABEL*(*),ERROR*(*)
+
+      CALL ENTERS('ADD_FIELD',*9999)
+
+      CALL SET_LABEL(FIELD_LABELS_PTR,TOTAL_FIELD_LABELS,
+     &  ALLOCATED_FIELD_LABELS,FIELD_LABELS_LEN,LABEL,ERROR,*9999)
+
+      CALL EXITS('ADD_FIELD')
+      RETURN
+ 9999 CALL ERRORS('ADD_FIELD',ERROR)
+      CALL EXITS('ADD_FIELD')
+      RETURN 1
+      END
+

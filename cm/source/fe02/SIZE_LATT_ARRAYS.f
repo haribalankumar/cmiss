@@ -1,0 +1,38 @@
+      SUBROUTINE SIZE_LATT_ARRAYS(NBJ,ne,NEAM,NENP,NENQ,NNB,NLATNE,
+     &  NLATNQ,NLATPNQ,NPNE,NQNE,NQNLAT,NQS,NQXI,nr,ERROR,*)
+
+C#### Subroutine: SIZE_LATT_ARRAYS
+C###  Description:
+C###    SIZE_LATT_ARRAYS is a passing routine which allows the
+C###    local arrays NEES and NEVS to be correctly dimensioned
+C###    by the variable NEAM.      
+      
+      IMPLICIT NONE
+      
+      INCLUDE 'geom00.cmn'
+      INCLUDE 'grid00.cmn'       
+!     Parameter List
+      INTEGER NBJ(NJM,NEM),ne,NEAM,NENP(NPM,0:NEPM,0:NRM),NENQ(0:8,NQM),
+     &  NLATNE(NEQM+1),NLATNQ(NEQM*NQEM),NLATPNQ(NQM),NNB(4,4,4,NBFM),
+     &  NPNE(NNM,NBFM,NEM),NQNE(NEQM,NQEM),NQNLAT(NEQM*NQEM),NQS(NEQM),
+     &  NQXI(0:NIM,NQSCM),nr
+      CHARACTER ERROR*(*)
+      
+!     Local Variables
+      INTEGER NEES(8,NEAM),NEVS(0:12,NEAM),NVERTNE(0:8,2)
+
+      CALL ENTERS('SIZE_LATT_ARRAYS',*9999)
+
+      CALL GET_ELEMENT_VERT(NBJ(1,ne),NNB,NPNE(1,1,ne),NVERTNE,
+     &  ERROR,*9999)
+      CALL CALC_ELEM_SHAR_VERT(NBJ,ne,NEAM,NEES,NENP(1,0,nr),NEVS,NNB,
+     &  NPNE,NVERTNE,ERROR,*9999)
+      CALL CALC_LATTICE_MAP(NEAM,NEES,NENQ,NEVS,NLATNE,NLATNQ,NLATPNQ,
+     &  NQNE,NQNLAT,NQS,NQXI,ERROR,*9999)
+
+      CALL EXITS('SIZE_LATT_ARRAYS')
+      RETURN
+ 9999 CALL ERRORS('SIZE_LATT_ARRAYS',ERROR)
+      CALL EXITS('SIZE_LATT_ARRAYS')
+      RETURN 1
+      END

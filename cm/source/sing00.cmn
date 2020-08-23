@@ -1,0 +1,4 @@
+!  sing00.cmn
+      INTEGER NESING(0:4),NPSING(0:4)
+      COMMON /SING00I/ NESING,NPSING
+

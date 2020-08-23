@@ -1,0 +1,4 @@
+!  back00.cmn
+      LOGICAL BACKUP
+      COMMON /BACK00L/ BACKUP
+

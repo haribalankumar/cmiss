@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<TITLE>Replicates the &quot;perl</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#inplaceEdit">inplaceEdit</A></LI>
+<UL>
+<LI><A HREF="#USAGE">USAGE</A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="inplaceEdit">inplaceEdit</A></H1>
+
+<P>Replicates the &quot;perl -pi -e&quot; command, without a separate process.  
+Edits a file &quot;inplace&quot;</P><H2><A NAME="USAGE">USAGE</A></H2>
+
+<PRE>  inplaceEdit ($filename, $code);</PRE>
+
+<P>where $filename is the file to edit, and $code is the action to perform on
+each line before it is written e.g.</P>
+<PRE>  $code = sub { s/\s+/ /g }</PRE>
+
+<P>or</P>
+<PRE>  sub dostuff { s/\s+/ /g }
+  inplaceEdit ($filename, \&amp;dostuff);</PRE>
+
+<P>or</P>
+<PRE>  inplaceEdit ($filename, sub { s/\s+/ /g });</PRE>
+
+</BODY>
+</HTML>

@@ -1,0 +1,13 @@
+# **************************************************************************
+# FILE : RELEASE_NOTES
+#
+# LAST MODIFIED : 27 July 2006
+# ==========================================================================
+
+This software is the cmgui part of CMISS.
+It is released under the Mozilla Public License v1.1
+
+Further information, help pages, a tracker and a wiki is available at 
+http://www.cmiss.org/cmgui/
+
+Many minor updates which should make compatibility with different versions of perl easier.

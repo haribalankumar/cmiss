@@ -1,0 +1,7 @@
+!  acti01.cmn
+      REAL*8
+     '  TIME,DTIME,
+     '  Tref,T0_beta,Ca_c50,Ca_h,Ca_max
+      COMMON /ACTI01R/
+     '  TIME,DTIME,
+     '  Tref,T0_beta,Ca_c50,Ca_h,Ca_max

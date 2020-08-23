@@ -1,0 +1,4 @@
+!  seqf00.cmn
+      integer*4  SEQFILEVERSION(99)
+
+      COMMON /SEQF00I/ SEQFILEVERSION

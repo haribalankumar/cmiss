@@ -1,0 +1,4 @@
+!  stab00.cmn
+      REAL*8 TINCR,G_ACCEL
+      COMMON /STAB00R/ TINCR,G_ACCEL
+

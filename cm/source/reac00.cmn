@@ -1,0 +1,6 @@
+!  reac00.cmn
+      REAL*8 FACTOR
+      LOGICAL CONSTR
+      COMMON /REAC00R/ FACTOR
+      COMMON /REAC00L/ CONSTR
+

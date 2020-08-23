@@ -1,0 +1,19 @@
+! sten50.cmn
+! Common variables to allow a single parameter function to be created
+! for the DQAGS integrator used for calculating strain energy.
+
+      INTEGER*4
+     &  cnr,cne,cng,cerr_ptr
+
+      CHARACTER*1024
+     &  cerror
+
+      REAL*8
+     &  cEG(3,3)
+
+      COMMON /STEN50I4/
+     &  cnr,cne,cng,cerr_ptr,
+     &  cerror
+      
+      COMMON /STEN50R8/
+     &  cEG

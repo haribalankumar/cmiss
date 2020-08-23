@@ -1,0 +1,37 @@
+      SUBROUTINE PRINT_SCREEN_TO_FILE(DEPTH,HEIGHT,ORIENT,PS_TYPE,WIDTH,
+     '    FILE,TYPE,ERROR,*)
+
+C#### Subroutine: PRINT_SCREEN_TO_FILE
+C###  Description:
+C###    PRINT_SCREEN_TO_FILE prints the screen to a file in postscript
+C###    or PPM format.
+
+      IMPLICIT NONE
+!     Parameter List
+      INTEGER DEPTH,HEIGHT,ORIENT,PS_TYPE,WIDTH,IERR
+      CHARACTER ERROR*(*),FILE*100,TYPE*10
+!     Local variables
+
+      CALL ENTERS('PRINT_SCREEN_TO_FILE',*9999)
+
+      IERR=0
+      IF(TYPE(1:10).EQ.'POSTSCRIPT') THEN
+C MPN 25Mar2002: old call not compatible with GX fortran wrapper
+        CALL gxSAVE_WINDOW_PS(FILE,DEPTH,ORIENT,PS_TYPE,IERR)
+C old        CALL SAVE_WINDOW_PS(FILE,DEPTH,ORIENT,PS_TYPE,IERR)
+      ELSE IF(TYPE(1:8).EQ.'PORTABLE') THEN
+        CALL SAVE_WINDOW_PPM(FILE,WIDTH,HEIGHT,IERR)
+      ENDIF
+      IF(IERR.NE.0) THEN
+        ERROR='>>Error from GX saving window'
+        GOTO 9999
+      ENDIF
+
+      CALL EXITS('PRINT_SCREEN_TO_FILE')
+      RETURN
+ 9999 CALL ERRORS('PRINT_SCREEN_TO_FILE',ERROR)
+      CALL EXITS('PRINT_SCREEN_TO_FILE')
+      RETURN 1
+      END
+
+

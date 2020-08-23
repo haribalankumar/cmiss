@@ -1,0 +1,38 @@
+      SUBROUTINE DELETE_TETRAHEDRAL(REF,TETRA,ERROR,*)
+
+C#### Subroutine: DELETE_TETRAHEDRAL
+C###  Description:
+C###    Deletes a tetrahedral from the data set. Genmesh routine.
+CC JMB 19-NOV-2001
+
+      IMPLICIT NONE
+      INCLUDE 'genmesh.cmn'
+      CHARACTER ERROR*(*)
+!     Parameter List
+      INTEGER REF,TETRA(0:LDTETRA,4)
+
+      CALL ENTERS('DELETE_TETRAHEDRAL',*9999)
+
+      IF(REF.EQ.TETRA(0,HEAD))THEN
+        IF(TETRA(0,HEAD).EQ.TETRA(0,TAIL))THEN
+          TETRA(0,HEAD)=0
+          TETRA(0,TAIL)=0
+        ELSE
+          TETRA(0,HEAD)=TETRA(REF,NEXT)
+          TETRA(TETRA(REF,NEXT),PREV)=0
+        ENDIF !tetra
+      ELSEIF(REF.EQ.TETRA(0,TAIL))THEN
+        TETRA(0,TAIL)=TETRA(REF,PREV)
+        TETRA(TETRA(REF,PREV),NEXT)=0
+      ELSE
+        TETRA(TETRA(REF,NEXT),PREV)=TETRA(REF,PREV)
+        TETRA(TETRA(REF,PREV),NEXT)=TETRA(REF,NEXT)
+      ENDIF !ref
+
+      CALL EXITS('DELETE_TETRAHEDRAL')
+      RETURN
+ 9999 CALL ERRORS('DELETE_TETRAHEDRAL',ERROR)
+      CALL EXITS('DELETE_TETRAHEDRAL')
+      RETURN 1
+      END
+

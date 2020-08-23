@@ -1,0 +1,4 @@
+!  time00.cmn
+      REAL*8 TIME,TIME_REF
+      COMMON /TIME00R/ TIME,TIME_REF
+

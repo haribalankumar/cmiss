@@ -1,0 +1,64 @@
+Contents
+========
+
+The directory consists of a set of subdirectories, all forming the CMISS
+information managment tools. These tools extract information from various
+places (including the CMISS source) and output data for use with our WWW
+Information Server. Some tolls simply output HTML based on the files they
+inspect, whereas other tools are placed on out WWW Information Server and
+allow client-server style lookup of relevant CMISS information (including
+browsing the source, looking at and loading of example command files,
+and allowing feedback, for example via a FORM based "Changes" file.
+
+Some of the tools need to inspect the source every night (or as required)
+in order to generate up to date information, as well as making local
+files to lookup information (as parsing the 8+ Meg of Fortran source in
+CMISS each time information was requested would be impractical in terms
+of time and load on the server).
+
+
+
+CMISS Root Notes
+
+================
+
+
+
+The CMISS root causes some headaches as it is easy for shell scripts to
+determine whether or not an environment variable is set and react
+accordingly (and this is vital for testing code before putting into
+"production use"), but there is more of a problem when it comes to both
+Makefiles (and specifically installing binaries) and CGI programs.
+Makefiles are not set up to inquire whether variables are set or not (the
+only option of any use being -e on the command line, which unfortunately
+breaks *all* overriden vars and not just the ones you may need). CGI
+programs on the other hand are not invoked by users, but rather by
+daemons, and the passing of environment vars cannot be guaranteed (and
+may be hard to set up on a machine without full priviledges anyway).
+
+The solution is to ignore both these items for now, and make the
+programmer responable for changing them when the need arises.
+
+
+
+Work To Do
+==========
+
+Lots - all the source need to use the same utility routines and not 
+their own local copies. Error handling varies from Good to Woefully
+Inadequate. Test code should be written to at least ensure basic
+functionality in each module and tool.
+
+
+
+
+CGIDecode          - Check
+CommentParser      -
+CommonBrowser      - Check
+ExampleViewer      - 
+FCheck             - Check
+HTMLizeUnusedVars  - 
+MasterLists        - Check (needs work)
+RecentChanges      - 
+RoutineBrowser     -
+Utilities          - 

@@ -1,0 +1,178 @@
+# ============================================================================
+#  
+#    Global Macros:  Black Box Multigrid
+#
+#    Maintainers: David Moulton, Markus Berndt
+# 
+# ============================================================================
+
+# ============================================================================
+
+# >>>>>>>>>>>>>>>>>>> MACHINE TYPE <<<<<<<<<<<<<<<<<<<<<<
+
+# -------------------------------------------------------
+#  Defaults for the MACHINE type are set if they aren't
+#  already defined in the users environment
+# -------------------------------------------------------
+
+ifndef OS
+  OS = $(shell uname -s)
+
+  ifeq ($(OS),HI-UX/MPP)
+    OS = HIUX
+  endif
+endif
+
+UNAME_M = $(shell uname -m)
+
+# ---------
+#  COMPAQ
+# ---------
+
+ifeq (OSF1,$(OS))
+  CPU = alpha
+endif
+
+# ---------
+#  LINUX
+# ---------
+
+ifeq ($(OS),Linux)
+
+  ifeq ($(findstring 86,$(UNAME_M)),86)   
+    CPU = intel
+  else 
+    # this is ok for alpha and sparc, but it's punting otherwise
+    CPU = $(UNAME_M)
+  endif
+
+endif
+
+# ---------
+#  SUN
+# ---------
+
+ifeq ($(OS),SunOS)
+
+  ifeq ($(findstring sun,$(UNAME_M)),sun)
+    CPU = sparc
+  else
+    # This is a guess for Intel Solaris
+    CPU = intel
+  endif
+
+endif
+
+# ---------
+#   SGI
+# ---------
+
+ifeq ($(OS),IRIX64)
+
+  ifeq ($(findstring IP,$(UNAME_M)),IP)
+    CPU = mips
+  else
+    # No idea if IRIX runs on anything else
+    CPU = $(UNAME_M)
+  endif
+
+endif
+
+# ---------
+#  Hitachi
+# ---------
+
+ifeq ($(OS),HIUX)
+  CPU = power3
+endif
+
+# ---------
+#  Hitachi
+# ---------
+
+ifeq ($(OS),AIX)
+  CPU = power4
+endif
+
+# ---------------------------
+#  Set the machine name
+# ---------------------------
+
+MACHINE = $(OS)-$(CPU)
+
+# >>>>>>>>>>>>>>>>>>>>> COMPILERS <<<<<<<<<<<<<<<<<<<<<<
+
+# ------------------------------------------------------
+#  Default to GNU compilers except on SGI and Hitachi!
+#  (GNU assembler problems on SGI make this a good idea)
+# ------------------------------------------------------
+
+ifndef COMPILERS
+
+  ifeq ($(findstring IRIX,$(OS)),IRIX)
+      COMPILERS=mipspro
+  endif
+
+  ifeq ($(OS),HIUX)
+      COMPILERS=f90
+  endif
+
+  ifeq ($(OS),AIX)
+      COMPILERS=xlf95
+  endif
+
+  ifeq ($(OS),Linux)
+      ifeq ($(findstring ppc64,$(CPU)),ppc64 )
+          COMPILERS=xlf95
+      endif
+  endif
+
+endif
+
+# -------------------------------------------------------
+# Default compile level is debugging
+# -------------------------------------------------------
+
+ifndef CLEVEL
+  CLEVEL=bug
+endif
+
+# >>>>>>>>>>>>>>>>>>>> PATHS/LIBRARY <<<<<<<<<<<<<<<<<<<<
+
+# -------------------------------------------------------
+# Sources
+# -------------------------------------------------------
+
+SRC2D  = $(BOXMGdist)/src/boxmg-sym-std-2D
+SRC3D  = $(BOXMGdist)/src/boxmg-sym-std-3D
+SRCUT  = $(BOXMGdist)/src/utils
+
+# -------------------------------------------------------
+# Default library path based on distribution directory.
+# -------------------------------------------------------
+
+ifndef BOXMGlibp
+  BOXMGlibp = $(BOXMGdist)/$(LIBDIR)
+endif
+
+# -------------------------------------------------------
+#  Library:
+# -------------------------------------------------------
+
+ifndef BOXMGlibn
+  BOXMGlibn  = libboxmg$(SUFFIX).a
+endif
+
+ARFLAGS = $(AFLAGS) 
+
+# ============================================================================
+
+
+
+
+
+
+
+
+
+

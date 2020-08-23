@@ -1,0 +1,4 @@
+!  trans00.cmn
+      REAL*8 TRANS(3,4)
+      COMMON /TRANS00R/ TRANS
+

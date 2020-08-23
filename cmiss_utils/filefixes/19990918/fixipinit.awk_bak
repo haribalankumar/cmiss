@@ -1,0 +1,23 @@
+BEGIN{FOUND_BIDOMAIN=0}
+{
+	if($1 =="Do" && $2 =="you" && $3 =="want" && $7 =="boundary" && $8 =="extracellular" && $9 =="potentials?")
+	{
+		FOUND_BIDOMAIN=1;
+	}
+	if($1 =="Do" && $2 =="you" && $3 =="want" && $5 =="time" && $6 =="dependent" && $7 =="extracellular")
+	{
+		FOUND_BIDOMAIN=0;
+	}
+	print $0;
+}
+END{
+	if(FOUND_BIDOMAIN)
+	{
+		print(" Do you want any time dependent extracellular bcs [N]? N\n");
+	}
+
+}
+
+
+
+

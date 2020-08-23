@@ -1,0 +1,17 @@
+Contents
+========
+
+The routine broswer and it's indexing program
+
+
+
+Work To Do
+==========
+
+Get the main code of the index program to use the lineio module - but this
+requires that the lineio module maintains a current file position (in bytes)
+and in lines. I was going to do this anyway.
+
+
+
+

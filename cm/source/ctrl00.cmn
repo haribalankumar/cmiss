@@ -1,0 +1,11 @@
+!  ctrl00.cmn
+      INTEGER INPUT_CHAN,ICODE
+      COMMON /CTRL00I/ INPUT_CHAN,ICODE
+      LOGICAL CTRLC
+C CPB 23/10/93 Adding in VOLITILE statement
+C (See DEC Fortran - User manual
+C for OpenVMS AXP systems page F-3). Not sure this standard FORTRAN but
+C it is only used in FE10 and FE16.
+      VOLATILE CTRLC
+      COMMON /CTRL00L/ CTRLC
+

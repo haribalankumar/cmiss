@@ -1,0 +1,32 @@
+      LOGICAL FUNCTION ISBINFILEOPEN(FILEID)
+
+C#### Function: ISBINFILEOPEN
+C###  Type: LOGICAL
+C###  Description:
+C###    ISBINFILEOPEN returns .TRUE. if the binary file specified by
+C###    fileid is open, .FALSE. if not.
+
+      IMPLICIT NONE
+      INCLUDE 'cbdi02.cmn'
+!     Parameter List
+      INTEGER FILEID
+!     Local Variables
+      INTEGER CERROR(50),CERRLEN,ERR,RETURNCODE
+      CHARACTER ERROR*100
+
+      CALL ISBINARYFILEOPEN(FILEID,RETURNCODE,ERR,ERROR)
+      IF(RETURNCODE.EQ.1) THEN
+        ISBINFILEOPEN=.TRUE.
+      ELSE
+        ISBINFILEOPEN=.FALSE.
+      ENDIF
+      IF(ERR.NE.0) THEN
+        CALL CSTRINGLEN(CERRLEN,CERROR)
+        CALL C2FSTRING(CERROR,CERRLEN,ERROR)
+        WRITE(OP_STRING,'(1X,A)') ERROR
+      ENDIF
+
+      RETURN
+      END
+
+

@@ -1,0 +1,144 @@
+      SUBROUTINE IPMATE(CPBASIS,GRNGLIST,IBT,ICQS_SPATIAL,IDO,ILPIN,
+     '  ILTIN,INP,IRCQS_SPATIAL,NBJ,NEELEM,NELIST,NENP,NENQ,NGLIST,
+     '  NMBIN,NNB,NPLIST,NPNE,NPNODE,NQET,NQNE,NQS,NQXI,nr,NW,nx,NXI,
+     '  POINTS,CE,CELL_RCQS_VALUE,CGE,CIN,CP,CQ,RCQS_SPATIAL,XE,XIG,YG,
+     '  YP,ALL_REGIONS,FIX,ERROR,*)
+
+C#### Subroutine: IPMATE
+C###  Description:
+C###    IPMATE inputs material parameters.
+
+      IMPLICIT NONE
+      INCLUDE 'b00.cmn'
+      INCLUDE 'b01.cmn'
+      INCLUDE 'geom00.cmn'
+      INCLUDE 'grid00.cmn'
+      INCLUDE 'inout00.cmn'
+      INCLUDE 'ityp00.cmn'
+      INCLUDE 'ktyp00.cmn'
+!     Parameter List
+      INTEGER CPBASIS,GRNGLIST(0:NEGM),IBT(3,NIM,NBFM),
+     '  ICQS_SPATIAL(NQISVM,NQM),IDO(NKM,NNM,0:NIM,NBFM),
+     '  ILPIN(NMM),ILTIN,INP(NNM,NIM,NBFM),IRCQS_SPATIAL(0:NQRSVM),
+     '  NBJ(NJM,NEM),NEELEM(0:NE_R_M,0:NRM),NELIST(0:NEM),
+     '  NENP(NPM,0:NEPM,0:NRM),NENQ(0:8,NQM),NGLIST(0:NGM),NMBIN(NMM),
+     '  NNB(4,4,4,NBFM),NPLIST(0:NPM),NPNE(NNM,NBFM,NEM),
+     '  NPNODE(0:NP_R_M,0:NRM),NQET(NQSCM),NQNE(NEQM,NQEM),NQS(NEQM),
+     '  NQXI(0:NIM,NQSCM),nr,NW(NEM,3),nx,NXI(-NIM:NIM,0:NEIM,0:NEM),
+     '  POINTS
+      REAL*8 CE(NMM,NEM),CELL_RCQS_VALUE(NQRM,NQVM),CGE(NMM,NGM,NEM),
+     '  CIN(NMM,0:NGM,NNEPM),CP(NMM,NPM),CQ(NMM,NQM),
+     '  RCQS_SPATIAL(NQRSVM,NQM),
+     '  XE(NSM,NJM),XIG(NIM,NGM,NBM),YG(NIYGM,NGM,NEM),YP(NYM,NIYM)
+      CHARACTER ERROR*(*)
+      LOGICAL ALL_REGIONS,FIX(NYM,NIYFIXM)
+!     Local Variables
+      INTEGER NOQUES,ICHAR,INFO,INTTYPE
+      INTEGER*4 NELIST2_PTR
+      LOGICAL FILEIP
+
+      CALL ENTERS('IPMATE',*9999)
+
+      FILEIP=.FALSE.
+      NOQUES=0
+      ICHAR=999
+      NELIST2_PTR=0
+      INTTYPE=1
+
+C     BGW 9/11/01
+      !Local array NELIST2 for use in IPMAT3
+      !DPN 03-May-2002 - increase size to NEM+1 from NEM
+      IF(NELIST2_PTR.EQ.0) THEN
+        CALL ALLOCATE_MEMORY(NEM+1,1,INTTYPE,NELIST2_PTR,.FALSE.,
+     '    ERROR,*9999)
+      ENDIF
+
+! Time-varying material parameters
+      IF((ITYP5(nr,nx).EQ.2)) THEN !time integration
+        FORMAT='($,'' Are any material parameters time-varying [N]? '','
+     '    //'A)'
+        IF(IOTYPE.EQ.3) ADATA(1)='N'
+        CALL GINOUT(IOTYPE,IPANSW,IVDU,IFILE,0,0,NOQUES,FILEIP,FORMAT,1,
+     '    ADATA,ANO,CDATA,CDEFLT,ICHAR,IDATA,IDEFLT,0,IMAX,
+     '    LDATA,LDEFLT,RDATA,RDEFLT,RMIN,RMAX,INFO,ERROR,*9999)
+        IF(ADATA(1).EQ.'Y') THEN
+          FORMAT='(/'' Specify whether these coefficients are [1]:'''//
+     '      '/''   (1) Constant with respect to time'''//
+     '      '/''   (2) Defined in subroutine USER_IPMATE'''//
+     '      '/''   (3) Read from File.IPMATE_time at each time step'''//
+     '      '/$,''    '',I1)'
+          IF(IOTYPE.EQ.3) IDATA(1)=KTYP3_mate(nx)
+          CALL GINOUT(IOTYPE,IPINTE,IVDU,IFILE,0,0,NOQUES,FILEIP,FORMAT,
+     &      1,ADATA,ADEFLT,CDATA,CDEFLT,ICHAR,IDATA,IONE,1,3,
+     '      LDATA,LDEFLT,RDATA,RDEFLT,RMIN,RMAX,INFO,ERROR,*9999)
+          IF(IOTYPE.NE.3) KTYP3_mate(nx)=IDATA(1)
+        ELSE
+          KTYP3_mate(nx)=1
+        ENDIF
+      ELSE IF(ITYP5(nr,nx).NE.2) THEN !not time integration
+        KTYP3_mate(nx)=1
+      ENDIF !ityp5
+
+C 25-MAR-1998 Split ipcell into own routine
+C
+CC LKC 16-MAR-97 Input for ipcell
+C      IF(ITYP1(nr,nx).EQ.3) THEN
+CC        CALL IPMAT3(IBT,INP,NBJ,NEELEM,NPNE,NPNODE,NQNE,NQS,
+CC     '    nr,nx,NXI,CE,CP,CQ,ALL_REGIONS,FIX,YP,ERROR,*9999)
+C
+C        CALL IPMAT3(IBT,INP,NBJ,NEELEM,NPNE,NPNODE,NQNE,NQS,
+C     '    nr,nx,NXI,CE,CP,CQ,ALL_REGIONS,FIX,YP,ERROR,*9999)
+C        CALL IPMAT3_CELL(IBT,INP,NBJ,NEELEM,NPNE,NPNODE,NQNE,NQS,
+C     '      nr,nx,NXI,CE,CP,CQ,ALL_REGIONS,FIX,YP,ERROR,*9999)
+C     ENDIF
+
+      IF(ITYP1(nr,nx).EQ.3) THEN
+        IF(ITYP2(nr,nx).EQ.11.AND.ITYP3(nr,nx).NE.3.AND.
+     &    ITYP3(nr,nx).NE.5.AND.ITYP3(nr,nx).NE.6) THEN
+          CALL IPMAT3_CONST(nr,nx,ALL_REGIONS,ERROR,*9999)
+        ELSE
+          CALL IPMAT3(CPBASIS,IBT,IDO,INP,NBJ,NEELEM,NELIST,
+     '      %VAL(NELIST2_PTR),NENP,NENQ,NNB,NPLIST,NPNE,NPNODE,NQET,
+     '      NQNE,NQS,NQXI,nr,nx,NXI,POINTS,CE,CP,CQ,XE,YP,ALL_REGIONS,
+     '      FIX,ERROR,*9999)
+        ENDIF
+      ELSE IF(ITYP1(nr,nx).EQ.4) THEN
+        CALL IPMAT4(NBJ,NEELEM,NELIST,NPNODE,nr,NW,nx,
+     '    CE,CP,YG,ERROR,*9999)
+      ELSE IF(ITYP1(nr,nx).EQ.5) THEN
+        CALL IPMAT5(GRNGLIST,ICQS_SPATIAL,ILPIN,ILTIN,IRCQS_SPATIAL,NBJ,
+     '    NEELEM,NELIST,NGLIST,NMBIN,NPLIST,NPNODE,NQET,NQNE,NQS,NQXI,
+     '    nr,nx,CE,CELL_RCQS_VALUE,CGE,CIN,CP,RCQS_SPATIAL,XIG,ERROR,
+     '    *9999)
+      ELSE IF(ITYP1(nr,nx).EQ.6) THEN !IPMAT6 yet to be done
+        CALL IPMAT3(CPBASIS,IBT,IDO,INP,NBJ,NEELEM,NELIST,
+     '    %VAL(NELIST2_PTR),NENP,NENQ,NNB,NPLIST,NPNE,NPNODE,NQET,NQNE,
+     '    NQS,NQXI,nr,nx,NXI,POINTS,CE,CP,CQ,XE,YP,ALL_REGIONS,FIX,
+     '    ERROR,*9999)
+      ELSE IF(ITYP1(nr,nx).EQ.9) THEN
+C news AJP 12/4/95
+        IF(ITYP5(nr,nx).EQ.1.AND.ITYP2(nr,nx).EQ.1) THEN
+C         Static linear elasticity
+          CALL IPMAT4(NBJ,NEELEM,NELIST,NPNODE,nr,NW,nx,
+     '      CE,CP,YG,ERROR,*9999)
+        ELSE !Other BEM materials
+          CALL IPMAT3(CPBASIS,IBT,IDO,INP,NBJ,NEELEM,NELIST,
+     '      %VAL(NELIST2_PTR),NENP,NENQ,NNB,NPNE,NPLIST,NPNODE,NQET,
+     '      NQNE,NQS,NQXI,nr,nx,NXI,POINTS,CE,CP,CQ,XE,YP,ALL_REGIONS,
+     '      FIX,ERROR,*9999)
+        ENDIF
+C newe
+      ENDIF
+
+      CALL FREE_MEMORY(NELIST2_PTR,ERROR,*9999)
+
+      CALL EXITS('IPMATE')
+      RETURN
+ 9999 CALL ERRORS('IPMATE',ERROR)
+      CALL FREE_MEMORY(NELIST2_PTR,ERROR,*9998)
+ 9998 CALL EXITS('IPMATE')
+      RETURN 1
+      END
+
+
+

@@ -1,0 +1,62 @@
+      SUBROUTINE SETCMISSCOMMANDPARAMS(CCMGUI_ARG,
+     '  CEXAMPLEPATH,CMVERSION,CIMAGENAME,IDLE_TIME,ERR)
+
+C#### Subroutine: SETCMISSCOMMANDPARAMS
+C###  Description:
+C###    Sets up the cmiss command parameters obtained from the
+C###    command line.
+
+      IMPLICIT NONE
+C      CHARACTER*(*) ROUTINENAME
+C      PARAMETER(ROUTINENAME='SETCMISSCOMMANDPARAMS')
+      INCLUDE 'cmgui00.cmn'
+      INCLUDE 'cmis00.cmn'
+      INCLUDE 'disp00.cmn'
+!     Parameter List
+      INTEGER CCMGUI_ARG(*)
+      INTEGER*4 CEXAMPLEPATH
+      INTEGER CIMAGENAME(*),CMVERSION(*),IDLE_TIME,ERR
+!     Local Variables
+      CHARACTER*(*) DEFAULT_EXAMPLE_ROOT
+      PARAMETER(DEFAULT_EXAMPLE_ROOT=
+     '  'cmiss$examples:')
+      INTEGER LENGTH
+!     Functions
+      INTEGER C_STRLEN
+
+C      CALL ENTER(ROUTINENAME)
+
+C***  Fortran 90 has LOC instead of %LOC
+      IF(CEXAMPLEPATH.NE.0) THEN
+        EXAMPLE_ROOT_PTR=CEXAMPLEPATH
+      ELSE !use default path
+        CALL CREATE_CSTRING(EXAMPLE_ROOT_PTR,DEFAULT_EXAMPLE_ROOT)
+        IF(EXAMPLE_ROOT_PTR.EQ.0) GOTO 1111
+      ENDIF
+      CALL C2FSTRING(CMVERSION,C_STRLEN(CMVERSION),CMISS)
+C     Look for cmgui arguments
+      IF(IDLE_TIME.GT.1) THEN
+        CMGUI_IDLE_TIME=IDLE_TIME
+      ELSE
+        CMGUI_IDLE_TIME=60 !1 minute
+      ENDIF
+      LENGTH=C_STRLEN(CCMGUI_ARG)
+      IF(LENGTH.NE.0) THEN
+C       Transfer to common storage
+        CALL C2FSTRING(CCMGUI_ARG,LENGTH,CMGUI_LINK_ARG)
+        CMGUI_LINK=.TRUE.
+      ELSE
+        CMGUI_LINK=.FALSE.
+      ENDIF
+      LENGTH=C_STRLEN(CIMAGENAME)
+      CALL C2FSTRING(CIMAGENAME,LENGTH,IMAGE_NAME)
+
+      ERR=0
+C      CALL EXIT(ROUTINENAME)
+      RETURN
+ 1111 ERR=1
+C      CALL EXIT_ERROR(ROUTINENAME)
+      RETURN
+      END
+
+

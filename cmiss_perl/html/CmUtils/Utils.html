@@ -1,0 +1,62 @@
+<HTML>
+<HEAD>
+<TITLE>Useful routines for use in cmiss perl scripts and com files.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aUtils">CmUtils::Utils</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#SUBROUTINES">SUBROUTINES</A></LI>
+<UL>
+<LI><A HREF="#doCmiss(command_string(s))"><B>doCmiss(command_string(s))</B></A></LI>
+<LI><A HREF="#list_to_string(%40list)"><B>list_to_string(@list)</B></A></LI>
+<LI><A HREF="#runningCmgui()"><B>runningCmgui()</B></A></LI>
+<LI><A HREF="#runningCm()"><B>runningCm()</B></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aUtils">CmUtils::Utils</A></H1>
+
+<P>Useful routines for use in cmiss perl scripts and com files.</P><H1><A NAME="VERSION">VERSION</A></H1>
+<DL><DT><A NAME="1.03%20(10%20April%202001)">1.03 (10 April 2001)</A></DT>
+<DD>
+runningCmgui() and runningCm() functions now give correct information.</DD>
+<DT><A NAME="1.02%20(2%20April%202001)">1.02 (2 April 2001)</A></DT>
+<DD>
+Added runningCmgui() and runningCm() functions.</DD>
+<DT><A NAME="1.01%20(28%20March%202001)">1.01 (28 March 2001)</A></DT>
+<DD>
+
+<P>Moved list_to_string() from CMISS::File::Utils as it is more globally useful
+than just in parsing Cmiss files.</P>
+<P>Added doCmiss().</P></DD>
+</DL>
+<H1><A NAME="SUBROUTINES">SUBROUTINES</A></H1>
+<H2><A NAME="doCmiss(command_string(s))"><B>doCmiss(command_string(s))</B></A></H2>
+
+<P>Executes a set of CMISS commands sequentially.  Obvious method for calling is:</P>
+<PRE>  doCmiss(&lt;&lt;EOF);
+    fem define node;p
+    fem define elem;p
+EOF</PRE>
+
+<P>which will execute both commands.  Alternate method is:</P>
+<PRE>  doCmiss(&quot;fem define node;p&quot;,&quot;fem define elem;p&quot;);
+  doCmiss(@command_list);</PRE>
+
+<P>which may be useful if a series of commands has been defined in an array</P><H2><A NAME="list_to_string(%40list)"><B>list_to_string(@list)</B></A></H2>
+
+<P>Converts a LIST of numbers to the shortest string describing that list.  e.g.</P>
+<PRE>  list_to_string(4,5,15,6,7,8,9,12,14,8..10)</PRE>
+
+<P>is converted to</P>
+<PRE>  4..10,12,14,15</PRE>
+
+<P>List is sorted prior to condensing.  Duplicate entries are ignored.  May also
+be called with an array reference.</P><H2><A NAME="runningCmgui()"><B>runningCmgui()</B></A></H2>
+
+<P>Returns the name of the cmgui process if Cmgui is running, undefined otherwise.</P><H2><A NAME="runningCm()"><B>runningCm()</B></A></H2>
+
+<P>Returns the name of the cm process if Cm is running, undefined otherwise.</P>
+</BODY>
+</HTML>

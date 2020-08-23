@@ -1,0 +1,127 @@
+<HTML>
+<HEAD>
+<TITLE>Some basic utility functions for the CMISS Perl interpreter. Includes functions
+for directories, creating lists, and printing defined variables.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils">CmUtils</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#CHANGES">CHANGES</A></LI>
+</UL>
+<HR>
+<H1><A NAME="CmUtils">CmUtils</A></H1>
+
+<P>Some basic utility functions for the CMISS Perl interpreter. Includes functions
+for directories, creating lists, and printing defined variables.</P><H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>1.10 (7 September 2001)</P><H1><A NAME="CHANGES">CHANGES</A></H1>
+<DT><A NAME="1.10">1.10</A></DT>
+<DD>
+
+<P>GBS:</P>
+<P>Added <B>max</B>, <B>min</B> and <B>constrain</B> as utility routines.</P>
+<P>Added <B>choose</B> routine to prompt the user to choose between several options.
+Enabled this routine and <B>ask</B> to use Gtk if running under cmgui.</P></DD>
+<DT><A NAME="1.09">1.09</A></DT>
+<DD>
+Added <B>pushdir</B> and <B>popdir</B> routines for keeping track of directory changes.</DD>
+<DT><A NAME="1.08">1.08</A></DT>
+<DD>
+
+<P>Added functionality when external modules (Data::Dumper etc) are not
+available.</P>
+<P>Test for valid variables in pdefined commands is now on the definition,
+rather than whether a variable is true or not.  </P></DD>
+<DT><A NAME="1.07">1.07  </A></DT>
+<DD>
+
+<P>Changed package name from &quot;CMISS::Utils&quot; to &quot;CmUtils&quot;</P>
+<P>Moved help routines back to this module.</P></DD>
+<DT><A NAME="1.06">1.06 </A></DT>
+<DD>
+Added &quot;pother&quot; to print other refs (usually objects)</DD>
+<DT><A NAME="1.05">1.05  </A></DT>
+<DD>
+Moved &quot;h&quot; and &quot;man&quot; routines to the Exporter module.</DD>
+<DT><A NAME="1.04">1.04</A></DT>
+<DD>
+
+<P>Changed to use &quot;CmUtils::Exporter&quot; as the ISA - gives automatic
+definition of subroutines and help routines</P>
+<P>Added &quot;man&quot; function for help on Perl modules</P><H1><A NAME="SUBROUTINES">SUBROUTINES</A></H1>
+<H2><A NAME="max(list)"><B>max(list)</B></A></H2>
+
+<P>Returns the maximum of a list of numbers.</P><H2><A NAME="min(list)"><B>min(list)</B></A></H2>
+
+<P>Returns the minimum of a list of numbers.</P><H2><A NAME="constrain(value%2c%20minimum%2c%20maximum)"><B>constrain(value, minimum, maximum)</B></A></H2>
+
+<P>Constrains a numeric variable to lie between two other values.
+Ensures min &lt; max.</P><H2><A NAME="h(%5bname%5d%5b%2ctopic%5d)"><B>h([name][,topic])</B></A></H2>
+
+<P>Searches for, and prints, documentation for the NAMEd subroutine/module/object
+from the CMISS perl modules.</P>
+<P>&quot;name&quot; can be either a subroutine name (e.g. <CODE>'pdefined'</CODE>), a module name
+(e.g. <CODE>'CmUtils::Utils'</CODE>) or an object (e.g. <CODE>$nodegroup</CODE>).</P>
+<P>Additional help available is listed, and can be accessed by specifying a topic
+along with the name e.g.</P>
+<PRE>  h 'CmUtils::Objects::NodeGroup';
+  h 'CmUtils::Objects::NodeGroup','list';</PRE>
+<H2><A NAME="man(name)"><B>man(name)</B></A></H2>
+
+<P>Prints the full manpage for the NAMEd module.</P><H2><A NAME="ask(question%2c%20%5bdefault%5d)"><B>ask(question, [default])</B></A></H2>
+
+<P>Prompts for user-input with QUESTION.  Returns the entered string, or DEFAULT
+if nothing is entered.  Now uses Gtk if running cmgui, otherwise prompts in
+the terminal window.</P><H2><A NAME="choose(question%2c%20default%2c%20choices)"><B>choose(question, default, choices)</B></A></H2>
+
+<P>Prompts for user to choose between several options.  CHOICES is an array
+of options, with DEFAULT being the default option in that array (first is
+zero).  Uses Gtk if running cmgui, otherwise prompts in terminal window.</P><H2><A NAME="createwin(name)"><B>createwin(name)</B></A></H2>
+
+<P>Creates a NAMEd 3d window in Cmgui, default is window 1.  Useful in com files
+as it doesn't return an warning (and die) if the window already exists.</P><H2><A NAME="getcurrentpath()"><B>getcurrentpath()</B></A></H2>
+
+<P>Returns the current directory path (no trailing slash).</P><H2><A NAME="getcurrentdir()"><B>getcurrentdir()</B></A></H2>
+
+<P>Returns the name of the current directory.</P><H2><A NAME="pushdir(dirname)"><B>pushdir(dirname)</B></A></H2>
+
+<P>Stores current directory and changes current directory to DIRNAME.</P><H2><A NAME="popdir()"><B>popdir()</B></A></H2>
+
+<P>Changes to the previous directory.</P><H2><A NAME="cd(dirname)"><B>cd(dirname)</B></A></H2>
+
+<P>Changes current directory to DIRNAME for both perl and CMISS.  Cmgui handles
+this alright already.</P><H2><A NAME="step(start%2cend%2cstep)"><B>step(start,end,step)</B></A></H2>
+
+<P>Returns a list of numbers from START to END in increments of STEP (default 1).</P>
+<PRE>  foreach $value (step(4,20,4)) {  # 4,8,12,16,20</PRE>
+<H2><A NAME="range(start%2cend%2cnumber)"><B>range(start,end,number)</B></A></H2>
+
+<P>Returns a list of NUMBER values evenly spaced between START and END.</P>
+<PRE>  foreach $value (range(4,20,3)) {  # 4,12,20</PRE>
+<H2><A NAME="proutine(name)"><B>proutine(name)</B></A></H2>
+
+<P>Prints a list of NAMEd or all defined subroutines, along with their stored
+help-text if available.  Specify name as a string.</P><H2><A NAME="phash(name)"><B>phash(name)</B></A></H2>
+
+<P>Prints a list of NAMEd or all defined hashes and hashrefs and their values.
+Specify name as a string.</P><H2><A NAME="parray(name)"><B>parray(name)</B></A></H2>
+
+<P>Prints a list of NAMEd or all defined arrays and arrayrefs and their values.
+Specify name as a string.</P><H2><A NAME="pscalar(name)"><B>pscalar(name)</B></A></H2>
+
+<P>Prints a list of NAMEd or all defined scalars and their values, expect those
+which are references.  Specify name as a string.</P><H2><A NAME="pother(name)"><B>pother(name)</B></A></H2>
+
+<P>Prints a list of NAMEd or all variables other than those printed above.
+Specify name as a string.</P><H2><A NAME="pdefined(name)"><B>pdefined(name)</B></A></H2>
+
+<P>Prints a list of NAMEd or all defined variables and subroutines and their values.
+Specify name as a string.</P>
+<PRE>  pdefined('INC');</PRE>
+<H2><A NAME="penv(name)"><B>penv(name)</B></A></H2>
+
+<P>Prints a list of NAMEd or all defined environment variables.</P></DD>
+
+</BODY>
+</HTML>

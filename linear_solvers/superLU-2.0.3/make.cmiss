@@ -1,0 +1,204 @@
+# -*- Makefile -*-
+
+############################################################################
+#
+#  Program:         SuperLU
+#
+#  Module:          make.inc
+#
+#  Purpose:         Top-level Definitions
+#
+#  Creation date:   October 2, 1995
+#
+#  Modified:	    February 4, 1997  Version 1.0
+#		    November 15, 1997 Version 1.1
+#		    September 1, 1999 Version 2.0
+#
+############################################################################
+
+#-----------------------------------------------------------------------------
+# Makefile for building the SuperLU 2.0 solver library.
+#
+# Original by Stuart Norris 2002-08-25
+# Changes:
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Set the Operating System name, Machine name, and flags as to whether the
+# code is compiled with Optimisation, Debug, or MultiProcessor flags.
+#-----------------------------------------------------------------------------
+ifndef SYSNAME
+  SYSNAME := $(shell uname)
+  ifeq ($(SYSNAME),)
+    $(error error with shell command uname)
+  endif
+endif
+
+ifndef NODENAME
+  NODENAME := $(shell uname -n)
+  ifeq ($(NODENAME),)
+    $(error error with shell command uname -n)
+  endif
+endif
+
+ifndef DEBUG
+  ifndef OPT
+    OPT := false
+  endif
+  ifeq ($(OPT),false)
+    DEBUG = true
+  else
+    DEBUG = false
+  endif
+endif
+
+#-----------------------------------------------------------------------------
+# Set suffixes used in naming libraries.
+#-----------------------------------------------------------------------------
+ifeq ($(OPT),false)
+  SUFFIX = -debug
+else
+  SUFFIX = -opt
+endif
+
+#-----------------------------------------------------------------------------
+# Set options for each platform. Currently AIX, IRIX, OSF and Linux
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# AIX Options
+#-----------------------------------------------------------------------------
+ifeq ($(SYSNAME),AIX)
+
+  ifndef ABI
+    ABI = 32
+  endif
+
+  ifeq ($(DEBUG),false)
+    OPT_FLAGS = -O3
+    NOOPTS    =
+  else
+    OPT_FLAGS = -g
+    NOOPTS    = -g
+  endif
+
+  FC     = xlf -q$(ABI)
+  CC     = xlc -q$(ABI)
+  AR     = ar
+  CFLAGS = $(OPT_FLAGS)
+  FFLAGS = $(OPT_FLAGS) -qextname
+  AFLAGS = -rv -X $(ABI)
+  DIRNAM = aix-$(ABI)
+  RANLIB = ranlib
+endif
+
+#-----------------------------------------------------------------------------
+# SGI Options
+#-----------------------------------------------------------------------------
+ifeq ($(SYSNAME:IRIX%=),)
+
+  ifndef ABI
+    ABI = n32
+  endif
+
+  ifndef MIPS
+    # Using mips3 for n32 versions on esu* machines so they will run on Indies.
+    MIPS = 4
+    ifeq ($(NODENAME:esu%=),)
+      ifeq ($(ABI),n32)
+        ifneq ($(DEBUG),false)
+          MIPS = 3
+        endif
+      endif
+    endif
+  endif
+
+  ifeq ($(DEBUG),false)
+    OPT_FLAGS = -O3 -OPT:alias=parm
+    NOOPTS    = -O0
+  else
+    OPT_FLAGS = -O0 -g
+    NOOPTS    = -O0 -g
+  endif
+
+  FC     = f77 -mips$(MIPS) -$(ABI)
+  CC     = cc -mips$(MIPS) -$(ABI)
+  AR     = ar
+  FFLAGS = $(OPT_FLAGS)
+  CFLAGS = $(OPT_FLAGS)
+  AFLAGS = -rvf
+  DIRNAM = mips$(MIPS)-$(ABI)
+  RANLIB = echo
+endif
+
+#-----------------------------------------------------------------------------
+# Linux Options: use g77, or the native Digital and Intel compilers.
+#-----------------------------------------------------------------------------
+ifeq ($(SYSNAME),Linux)
+
+  ifndef ABI
+    ABI = $(shell uname -m)
+    ifeq ($(ABI),)
+      $(error error with shell command uname -m)
+    endif
+
+    ifneq ($(ABI,%86=),$(ABI))
+      ABI := 86
+    endif
+  endif
+
+  # GNU g77 compiler
+  ifeq ($(DEBUG),false)
+    OPT_FLAGS = -O3
+    NOOPTS    = -O0
+  else
+    OPT_FLAGS = -O0 -g
+    NOOPTS    = -O0 -g
+  endif
+
+  # Intel compiler
+  #ifeq ($(DEBUG),false)
+  #  OPT_FLAGS = -O3 -fno-alias -pad -mp1 -unroll -cm
+  #else
+  #  OPT_FLAGS = -O0 -g
+  #endif
+  # FC     = ifc
+  # FFLAGS = $(OPT_FLAGS) -w95 -Vaxlib
+
+  CC     = gcc
+  FC     = g77
+  AR     = ar
+  AFLAGS = -rvf
+  FFLAGS = $(OPT_FLAGS) -fno-second-underscore
+  CFLAGS = $(OPT_FLAGS)
+  DIRNAM = linux$(ABI)
+  RANLIB = ranlib
+endif
+
+#-----------------------------------------------------------------------------
+# End of initialisation: set targets and rules.
+#-----------------------------------------------------------------------------
+
+#
+#  The name of the libraries to be created/linked to
+#
+TMGLIB       = libtmg-$(DIRNAM)$(SUFFIX).a
+SUPERLULIB   = libsuperlu-$(DIRNAM)$(SUFFIX).a
+BLASLIB      = -lblas
+BLASDEF      = -DUSE_VENDOR_BLAS
+
+#
+#  The archiver and the flag(s) to use when building archive (library)
+#  Convert between the rest of the worlds (and make's) default names
+#  and those used in the SuperLU library.
+#
+ARCH         = $(AR)
+ARCHFLAGS    = $(AFLAGS)
+FORTRAN	     = $(FC)
+LOADER       = $(CC)
+LOADOPTS     =
+
+#
+#  C preprocessor defs for compilation (-DNoChange, -DAdd_, or -DUpCase)
+#
+CDEFS        = -DAdd_

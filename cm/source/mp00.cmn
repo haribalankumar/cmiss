@@ -1,0 +1,3 @@
+!  mp00.cmn
+      INTEGER THREAD_NUM
+      COMMON /MP00I/ THREAD_NUM

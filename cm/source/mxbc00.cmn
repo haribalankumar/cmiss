@@ -1,0 +1,4 @@
+!  mxbc00.cmn
+      INTEGER KTYPMBC
+      COMMON /MXBC00I/ KTYPMBC
+

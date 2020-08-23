@@ -1,0 +1,178 @@
+<HTML>
+<HEAD>
+<TITLE>Perl modules for CMISS</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#Overview">Overview</A></LI>
+<LI><A HREF="#NOTE%3a">NOTE:</A></LI>
+<LI><A HREF="#CmUtils">CmUtils</A></LI>
+<UL>
+<LI><A HREF="#CmUtils%3a%3aExporter"><A HREF="CmUtils/Exporter.html">CmUtils::Exporter</A></A></LI>
+<LI><A HREF="#CmUtils"><A HREF="CmUtils.html">CmUtils</A></A></LI>
+<LI><A HREF="#CmUtils%3a%3aUtils"><A HREF="CmUtils/Utils.html">CmUtils::Utils</A></A></LI>
+<LI><A HREF="#CmUtils%3a%3aCmConvert"><A HREF="CmUtils/CmConvert.html">CmUtils::CmConvert</A></A></LI>
+<LI><A HREF="#CmUtils%3a%3aCmCombine"><A HREF="CmUtils/CmCombine.html">CmUtils::CmCombine</A></A></LI>
+<LI><A HREF="#CmUtils%3a%3aCoordSys"><A HREF="CmUtils/CoordSys.html">CmUtils::CoordSys</A></A></LI>
+<LI><A HREF="#CmUtils%3a%3aInplaceEdit"><A HREF="CmUtils/InplaceEdit.html">CmUtils::InplaceEdit</A></A></LI>
+<LI><A HREF="#CmUtils%3a%3aRenumIp"><A HREF="CmUtils/RenumIp.html">CmUtils::RenumIp</A></A></LI>
+<LI><A HREF="#CmUtils%3a%3aRotationTransform"><A HREF="CmUtils/RotationTransform.html">CmUtils::RotationTransform</A></A></LI>
+<LI><A HREF="#CmUtils%3a%3aViewNormal"><A HREF="CmUtils/ViewNormal.html">CmUtils::ViewNormal</A></A></LI>
+<LI><A HREF="#CmUtils%3a%3aPod%3a%3aUsage%2c%20%20CmUtils%3a%3aPod%3a%3aText%3a%3aColour%20and%0aCmUtils%3a%3aPod%3a%3aText%3a%3aMono"><A HREF="CmUtils/Pod/Usage.html">CmUtils::Pod::Usage</A>,  <A HREF="CmUtils/Pod/Text/Colour.html">CmUtils::Pod::Text::Colour</A> and
+<A HREF="CmUtils/Pod/Text/Mono.html">CmUtils::Pod::Text::Mono</A></A></LI>
+</UL>
+<LI><A HREF="#CMISS%20and%20CMISS%2fFile">CMISS and CMISS/File</A></LI>
+<UL>
+<LI><A HREF="#CMISS"><A HREF="CMISS.html">CMISS</A></A></LI>
+<LI><A HREF="#CMISS%3a%3aFile"><A HREF="CMISS/File.html">CMISS::File</A></A></LI>
+</UL>
+<LI><A HREF="#CMISS%2fFile">CMISS/File</A></LI>
+<UL>
+<LI><A HREF="#CMISS%3a%3aFile%3a%3aExnode"><A HREF="CMISS/File/Exnode.html">CMISS::File::Exnode</A></A></LI>
+<LI><A HREF="#CMISS%3a%3aFile%3a%3aIpnode"><A HREF="CMISS/File/Ipnode.html">CMISS::File::Ipnode</A></A></LI>
+<LI><A HREF="#CMISS%3a%3aFile%3a%3aIpdata"><A HREF="CMISS/File/Ipdata.html">CMISS::File::Ipdata</A></A></LI>
+<LI><A HREF="#CMISS%3a%3aFile%3a%3aIpfiel"><A HREF="CMISS/File/Ipfiel.html">CMISS::File::Ipfiel</A></A></LI>
+<LI><A HREF="#CMISS%3a%3aFile%3a%3aIpfibr"><A HREF="CMISS/File/Ipfibr.html">CMISS::File::Ipfibr</A></A></LI>
+</UL>
+<LI><A HREF="#CMISS">CMISS</A></LI>
+<UL>
+<LI><A HREF="#CMISS%3a%3aNodeGroup"><A HREF="CMISS/NodeGroup.html">CMISS::NodeGroup</A></A></LI>
+<LI><A HREF="#CMISS%3a%3aFieldSet"><A HREF="CMISS/FieldSet.html">CMISS::FieldSet</A></A></LI>
+<LI><A HREF="#CMISS%3a%3aField"><A HREF="CMISS/Field.html">CMISS::Field</A></A></LI>
+<LI><A HREF="#CMISS%3a%3aComponent"><A HREF="CMISS/Component.html">CMISS::Component</A></A></LI>
+<LI><A HREF="#CMISS%3a%3aNode"><A HREF="CMISS/Node.html">CMISS::Node</A></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="Overview">Overview</A></H1>
+
+<P>Perl modules for CMISS</P>
+<P>This document describes the Perl modules written for use with the CMISS (<I>cm</I> and <I>cmgui</I>) program and with CMISS datafiles.  Please take responsibility for adding to this document when new modules are created.</P>
+<P>The Perl modules are located in <I>/product/cmiss/cmiss_perl/lib</I>, and this directory is automatically added to the perl path on startup.  There are several groups of modules which are grouped into subdirectories.</P><H1><A NAME="NOTE%3a">NOTE:</A></H1>
+
+<P>These modules work best using modules of Perl v5.6.0 (or later), but efforts have been made to get most things working for standard modules under Perl 5.004 and 5.005.  Documentation will not print for these earlier versions of Perl, and some modules require external modules to be installed.  To ensure that the v5.6.0 modules are used, set the <CODE>CMISS_PERLINC</CODE> environment variable to include the appropriate directories, and/or set the <CODE>CMISS_PERL</CODE> environment variable to the appropriate executable.  On the EngSci UNIX machines, set:</P>
+<PRE>  setenv CMISS_PERL   /usr/local/perl5.6/bin/perl
+  setenv CMISS64_PERL /usr/local/perl5.6/bin-64/perl</PRE>
+<H1><A NAME="CmUtils">CmUtils</A></H1>
+
+<P>contains utility routines for use on the CMISS command line, in CMISS scripts, in Perl scripts and on the shell command line (where applicable).</P><H2><A NAME="CmUtils%3a%3aExporter"><A HREF="CmUtils/Exporter.html">CmUtils::Exporter</A></A></H2>
+
+<P>This is a sub-class of the standard <I>Exporter.pm</I> which overrides the <CODE>import</CODE> routine to store a list of routines imported into the <CODE>cmiss</CODE> package (the default namespace for CMISS programs) along with the file they came from.  All CMISS utilities which export routines should be sub-classes of this module.</P><H2><A NAME="CmUtils"><A HREF="CmUtils.html">CmUtils</A></A></H2>
+
+<P>Inherits from <A HREF="CmUtils/Exporter.html">CmUtils::Exporter</A>, and provides basic utility routines mainly for using from the CMISS command line.  Type <CODE>h 'CmUtils'</CODE> for a list of all of the routines defined.  Here are the most useful ones.</P><DL><DT><A NAME="h">h</A></DT>
+<DD>
+
+<P>This routine attempts to provide help documentation on defined subroutines and modules, also objects.  For example:</P>
+<P><CODE>h 'h'</CODE> will list information on itself</P>
+<P><CODE>h 'CmUtils'</CODE> will list information on the <I>CmUtils</I> module</P>
+<P><CODE>h 'CmUtils','ask'</CODE> will list information on all headings containing the word &quot;ask&quot; in the <I>CmUtils</I> module</P>
+<P><CODE>h 'CMISS::File'</CODE> will list information on the <I>CMISS/File.pm</I> module</P>
+<P><CODE>h $ngroup</CODE> will list information on the type of the object <CODE>$ngroup</CODE>, which could quite possibly be a NodeGroup</P></DD>
+<DT><A NAME="man">man</A></DT>
+<DD>
+Prints the full manpage for a module, this one by default.</DD>
+<DT><A NAME="pdefined">pdefined</A></DT>
+<DD>
+Prints a list of all variables that have been defined, along with their contents (except for objects).  This is simply a wrapper to the other &quot;print&quot; routines: <CODE>proutine</CODE>, <CODE>phash</CODE>, <CODE>parray</CODE>, <CODE>pscalar</CODE> and <CODE>pother</CODE>.</DD>
+<DT><A NAME="getcurrentdir%2c%20getcurrentpath">getcurrentdir, getcurrentpath</A></DT>
+<DD>
+These routines return the current directory name or full path name.</DD>
+<DT><A NAME="step%2c%20range">step, range</A></DT>
+<DD>
+
+<P>These routines are used to defined a list of numbers, particularly for a loop.  For example:</P>
+<P><CODE>foreach $value (step(4,20,4)) { ... }</CODE> gives <CODE>$value</CODE> the values 4,8,12,16 and 20 in turn</P>
+<P><CODE>foreach $value (range(4,20,3)) { ... }</CODE> gives <CODE>$value</CODE> the values 4,12 and 20</P></DD>
+</DL>
+<H2><A NAME="CmUtils%3a%3aUtils"><A HREF="CmUtils/Utils.html">CmUtils::Utils</A></A></H2>
+
+<P>Several useful routines for using in CMISS scripts or command files.</P><DL><DT><A NAME="doCmiss">doCmiss</A></DT>
+<DD>
+
+<P>Accepts multiple CMISS commands (in one or more strings) and executes them
+sequentially.  e.g.</P>
+<PRE>  doCmiss(&lt;&lt;EOF);
+    fem define node;p
+    fem define elem;p
+EOF</PRE>
+</DD>
+<DT><A NAME="list_to_string">list_to_string</A></DT>
+<DD>
+
+<P>Converts a LIST of numbers to the shortest string describing that list.  e.g.</P>
+<PRE>  list_to_string(4,5,15,6,7,8,9,12,14,8..10)</PRE>
+
+<P>is converted to</P>
+<PRE>  4..10,12,14,15</PRE>
+
+<P>List is sorted prior to condensing.  Duplicate entries are ignored.</P></DD>
+</DL>
+<H2><A NAME="CmUtils%3a%3aCmConvert"><A HREF="CmUtils/CmConvert.html">CmUtils::CmConvert</A></A></H2>
+
+<P>A set of high-level routines for converting between CMISS file formats.  At the moment, supports <CODE>ipnode</CODE>, <CODE>ipdata</CODE>, <CODE>exnode</CODE>, <CODE>exdata</CODE>, <CODE>ipfibr</CODE> and <CODE>ipfiel</CODE>.  Also, this is an example of how to use the <A HREF="CMISS/File.html">CMISS::File</A> module.</P>
+<PRE>  use CmUtils::CmConvert qw/toExnode/;
+  h 'toExnode';
+  toExnode(&quot;file.ipnode&quot;);</PRE>
+
+<P>See the help on these routines for a list of all available options.</P><H2><A NAME="CmUtils%3a%3aCmCombine"><A HREF="CmUtils/CmCombine.html">CmUtils::CmCombine</A></A></H2>
+
+<P>Routines for combining multiple CMISS files (of the same format) into another file, including options for renumbering etc.</P><H2><A NAME="CmUtils%3a%3aCoordSys"><A HREF="CmUtils/CoordSys.html">CmUtils::CoordSys</A></A></H2>
+
+<P>Routines to convert coordinates from one coordinate system to another.  Requires the <CODE>Math::Trig</CODE> module.</P><H2><A NAME="CmUtils%3a%3aInplaceEdit"><A HREF="CmUtils/InplaceEdit.html">CmUtils::InplaceEdit</A></A></H2>
+
+<P>Routine which edits a file &quot;inplace&quot; - the equivalent of  &quot;<CODE>perl -pi -e...
+file</CODE>&quot;. This reads each line, applies a modification to it, and writes it back
+out to the same file.  Advantage is that a system command is not required (with
+its memory and speed overheads).</P><H2><A NAME="CmUtils%3a%3aRenumIp"><A HREF="CmUtils/RenumIp.html">CmUtils::RenumIp</A></A></H2>
+
+<P>Routines to renumber nodes and/or elements in both an <I>ipnode</I> and <I>ipelem</I>
+file.</P><H2><A NAME="CmUtils%3a%3aRotationTransform"><A HREF="CmUtils/RotationTransform.html">CmUtils::RotationTransform</A></A></H2>
+
+<P>Routines to convert a 6-element rotation matrix (as given by the <I>rotate</I> program) into a 16-element list as required by <I>cmgui</I>.  This module requires the <CODE>PDL</CODE> and <CODE>Math::Trig</CODE> modules to be available.</P><H2><A NAME="CmUtils%3a%3aViewNormal"><A HREF="CmUtils/ViewNormal.html">CmUtils::ViewNormal</A></A></H2>
+
+<P>Routines which alter the view of a <I>cmgui</I> 3D window to be normal to
+a 4-node <I>exnode</I> file - used for viewing echo/MRI images.  This module requires the <CODE>PDL</CODE> module to be available.</P><H2><A NAME="CmUtils%3a%3aPod%3a%3aUsage%2c%20%20CmUtils%3a%3aPod%3a%3aText%3a%3aColour%20and%0aCmUtils%3a%3aPod%3a%3aText%3a%3aMono"><A HREF="CmUtils/Pod/Usage.html">CmUtils::Pod::Usage</A>,  <A HREF="CmUtils/Pod/Text/Colour.html">CmUtils::Pod::Text::Colour</A> and
+<A HREF="CmUtils/Pod/Text/Mono.html">CmUtils::Pod::Text::Mono</A></A></H2>
+
+<P>Routines modified from standard modules for printing the documentation.  The text is not currently coloured, not until we can distinguish between <I>cm</I> and <I>cmgui</I>.</P><H1><A NAME="CMISS%20and%20CMISS%2fFile">CMISS and CMISS/File</A></H1>
+
+<P>contains routines which construct objects for working with CMISS datafiles.</P><H2><A NAME="CMISS"><A HREF="CMISS.html">CMISS</A></A></H2>
+
+<P>Base class for the CMISS File library which defines common methods (<CODE>debug</CODE>, <CODE>verbose</CODE>, <CODE>listMethods</CODE> and <CODE>help</CODE>).</P><H2><A NAME="CMISS%3a%3aFile"><A HREF="CMISS/File.html">CMISS::File</A></A></H2>
+
+<P>Layer on top of the file reading/writing routines, which can probably be used for almost all interactions with the CMISS File library.</P>
+<PRE>  use CMISS::File;
+  $group = cmRead('file.ipnode');
+  $options-&gt;{format}='exdata';
+  cmWrite('newfile', $group, $options);</PRE>
+
+<P><CODE>cmRead</CODE> returns a NodeGroup, which contains all the information from a CMISS file.  An <CODE>exnode</CODE> file may contain more than one NodeGroup.</P>
+<P>There are also more specific routines.</P><H1><A NAME="CMISS%2fFile">CMISS/File</A></H1>
+
+<P>The specific file reading/writing routines.</P><H2><A NAME="CMISS%3a%3aFile%3a%3aExnode"><A HREF="CMISS/File/Exnode.html">CMISS::File::Exnode</A></A></H2>
+<H2><A NAME="CMISS%3a%3aFile%3a%3aIpnode"><A HREF="CMISS/File/Ipnode.html">CMISS::File::Ipnode</A></A></H2>
+<H2><A NAME="CMISS%3a%3aFile%3a%3aIpdata"><A HREF="CMISS/File/Ipdata.html">CMISS::File::Ipdata</A></A></H2>
+<H2><A NAME="CMISS%3a%3aFile%3a%3aIpfiel"><A HREF="CMISS/File/Ipfiel.html">CMISS::File::Ipfiel</A></A></H2>
+<H2><A NAME="CMISS%3a%3aFile%3a%3aIpfibr"><A HREF="CMISS/File/Ipfibr.html">CMISS::File::Ipfibr</A></A></H2>
+<H1><A NAME="CMISS">CMISS</A></H1>
+
+<P>The routines which define the objects containing Node and Field data.  All objects have documented methods which must be used for accessing/changing data.</P><H2><A NAME="CMISS%3a%3aNodeGroup"><A HREF="CMISS/NodeGroup.html">CMISS::NodeGroup</A></A></H2>
+
+<P>Definition for the NodeGroup object.  Contains a list of all fields and nodes defined for this group.  If <CODE>$group</CODE> is a NodeGroup, (as in the <A HREF="CMISS/File.html">CMISS::File</A> documentation above) then you can do the following:</P>
+<PRE>  $group-&gt;listMethods()
+  $group-&gt;listFields()
+  $group-&gt;listNodes()
+  $group-&gt;verbose(1)
+  $group-&gt;listNodes()</PRE>
+
+<P>and more.</P><H2><A NAME="CMISS%3a%3aFieldSet"><A HREF="CMISS/FieldSet.html">CMISS::FieldSet</A></A></H2>
+
+<P>A FieldSet is a particular definition of a Field description (versions, components, derivatives etc) - if there are multiple different numbers of versions, there will be multiple FieldSets.  A FieldSet may have one or more Fields.</P><H2><A NAME="CMISS%3a%3aField"><A HREF="CMISS/Field.html">CMISS::Field</A></A></H2>
+
+<P>A Field contains the definition of what will be stored at each node, and is a collection of Components.</P><H2><A NAME="CMISS%3a%3aComponent"><A HREF="CMISS/Component.html">CMISS::Component</A></A></H2>
+
+<P>A Component contains the definition of what is stored for a particular component of a node.</P><H2><A NAME="CMISS%3a%3aNode"><A HREF="CMISS/Node.html">CMISS::Node</A></A></H2>
+
+<P>Each node is defined according to this definition, where the values are stored in a linear array with pointers into it from the appropriate Field/Component description.</P>
+</BODY>
+</HTML>

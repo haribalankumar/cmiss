@@ -1,0 +1,51 @@
+############################################################################
+#
+#  Program:         SuperLU_OMP
+#
+#  Module:          make.inc
+#
+#  Purpose:         Top-level Definitions
+#
+#  Creation date:   August 15, 1997
+#
+#  Modified:	    June 25, 2002 version 1.0 OMP
+#
+############################################################################
+#
+#  The machine (platform) identifier to append to the library names
+#
+PLAT = _OMP
+
+# Common Libraries
+TMGLIB       	= tmglib$(PLAT).a
+SUPERLULIB   	= superlu_mt$(PLAT).a
+# BLASLIB     	= ../blas$(PLAT).a
+BLASDEF		= -DUSE_VENDOR_BLAS
+BLASLIB      	= -lessl
+MATHLIB		= -lm
+#
+#  The archiver and the flag(s) to use when building archive (library)
+#  If you system has no ranlib, set RANLIB = echo.
+#
+ARCH         	= ar
+ARCHFLAGS    	= rv
+RANLIB       	= echo
+
+CC	     	= xlc
+#
+# Definitions used by CPP:
+PREDEFS      	= -D$(PLAT) #-DGEMV2
+CFLAGS       	= $(PREDEFS) -O3 -qsmp=omp -q32
+NOOPTS	     	= -q32
+BLASOPTS     	= -qalias=allp
+LOADER       	= xlc
+LOADOPTS     	= -O3 -qsmp=omp -q32
+PROFFLAG     	= 
+FORTRAN		= xlf
+FFLAGS		= -O3 -q32
+
+#
+#  C preprocessor defs for compilation (-DNoChange, -DAdd_, or -DUpCase)
+#
+CDEFS        	= -DAdd_
+

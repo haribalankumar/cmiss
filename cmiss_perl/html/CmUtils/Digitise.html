@@ -1,0 +1,179 @@
+<HTML>
+<HEAD>
+<TITLE>CmUtils::Digitise contains a selection of routines for digitising a set of
+images.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aDigitise">CmUtils::Digitise</A></LI>
+<UL>
+<LI><A HREF="#CONTAINS">CONTAINS</A></LI>
+<LI><A HREF="#Global%20variables">Global variables</A></LI>
+</UL>
+<LI><A HREF="#cmguiInit"><B>cmguiInit</B></A></LI>
+<LI><A HREF="#loadExdata"><B>loadExdata</B></A></LI>
+<LI><A HREF="#loadExdataGroup"><B>loadExdataGroup</B></A></LI>
+<LI><A HREF="#saveExdata"><B>saveExdata</B></A></LI>
+<LI><A HREF="#splitExdata"><B>splitExdata</B></A></LI>
+<LI><A HREF="#loadImage"><B>loadImage</B></A></LI>
+<LI><A HREF="#unloadImage"><B>unloadImage</B></A></LI>
+<LI><A HREF="#loadImageSet"><B>loadImageSet</B></A></LI>
+<LI><A HREF="#visibleon"><B>visibleon</B></A></LI>
+<LI><A HREF="#visibleoff"><B>visibleoff</B></A></LI>
+<LI><A HREF="#update_view"><B>update_view</B></A></LI>
+<LI><A HREF="#trace"><B>trace</B></A></LI>
+<LI><A HREF="#checkImageSet"><B>checkImageSet</B></A></LI>
+<LI><A HREF="#setDataGroups"><B>setDataGroups</B></A></LI>
+<LI><A HREF="#digitiseSlices"><B>digitiseSlices</B></A></LI>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aDigitise">CmUtils::Digitise</A></H1>
+
+<P>CmUtils::Digitise contains a selection of routines for digitising a set of
+images. </P><H2><A NAME="CONTAINS">CONTAINS</A></H2>
+
+<PRE> cmguiInit *
+ loadExdata 
+ loadExdataGroup *
+ saveExdata
+ splitExdata *
+ loadImage
+ unloadImage
+ loadImageSet *
+ visibleon
+ visibleoff
+ update_view
+ trace
+ checkImageSet *
+ setDataGroups *
+ digitiseSlices *</PRE>
+
+<P>* = routines you may wish to call directly.  Short example of usage:</P>
+<PRE>  use CmUtils::Digitise qw( cmguiInit checkImageSet digitiseSlices );
+  cmguiInit( 600,600 );
+  
+  $images = [ glob( &quot;*.rgb&quot; ) ];
+  checkImageSet( $images );
+  digitiseSlices( $images );</PRE>
+<H2><A NAME="Global%20variables">Global variables</A></H2>
+
+<PRE>  %settings</PRE>
+
+<P>List of settings and global information.</P>
+<PRE>      &lt;key&gt;       &lt;default&gt;   &lt;description&gt;
+User settings:
+      {view3d}    0         whether 3D window is used
+      {keep_view} 0         keeps the closest viewpoint when changing frames
+      {dynamic}   1         images loaded dynamically
+      {max_load}  10        maximum number of images in memory
+      {saveall}   undef     whether to save all datagroups to named file
+Set by &quot;setDataGroups&quot;:
+      {datanames} { data =&gt; &quot;green&quot; }
+                            list of names to digitise, and associated colours
+      {datalist}  [&quot;data&quot;]  sorted list of names
+Used internally:
+      {current}   0         index of current image
+      {previous}  0         index of previous image
+      {loaded}    undef     list of last n viewed images (= number loaded)
+      {dataindex} 0         index of current data name in {datalist}
+      {combo}     undef     combo widget with list of images
+      {toggle}    undef     toggle button for digitising</PRE>
+<H1><A NAME="cmguiInit"><B>cmguiInit</B></A></H1>
+
+<PRE>  &amp;cmguiInit( $WinWidth2d, $WinHeight2d [, $View3d, $WinWidth3d, $WinHeight3d] );</PRE>
+
+<P>Create a CMGUI 2d window of an appropriate size and also create five materials
+of different colours for use.  Last 3 variables are optional, but if defined
+create a second window use for 3d viewing of all datapoints.</P><H1><A NAME="loadExdata"><B>loadExdata</B></A></H1>
+
+<PRE>  &amp;loadExdata( $image );</PRE>
+
+<P>This routine loads the data points associated with a given image.</P><H1><A NAME="loadExdataGroup"><B>loadExdataGroup</B></A></H1>
+
+<PRE>  &amp;loadExdataGroup( $filename, $images);</PRE>
+
+<P>This routine loads all data groups in a given file, then destroys all groups
+not containing data points.</P><H1><A NAME="saveExdata"><B>saveExdata</B></A></H1>
+
+<PRE>  &amp;saveExdata( $image );</PRE>
+
+<P>Saves exdata from current image. </P><H1><A NAME="splitExdata"><B>splitExdata</B></A></H1>
+
+<PRE>  &amp;splitExdata( $datafile, @groupnames );</PRE>
+
+<P>Splits the exdata file <I>$datafile</I> into separate files for each specified
+<I>groupname</I>.</P><H1><A NAME="loadImage"><B>loadImage</B></A></H1>
+
+<PRE>  &amp;loadImage( $image );</PRE>
+
+<P>Load in a single image along with an exnode and an exelem file. This routine
+then textures the element with the image.</P><H1><A NAME="unloadImage"><B>unloadImage</B></A></H1>
+
+<PRE>  &amp;unloadImage( $image );</PRE>
+
+<P>This routine unloads an image from memory, destroying material and texture.</P><H1><A NAME="loadImageSet"><B>loadImageSet</B></A></H1>
+
+<PRE>  &amp;loadImageSet( $images );</PRE>
+
+<P>This subroutine loops though an image list and calls loadImage for each image
+unless dynamically loaded, and loads all exdata.</P><H1><A NAME="visibleon"><B>visibleon</B></A></H1>
+
+<PRE>  &amp;visibleon( $image(s), [$pattern] );</PRE>
+
+<P>Turn the visibility on for all graphical elements that contain the string given
+by pattern.</P><H1><A NAME="visibleoff"><B>visibleoff</B></A></H1>
+
+<PRE>  &amp;visibleoff( $image(s), [$pattern] );</PRE>
+
+<P>Turn the visibility off on all graphical elements that match the supplied
+pattern.</P><H1><A NAME="update_view"><B>update_view</B></A></H1>
+
+<PRE>  &amp;update_view( $images );</PRE>
+
+<P>Update the 2D and 3D windows.</P><H1><A NAME="trace"><B>trace</B></A></H1>
+
+<PRE>  &amp;trace( $images );</PRE>
+
+<P>Set up the viewing window and clipping planes with the correct spacings
+so the digitised points lie on the correct slice. Start up the data point
+tool with the data creation options set.</P><H1><A NAME="checkImageSet"><B>checkImageSet</B></A></H1>
+
+<PRE>  &amp;checkImageSet( $images );</PRE>
+
+<P>Checks that the image set $images has all necessary information to load, and
+fills in default values for undefined keys.  On input, $images must either be
+an array of hashes e.g</P>
+<PRE>  foreach $f ( &quot;image1&quot;, &quot;image2&quot; ) {
+    push @{$images}, {name=&gt;$f, filename=&gt;$f, ext=&gt;&quot;.rgb&quot;, glyph=&gt;&quot;cross&quot;};
+  }
+  checkImageSet( $images );</PRE>
+
+<P>or an array of filenames (with or without extensions) e.g.</P>
+<PRE>  $images = [ glob &quot;*.rgb&quot; ];
+  checkImageSet( $images );</PRE>
+
+<P>Other modules including CmUtils::Digitise::VisibleHuman and
+CmUtils::Digitise::Echo have routines for easily creating the $images
+structure.</P>
+<P>Returns $images as a hash structure:</P>
+<PRE>    &lt;key&gt;       &lt;default&gt; &lt;description&gt;
+    {name}                Basename of image
+    {filename}  {name}    Image file name including directory (no ext)
+    {ext}       {.rgb}    Image file extension (including '.' if needed)
+    {imgtype}   undef     Required if no extension, or if different type needed
+    {imgloaded} 0         If image is loaded into cmgui
+    {visible2D} 0         If image is visible in 2D window
+    {glyph}     &quot;sphere&quot;  Glyph used for drawing data on this image</PRE>
+<H1><A NAME="setDataGroups"><B>setDataGroups</B></A></H1>
+
+<PRE>  &amp;setDataGroups( @names_and_colours );</PRE>
+
+<P>Sets new data groups.   e.g. setDataGroups(qw(Epi red Endo blue));</P><H1><A NAME="digitiseSlices"><B>digitiseSlices</B></A></H1>
+
+<PRE>  &amp;digitiseSlices( $images );</PRE>
+
+<P>This routine takes care of the digitisation book keeping. If image viewing
+is all that is needed then this is unnecessary although it is handy if you
+want to go backwards and forwards through the image stack. </P>
+</BODY>
+</HTML>

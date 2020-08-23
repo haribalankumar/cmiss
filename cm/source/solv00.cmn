@@ -1,0 +1,45 @@
+C -*- Fortran -*-
+C  solv00.cmn
+C     These are the controls for the iterative solvers
+      INTEGER SNRM
+      PARAMETER (SNRM=9)
+      INTEGER SOLV_MAXIT(9),SOLV_NRES(9),SOLV_NPRECON(9)
+      LOGICAL SOLV_FIXIT(9)
+      REAL*8 SOLV_TOL(9),SOLV_OMEGA(9)
+
+C     These are the controls for Algebraic Multigrid
+      INTEGER AMG_CYCLE(9)
+
+C     These are the controls for Multilevel Solvers
+      INTEGER MG_CYCLE(9), MG_RELAX_TYPE(9), MG_RELAX_SYM(9), 
+     &        MG_OUTPUT(9)
+
+C     This stores the norm of the A matrix between solves
+      REAL*8 SOLV_ANORM(9)
+
+C     These store info about the Umfpack factorisation between solutions
+      REAL*8 SOLV_UMF_PARAM(40,9)
+      REAL*8 SOLV_UMF_CONTROL(20,9),SOLV_UMF_INFO(90,9)
+
+C     This stores the controls about the SuperLU solver
+      INTEGER SOLV_SLU_PARAM(10,9)
+
+      COMMON /AMG000/  AMG_CYCLE
+      COMMON /MG000/   MG_CYCLE, MG_RELAX_TYPE, MG_RELAX_SYM, MG_OUTPUT
+      COMMON /SOLV00M/ SOLV_FIXIT
+      COMMON /SOLV00J/ SOLV_MAXIT,SOLV_NRES,SOLV_NPRECON,SOLV_SLU_PARAM
+      COMMON /SOLV00R/ SOLV_TOL,SOLV_OMEGA,SOLV_UMF_PARAM,SOLV_ANORM,
+     '        SOLV_UMF_CONTROL,SOLV_UMF_INFO
+
+C     The original common blocks
+      INTEGER CPTYPE,PRECON_CODE(9),Relax1(9),Relax2(9),SOLVEROPTION(9),
+     '        SOLVELU_NZA(9),SPARSEGKK(9),SALU_NY(9),SOL_ACT_FIX_NODE
+      COMMON /SOLV00I/ CPTYPE,PRECON_CODE,Relax1,Relax2,SOLVEROPTION,
+     '        SOLVELU_NZA,SPARSEGKK,SALU_NY,SOL_ACT_FIX_NODE
+
+      LOGICAL ASSEMBLE_GLOBAL(0:SNRM,9),ASSEMBLE_SOLUTION(0:SNRM,9),
+     '        CALC_GLOBAL(0:SNRM,9),CALC_ACTIV_TIMES,
+     '        SALU_CONSISTENCY(9),SOLVE_ACTIV,USE_SOLVE_ACTIV
+      COMMON /SOLV00L/ ASSEMBLE_GLOBAL,ASSEMBLE_SOLUTION,
+     '        CALC_ACTIV_TIMES,CALC_GLOBAL,
+     '        SALU_CONSISTENCY,SOLVE_ACTIV,USE_SOLVE_ACTIV

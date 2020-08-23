@@ -1,0 +1,3 @@
+!  b14.cmn
+      REAL*8 FOCUS
+      COMMON /B14R/ FOCUS

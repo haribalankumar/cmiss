@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+<TITLE>CmUtils::Pod::Text::Colour</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#NAME">NAME</A></LI>
+<LI><A HREF="#SYNOPSIS">SYNOPSIS</A></LI>
+<LI><A HREF="#DESCRIPTION">DESCRIPTION</A></LI>
+<LI><A HREF="#SEE%20ALSO">SEE ALSO</A></LI>
+<LI><A HREF="#AUTHORS">AUTHORS</A></LI>
+</UL>
+<HR>
+<H1><A NAME="NAME">NAME</A></H1>
+
+<P>CmUtils::Pod::Text::Colour - Convert POD data to formatted colour ASCII text</P><H1><A NAME="SYNOPSIS">SYNOPSIS</A></H1>
+
+<PRE>    use CmUtils::Pod::Text::Colour;
+    my $parser = CmUtils::Pod::Text::Colour-&gt;new (sentence =&gt; 0, width =&gt; 78);</PRE>
+
+<PRE>    # Read POD from STDIN and write to STDOUT.
+    $parser-&gt;parse_from_filehandle;</PRE>
+
+<PRE>    # Read POD from file.pod and write to file.txt.
+    $parser-&gt;parse_from_file ('file.pod', 'file.txt');</PRE>
+<H1><A NAME="DESCRIPTION">DESCRIPTION</A></H1>
+
+<P>CmUtils::Pod::Text::Colour is a simple subclass of Pod::Text that highlights
+output text using ANSI colour escape sequences.  Apart from the colour, it in all
+ways functions like Pod::Text.  See <A HREF="Pod/Text.html">Pod::Text</A> for details and available
+options.</P>
+<P>Term::ANSIColor is used to get colours and therefore must be installed to use
+this module.</P><H1><A NAME="SEE%20ALSO">SEE ALSO</A></H1>
+
+<P><A HREF="Pod/Text.html">Pod::Text</A>, <A HREF="Pod/Text/Color.html">Pod::Text::Color</A>,
+<A HREF="Pod/Parser.html">Pod::Parser</A></P><H1><A NAME="AUTHORS">AUTHORS</A></H1>
+
+<P>Greg Sands &lt;g.sands@auckland.ac.nz&gt;.</P>
+<P>Russ Allbery &lt;rra@stanford.edu&gt;.</P>
+</BODY>
+</HTML>

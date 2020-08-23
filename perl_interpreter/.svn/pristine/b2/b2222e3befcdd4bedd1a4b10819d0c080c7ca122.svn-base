@@ -1,0 +1,33 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+my $filename = shift;
+my $perl;
+my $parameter;
+my @replacement_strings = ();
+while (defined ($parameter=shift))
+  {
+	 if ($parameter =~ m/(\w+)=(\w+)/)
+		{
+		  push @replacement_strings, [$1, $2];
+		}
+	 else
+		{
+		  die "pm2pmh: Cannot parse command line parameter $parameter";
+		}
+  }
+
+open (PLFILE, "<$filename") || die "can't open $filename: $!\n";
+while (defined ($perl = <PLFILE>))
+  {
+	 chomp $perl;
+	 $perl =~ s%\\%\\\\%g;
+	 $perl =~ s%\"%\\\"%g;
+	 for $parameter (@replacement_strings)
+		{
+		  $perl =~ s/$$parameter[0]/$$parameter[1]/e;
+		}
+	 print "\"$perl\\n\"\n";
+  }
+close PLFILE;

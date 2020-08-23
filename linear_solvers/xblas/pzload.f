@@ -1,0 +1,45 @@
+
+c-------------------------------------------------------------------------------
+
+      SUBROUTINE Pzload( n,a,x,incx )
+
+      IMPLICIT none
+      INTEGER n,incx
+      DOUBLE COMPLEX a,x(*)
+
+c  Set a vector, x, to a scalar, a.
+
+      INTEGER i,nx,nlow,nhigh
+
+      if (n.le.0 .or. incx.eq.0) return
+
+c     Step lengths = 1
+      if (incx.eq.1) then
+c$omp   parallel do private(i)
+        do i = 1,n
+          x(i) = a
+        enddo
+c$omp   end parallel do
+
+c     Other step lengths
+      else
+        nx = 1+( n-1 )*incx
+
+        if (incx.gt.0) then
+          nlow  = 1
+          nhigh = nx
+        else
+          nlow  = nx
+          nhigh = 1
+        endif
+
+c$omp   parallel do private(i)
+        do i = nlow,nhigh,incx
+          x(i) = a
+        enddo
+c$omp   end parallel do
+
+      endif
+
+      return
+      END

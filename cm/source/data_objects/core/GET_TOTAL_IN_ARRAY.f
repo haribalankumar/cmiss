@@ -1,0 +1,27 @@
+      SUBROUTINE GET_TOTAL_IN_ARRAY(TOTAL_ARRAY,ARRAY_SIZE,
+     &  INDEX,TOTAL,ERROR,*)
+
+C#### Subroutine: GET_TOTAL_IN_ARRAY
+C###  Description:
+C###    Gets the total number of labels in an array of arrays.
+
+      IMPLICIT NONE
+      
+!     Parameter List
+      INTEGER ARRAY_SIZE
+      INTEGER INDEX,TOTAL_ARRAY(ARRAY_SIZE),TOTAL
+      CHARACTER ERROR*(*)
+
+      CALL ENTERS('GET_TOTAL_IN_ARRAY',*9999)
+      
+      TOTAL=0
+      IF(ARRAY_SIZE.GT.0) TOTAL=TOTAL_ARRAY(INDEX)
+
+      CALL EXITS('GET_TOTAL_IN_ARRAY')
+      RETURN
+ 9999 CALL ERRORS('GET_TOTAL_IN_ARRAY',ERROR)
+      CALL EXITS('GET_TOTAL_IN_ARRAY')
+      RETURN 1
+      END
+
+

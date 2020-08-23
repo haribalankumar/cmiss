@@ -1,0 +1,4 @@
+!  cloc00.cmn
+      REAL*8 X_CLOCK(3),R_CLOCK
+      COMMON /CLOC00R/ X_CLOCK,R_CLOCK
+

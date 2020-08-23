@@ -1,0 +1,16 @@
+From where did these files come?
+
+(The routines do not appear to resemble xblas from cmlib.)
+
+(pblas of scalapack is written in C and is for distributed memory programs so
+these routines are not related to that package.)
+
+pdasum pdaxpy pdcopy pddot pdscal pdnrm2 have comments suggesting that they
+came from the reference blas implementation but the code is quite different
+(rewritten?).
+
+pdamax may have been adapted from blas.
+
+dload and pdload may have been adapted from blas dcopy.
+
+icopy appears to have been created by Stuart Norris.

@@ -1,0 +1,55 @@
+#!/bin/sh
+
+function timed_run {
+
+  # Run once so we can check the solution is right
+  echo
+  echo "*********************************************************"
+  echo
+  echo "Program = $exe, Solver = $solver, Niter = $niter, NCPU = $ncpu"
+  echo
+  $exe -q $problem -solver $solver -ncpu $ncpu -niter $niter
+  echo
+
+  # Run a few reps, so we can check the fastest run
+  nrep=15
+  i=0
+  while [ $i -lt $nrep ]
+  do
+    $exe -q $problem -solver $solver -ncpu $ncpu -niter $niter
+    i=` echo "$i + 1" | bc `
+  done > $tmpfile
+
+  # Get the fastest runs
+  for flag in "Factorisation" "Solution time" "Total time"
+  do
+    min=`grep "$flag" $tmpfile | w2w | cut -f2 -d: | cut -f3 -d' ' | sort -ni | head -1`
+    echo " $flag	:	$min"
+  done
+  echo
+}
+
+OMP_NUM_THREADS=1
+XLSMPOPTS="delays=100 : yields=0 : spins=0"
+export XLSMPOPTS OMP_NUM_THREADS
+tmpfile=tmp.$$
+
+problem="-fv 10,10"
+solver="bicgstab -precon ilu0"
+solopt=
+ncpu=1
+niter=1
+exe=./soltest
+
+nx=20
+while [ $nx -lt 400 ]
+do
+  problem="-fv $nx,$nx"
+
+  timed_run
+	nx=`echo $nx + 20 | bc`
+done
+
+mv $tmpfile /tmp
+
+

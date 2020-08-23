@@ -1,0 +1,70 @@
+#-------------------------------------------------------------------------------
+# Sun Solaris configuration
+#-------------------------------------------------------------------------------
+
+# cc: Compile for strict ANSI/ISO C conformance
+CC = cc
+CFLAGS = -Xc -xO5 -KPIC -dalign -native
+
+# gcc: Compile for strict ANSI/ISO C conformance, picky warnings
+# CC = gcc
+# CFLAGS = -ansi -pedantic -W -Wall -Wno-parentheses -Wshadow -Wcast-align -Winline -Wstrict-prototypes -O3 -fPIC -I/opt/SUNWspro/WS6U1/include/cc
+
+# for debugging only:
+# CC = cc
+# CFLAGS = -Xc -g -dalign
+
+# ranlib exists, but is not needed on Solaris
+RANLIB = echo
+
+#-------------------------------------------------------------------------------
+# BLAS and 32/64-bit options: uncomment the appropriate lines
+#-------------------------------------------------------------------------------
+
+# 1: Default: with the Sun Perf. BLAS in 32-bit (ILP32) mode
+CONFIG = -DNCBLAS
+LIB = -lsunperf -lfai -lfsu -lfui -lsunperf -lm -lF77 -lm -lM77 -lsunmath
+
+# 2: with no BLAS
+# CONFIG = -DNBLAS
+# LIB = -lm
+
+# 3: with no BLAS, in 64-bit mode.  Does not work with gcc.
+# Compare your output with umfpack_**_demo.out64.
+# CONFIG = -DNBLAS -DLP64 -xtarget=ultra -xarch=v9
+# LIB = -lm
+
+# 4: with the Sun Perf. BLAS in 64-bit mode.  The output of umfpack_**_demo.c
+# are in the files umfpack_**_demo.out64.  Does not work with gcc.
+# Compare your output with umfpack_**_demo.out64.
+# CONFIG = -DNCBLAS -DLP64 -xtarget=ultra -xarch=v9
+# LIB = -lsunperf -lfai -lfsu -lfui -lsunperf -lm
+
+# 5: with the RISC BLAS (dgemm and dgemv) and Netlib BLAS (dger)
+# CONFIG = -DNCBLAS -DNSUNPERF
+# LIB = -L../BLAS/ -ltuned_blas -lnetlib -lF77 -lM77 -lsunmath -lm -lc
+
+# 6: with the Netlib BLAS only.
+# CONFIG = -DNCBLAS -DNSUNPERF
+# LIB = -L../BLAS/ -lnetlib -lF77 -lM77 -lsunmath -lm -lc
+
+# 7: with the C-BLAS (http://www.netlib.org/atlas) in the ../ATLAS directory.
+# If not in ../ATLAS, then simply create a symbolic link to it, via
+# the command (cd .. ; ln -s /path/ATLAS) where /path/ATLAS is your ATLAS
+# installation directory, and where ATLAS/lib/(architecture) is the directory
+# containing the compiled BLAS.
+# CONFIG = -I../ATLAS/include -DNSUNPERF
+# LIB = -L../ATLAS/lib/SunOS_SunUS1/ -lcblas -latlas -lm
+
+
+#-------------------------------------------------------------------------------
+# For compiling the MATLAB mexFunction.
+#-------------------------------------------------------------------------------
+
+# MEX = mex -inline -O
+MEX = mex -inline
+UMFPACKMEX = umfpack
+
+# If you do not have MATLAB, uncomment this line:
+# UMFPACKMEX = 
+

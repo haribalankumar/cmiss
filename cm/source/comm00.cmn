@@ -1,0 +1,8 @@
+!  comm00.cmn
+      LOGICAL COMMAND
+      COMMON /COMM00L/ COMMAND
+
+! Store the pointer to the interpreter object created at the start and
+! needed for each function call.
+      POINTER INTERPRETER_PTR
+      COMMON /COMM00I/ INTERPRETER_PTR

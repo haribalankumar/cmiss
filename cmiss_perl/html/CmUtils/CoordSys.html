@@ -1,0 +1,74 @@
+<HTML>
+<HEAD>
+<TITLE>Routines to convert from various coordinate systems to RC.  Angles are 
+expected in degrees and are converted to radians.  Either two or three 
+coordinates may be specified, as either an array, a list, or an
+array reference.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aCoordSys">CmUtils::CoordSys</A></LI>
+<LI><A HREF="#TO%20DO">TO DO</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<UL>
+<LI><A HREF="#Convert_To_RC"><B>Convert_To_RC</B></A></LI>
+<LI><A HREF="#Cylindrical_To_RC"><B>Cylindrical_To_RC</B></A></LI>
+<LI><A HREF="#Spherical_To_RC"><B>Spherical_To_RC</B></A></LI>
+<LI><A HREF="#Prolate_To_RC"><B>Prolate_To_RC</B></A></LI>
+<LI><A HREF="#Oblate_To_RC"><B>Oblate_To_RC</B></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aCoordSys">CmUtils::CoordSys</A></H1>
+
+<P>Routines to convert from various coordinate systems to RC.  Angles are 
+expected in degrees and are converted to radians.  Either two or three 
+coordinates may be specified, as either an array, a list, or an
+array reference.</P>
+<P>The following four calls return the same answer.</P>
+<PRE>  use CmUtils::CoordSys qw/Prolate_To_RC/;
+  $focus = 1;</PRE>
+
+<PRE>  @rc = Prolate_To_RC($focus,5,30,90);</PRE>
+
+<PRE>  @pcoord = (5, 30, 90);
+  @rc = Prolate_To_RC($focus,@pcoord);</PRE>
+
+<PRE>  $pref = \@pcoord;
+  @rc = Prolate_To_RC($focus,$pref);</PRE>
+
+<PRE>  $pref = [5, 30, 90];
+  @rc = Prolate_To_RC($focus,$pref);</PRE>
+
+<P>The wrapper routines each call the base routine <B>Convert_To_RC()</B>.  The
+<CODE>Math::Trig</CODE> module must be available.</P><H1><A NAME="TO%20DO">TO DO</A></H1>
+
+<P>Conversion to other coordinate systems (not just rc).</P><H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>1.01 (28 February 2001)</P><H2><A NAME="Convert_To_RC"><B>Convert_To_RC</B></A></H2>
+
+<P>Called as</P>
+<PRE>  @RCpt = Convert_To_RC($CoordSys, $Focus, @Coords);</PRE>
+
+<P>CoordSys = 1 for rectangular cartesian coordinates
+           2 for cylindrical polar coordinates
+           3 for spherical polar coordinates
+           4 for prolate spheriodal coordinates
+           5 for oblate spheroidal coordinates</P>
+<P>Note that angles are expected in degrees and are converted to radians.  Either
+two or three coordinates may be specified, as either an array, a list, or an
+array reference.</P><H2><A NAME="Cylindrical_To_RC"><B>Cylindrical_To_RC</B></A></H2>
+
+<PRE>  @RCpt = Cylindrical_To_RC(@pt);</PRE>
+<H2><A NAME="Spherical_To_RC"><B>Spherical_To_RC</B></A></H2>
+
+<PRE>  @RCpt = Spherical_To_RC(@pt);</PRE>
+<H2><A NAME="Prolate_To_RC"><B>Prolate_To_RC</B></A></H2>
+
+<PRE>  @RCpt = Prolate_To_RC($focus,@pt);</PRE>
+<H2><A NAME="Oblate_To_RC"><B>Oblate_To_RC</B></A></H2>
+
+<PRE>  @RCpt = Oblate_To_RC($focus,@pt);</PRE>
+
+</BODY>
+</HTML>

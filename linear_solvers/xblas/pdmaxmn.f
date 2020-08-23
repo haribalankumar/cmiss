@@ -1,0 +1,63 @@
+
+c-------------------------------------------------------------------------------
+
+      SUBROUTINE Pdmaxmn( n,x,incx,xmax,xmin )
+
+      IMPLICIT none
+      INTEGER n,incx
+      DOUBLE PRECISION x(*),xmax,xmin
+
+c  Return the values xmax and xmin
+c
+c     xmax = max( x( i ) )
+c     xmin = min( x( i ) ).
+
+      INTEGER i,nx,nlow,nhigh
+
+      if (n.lt.1 .or. incx.eq.0) then
+        xmax = 0.0d0
+        xmin = 0.0d0
+        return
+      else if (n.eq.1) then
+        xmax = x(1)
+        xmin = x(1)
+        return
+      endif
+
+c     Step lengths = 1
+      if (incx.eq.1) then
+        xmax = x(1)
+        xmin = x(1)
+
+c$omp   parallel do private(i), reduction(max:xmax), reduction(min:xmin)
+        do i = 1,n
+          xmax = max(xmax,x(i))
+          xmin = min(xmin,x(i))
+        enddo
+c$omp   end parallel do
+
+c     Other step lengths
+      else
+        nx = 1+( n-1 )*incx
+
+        if (incx.gt.0) then
+          nlow  = 1
+          nhigh = nx
+        else
+          nlow  = nx
+          nhigh = 1
+        endif
+
+        xmax = x(nlow)
+        xmin = x(nlow)
+c$omp   parallel do private(i), reduction(max:xmax), reduction(min:xmin)
+        do i = nlow,nhigh,incx
+          xmax = max(xmax,x(i))
+          xmin = min(xmin,x(i))
+        enddo
+c$omp   end parallel do
+
+      endif
+
+      return
+      END

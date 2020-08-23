@@ -1,0 +1,82 @@
+<HTML>
+<HEAD>
+<TITLE>Components are the basic elements of Fields.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aObjects%3a%3aComponent">CmUtils::Objects::Component</A></LI>
+<LI><A HREF="#Component%20structure">Component structure</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<LI><A HREF="#METHODS">METHODS</A></LI>
+<UL>
+<LI><A HREF="#new()"><B>new()</B></A></LI>
+<LI><A HREF="#copy()"><B>copy()</B></A></LI>
+<LI><A HREF="#isSame(Component)"><B>isSame(Component)</B></A></LI>
+<LI><A HREF="#name(%5bstring%5d)"><B>name([string])</B></A></LI>
+<LI><A HREF="#valIndex(%5bnumber%5d)"><B>valIndex([number])</B></A></LI>
+<LI><A HREF="#versions(%5bnumber%5d)"><B>versions([number])</B></A></LI>
+<LI><A HREF="#derivatives(%5bnumber%5d)"><B>derivatives([number])</B></A></LI>
+<LI><A HREF="#addDerivName(string)"><B>addDerivName(string)</B></A></LI>
+<LI><A HREF="#setDerivNames(list)"><B>setDerivNames(list)</B></A></LI>
+<LI><A HREF="#getDerivNames()"><B>getDerivNames()</B></A></LI>
+<LI><A HREF="#list(FH)"><B>list(FH)</B></A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aObjects%3a%3aComponent">CmUtils::Objects::Component</A></H1>
+
+<P>Components are the basic elements of Fields.</P><H1><A NAME="Component%20structure">Component structure</A></H1>
+<DL><DT><A NAME="NAME">NAME</A></DT>
+<DD>
+Name of the Component</DD>
+<DT><A NAME="INDEX">INDEX</A></DT>
+<DD>
+Index number for the value of this Component in the Node array.  Derivative
+values follow this index, and then each version is repeated as required.</DD>
+<DT><A NAME="VERSIONS">VERSIONS</A></DT>
+<DD>
+Number of versions of this component.  Default is 1.</DD>
+<DT><A NAME="DERIVATIVES">DERIVATIVES</A></DT>
+<DD>
+Number of derivatives of this component.</DD>
+<DT><A NAME="DERIVNAMES">DERIVNAMES</A></DT>
+<DD>
+Names of the derivatives of this component.</DD>
+</DL>
+<H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>0.51 (15 November 2000)
+0.7 (11 December 2003)</P><H1><A NAME="METHODS">METHODS</A></H1>
+<H2><A NAME="new()"><B>new()</B></A></H2>
+
+<P>Returns a new Component.</P><H2><A NAME="copy()"><B>copy()</B></A></H2>
+
+<P>Returns an identical copy of an existing Component.</P><H2><A NAME="isSame(Component)"><B>isSame(Component)</B></A></H2>
+
+<P>Returns True if the Component is the same as the owner Component, otherwise
+returns False.</P><H2><A NAME="name(%5bstring%5d)"><B>name([string])</B></A></H2>
+
+<P>Optional argument is name for Component.  Returns the name of the Component.</P><H2><A NAME="valIndex(%5bnumber%5d)"><B>valIndex([number])</B></A></H2>
+
+<P>Optional argument sets the index number for the value of this Component.
+Returns the index value of the Component.</P><H2><A NAME="versions(%5bnumber%5d)"><B>versions([number])</B></A></H2>
+
+<P>Optional argument sets the number of versions of this Component.
+Returns the number of versions of the Component.</P><H2><A NAME="derivatives(%5bnumber%5d)"><B>derivatives([number])</B></A></H2>
+
+<P>Optional argument sets the number of derivatives of this Component.
+Returns the number of derivatives of the Component.</P><H2><A NAME="addDerivName(string)"><B>addDerivName(string)</B></A></H2>
+
+<P>Add a derivative name to the end of the list of derivative names for
+this Component.  Returns the list of derivative names of the Component.</P><H2><A NAME="setDerivNames(list)"><B>setDerivNames(list)</B></A></H2>
+
+<P>Sets the list of derivative names for this Component to be the passed list
+of strings.  Clears list if no arguments are passed. 
+Returns the list of derivative names of the Component.</P><H2><A NAME="getDerivNames()"><B>getDerivNames()</B></A></H2>
+
+<P>Returns the list of derivative names of the Component.</P><H2><A NAME="list(FH)"><B>list(FH)</B></A></H2>
+
+<P>List the contents of this Component to the filehandle <I>FH</I>.  Set the 
+&quot;verbose&quot; flag ($s-&gt;verbose(1)) to see extended information.</P>
+</BODY>
+</HTML>

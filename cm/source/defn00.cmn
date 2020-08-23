@@ -1,0 +1,4 @@
+!  defn00.cmn
+      LOGICAL ADD
+      COMMON /DEFN00L/ ADD
+

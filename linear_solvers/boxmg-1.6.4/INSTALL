@@ -1,0 +1,310 @@
+===============================================================================
+INSTALL                    Black Box Multigrid         boxmg-1.6.4 (2004/03/10)
+===============================================================================
+
+Installing Black Box Multigrid:
+================================
+
+Installing Black Box Multigrid is, hopefully, an easy process.  There
+are only a few simple steps.
+
+    1)  Make sure you have the appropriate software already installed
+        on your system
+
+        - GNU make ( version 3.79.1 or later )
+        - GNU tar  ( or gzip and any tar)
+        - a Fortran 77 compiler
+
+    2)  Unpack the distribution
+        
+        - boxmg-1.6.4.tgz
+
+        with GNU tar (or gzip and any tar)
+
+    3)  Check that the following environment variables are set 
+
+            OS, CPU, COMPILERS, CLEVEL 
+
+        See Section 3 "ARCH FILES and ENVIRONMENT VARIABLES" for 
+        definitions and supported values.  If these variable are
+        not defined defaults will be set based on the system.
+
+    4)  use make to build, and install the libraries, e.g.,
+
+        libboxmg_bug.a
+        
+==============================================================================
+
+========================
+1. Necessary Software:
+========================
+
+GNU tar and gzip:
+-----------------
+
+  The package comes as a gzipped tar ball.  With the command line 
+option "z" GNU tar will decompress the file before executing the
+other commands you specify.  These may be downloaded
+
+   ftp://prep.ai.mit.edu/gzip-1.2.4.tar
+   ftp://prep.ai.mit.edu/tar-1.12.tar.gz
+
+If you don't have and (don't want to install) GNU tar this may or 
+may not be the case, so just decompress the file manually first 
+(gzip -d filename).
+
+GNU make:
+---------
+
+  The make files use includes and conditionals to accommodate different
+architectures (see environment variables).  These features are not
+present (or consistent) across the flavors of make.  Consequently, we
+use GNU make which is readily available as
+
+   ftp://prep.ai.mit.edu/pub/gnu/make-3.79.tar.gz
+
+(more recent versions may be available you should check)
+and should be easily compiled and installed (even by a user in their
+own space for their own use). 
+
+
+Fortran 77:
+-----------
+
+  You need to have a Fortran 77 compiler.  If you don't have a 
+compiler, then download the gnu compilers (gcc/g++/g77).  This
+package is available at 
+
+  http://gcc.gnu.org/
+
+all the information you need is there.  This is known to compile
+and work on an incredible number of platforms.
+
+NOTE: the default compiler is the gnu compiler, g77.  However, the ARCH
+      files (see section below "ARCH FILES AND ENVIRONMENT VARIABLES") 
+      also contain the relevant variable settings for common vendor 
+      compilers.  
+
+=========================================================================
+
+================================
+2. UNPACKING THE DISTRIBUTION:
+================================
+
+The distribution is contained in a single tar ball,
+
+    boxmg-1.6.4.tgz
+ 
+Move this file to a suitable place and enter
+
+    tar xvfz boxmg-1.6.4.tgz
+
+This will unpack the distribution into the subdirectory
+
+    $(PWD)/boxmg-1.6.4 
+
+where $(PWD) is your present working directory. This tarball
+also includes the link
+
+    $(PWD)/boxmg -> $(PWD)/boxmg-1.6.4
+
+to make the build process a little easier.
+
+===============================================================================
+
+==========================================
+3. ARCH FILES and ENVIRONMENT VARIABLES:
+==========================================
+
+To accommodate different architectures in a relatively painless 
+manner we make use of some environment variables.  Specifically,
+we identify the appropriate compiler and linker information 
+files by reference to the machine architecture.  Therefore it is 
+a good idea to set the following environment variables
+
+   OS          - Operating system 
+                 (e.g., uname -s gives Linux, SunOS, IRIX64 )
+   CPU         - CPU is processor type
+                 (e.g., uname -m implies intel, alpha, sparc, mips )
+
+Note that if you do not set these variables the make file will 
+attempt to set appropriate values based on information from the 
+system utility "uname". 
+
+If your shell is "csh" or "tcsh" use commands such as
+
+   setenv OS Linux
+   setenv CPU intel
+
+To make these available in all of your login shells put the
+above lines in your .cshrc file.
+
+Similarly for "sh" or "bash" use commands such as 
+
+   export OS=Linux
+   export CPU=intel
+
+To make these available in all your login shells put the above
+lines in either your .profile or your .bashrc.
+
+----------------------------
+3.1  Compilers:
+----------------------------
+
+For simplicity and consistency we use the GNU compiler, g77 as
+the default compiler (on all systems except SGI/IRIX).  The compiler
+is controlled by the environment variable "COMPILERS".  For example 
+to use the Compaq (DEC) compilers on Alpha/Linux with csh, or tcsh 
+simply enter
+
+   setenv COMPILERS dec
+
+The current list of tested compilers is summarized in this table,
+where the "COMPILERS" column indicates the corresponding value of 
+the environment variable.
+
+  System           COMPILERS         Vendor Information         Binary 
+
+  Linux/Intel       absoft        Absoft ProFortran 8.2          f77
+                    portland      Portland Group 5.1             pgf77
+
+  Linux/Alpha       dec           Compaq Fortran v1.0            fort
+
+  Tru64/Alpha       dec           Compaq Fortran                 f77
+
+  Sun/UltraSparc    sun           Sun Workshop Compilers, 4.2    f77
+
+  IRIX              mipspro       MIPS Pro Fortan                f77
+     
+The version numbers indicate the version of the compiler that is
+installed on our development/testing machines.  It is reasonable to
+expect the code to run with newer versions of the compilers as well.
+
+----------------------------
+3.2  Optimization:
+----------------------------
+
+The ARCH files allow you to toggle between debugging and optimized 
+compilation with the environment variable CLEVEL. For example, use 
+
+   setenv CLEVEL opt
+
+to select optimized compilation (the default is "bug" for debugging).
+The library which is created is given the name
+
+   libboxmg_$(CLEVEL).a
+
+so you can keep both versions around if you like.  In my opinion,
+this is a very handy feature.
+
+NB: If you plan on using a vendor optimized version of LAPACK, 
+    then refer to Sections 4.3 and 4.4 below.
+
+===============================================================================
+
+===========================
+4. BUILDING AND TESTING
+===========================
+
+---------------------------
+4.1  Makefiles:
+---------------------------
+
+To prepare for building and testing we first address the Makefiles.  
+The Makefiles automatically include the file 
+
+   ./ARCH/ARCH.$(OS)-$(CPU)
+  
+Check that the appropriate file exists and that it has been modified
+appropriately for your system.
+
+---------------------------
+4.2  Building:
+---------------------------
+
+First ensure that your present work directory (queried with the 
+command pwd) is the at the top level of the boxmg distribution. 
+Probably you will need to change directories 
+
+  cd /somehugepath/boxmg
+
+Now we will proceed to build the boxmg library as well as the
+boxmg-extras library by typing 
+
+  make 
+
+It is worth noting that you can override the environment variables
+on the command line.  For example, if you wanted to compile using
+the Absoft compiler with optimization you could build these libraries
+with the command
+
+  make COMPILERS=absoft CLEVEL=opt
+
+---------------------------
+4.3  Testing:
+---------------------------
+
+Now you can run the tests, which are contained in the subdirectories
+of the tests subdirectory, with the command
+    
+  make check
+
+Examine the output contained in files named "output.txt" (or similar)
+which are written in each test's subdirectory.
+
+For the tests there is an additional option that controls which version
+of the LAPACK library is linked.  Specifically, 
+  
+   TUNED_MATH=no    =>  generic LAPACK from boxmg-extras library
+   TUNED_MATH=yes   =>  vendor optimized LAPACK (system specific)
+
+The default is "TUNED_MATH=no".  This option is not supported on 
+Linux/intel systems yet.
+
+NB: Although it is not necessary, for your own sanity we recommend
+    that if you plan on using the vendor optimized LAPACK, then build
+    the boxmg-extras library without the generic LAPACK (i.e., to 
+    avoid any confusion in the linking phase).  Please refer to 
+    the next Subsection "Excluding Components", for details.
+
+---------------------------
+4.4  Excluding Components:
+---------------------------
+
+If you plan on using a vendor optimized version of LAPACK, you
+may wish to exclude this from the boxmg-extras library (i.e., to 
+avoid mixups in the linking phase).  This is easily accomplished
+by passing arguments to make,
+
+  make LAPACK=no
+
+Similarly, if you don't want this random number generator, use
+RANDOM=no.  By default all components are included in the library.
+
+---------------------------
+4.5  Installing:
+---------------------------
+
+For now, if you need to put it somewhere, then use your favorite move
+command.  This is still an alpha release, so what did you expect :).
+
+===========================
+5. The Extras:
+===========================
+
+The extras subdirectory includes routines from blas and lapack, as
+well as a random number generator.  These routines are freely
+available from netlib
+
+  http://www.netlib.org
+
+and have been included for your convenience. The versions that we've
+included here have been modified slightly to improve portability (in
+our opinion). These modifications should be benign but there is
+absolutely no guarentee, either written or implied, that this is the
+case (see license for the usual legal stuff).  Finally, we have also 
+included our machine-dependent timing routine (i.e., wrapper) BMG_timer.
+
+===============================================================================
+
+

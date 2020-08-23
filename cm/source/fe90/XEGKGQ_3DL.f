@@ -1,0 +1,92 @@
+      SUBROUTINE XEGKGQ_3DL(IBT,IDO,INP,ISC_GK,ISC_GKK,ISC_GQ,ISR_GK,
+     '  ISR_GKK,ISR_GQ,NBH,NBJ,NDET,ne,NENP,NGAP,NKH,NKHE,NKJE,NLL,NONY,
+     '  NPB,NP_INTERFACE,NPF,NPNE,NPNODE,NPNY,nr,nr_gkk,NRE,NVJE,NW,nx,
+     '  NYNE,NYNP,CE,CONY,CURVCORRECT,DET,DL,GK,GKK,GQ,PG,SE,WG,XIG,
+     '  XP,INTERFACE,FULL_EQUATIONS,ERROR,*)
+
+C#### Subroutine: XEGKGQ_3DL
+C###  Description:
+C###    XEGKGQ_3DL is an efficient version of XEGKGQ for 3d Laplace's
+C###    equation in rectangular cartesian coordinates. The subroutine
+C###    is a buffer to the main routine XEGKGQ_3DL_BUFFER. A buffer
+C###    subroutine is necessary because the local parallel arrays
+C###    dimensions are hard codded and not dynamically allocated to
+C###    increase the speedup ratio by preventing locking.
+C###  See-Also: XEGKGQ
+
+      IMPLICIT NONE
+      INCLUDE 'geom00.cmn'
+!     Parameter List
+      INTEGER IBT(3,NIM,NBFM),IDO(NKM,NNM,0:NIM,NBFM),INP(NNM,NIM,NBFM),
+     '  ISC_GK(NISC_GKM),ISC_GKK(NISC_GKKM),ISC_GQ(NISC_GQM),
+     '  ISR_GK(NISR_GKM),ISR_GKK(NISR_GKKM),
+     '  ISR_GQ(NISR_GQM),NBH(NHM,NCM,NEM),NBJ(NJM,NEM),
+     '  NDET(NBFM,0:NNM),ne,NENP(NPM,0:NEPM,0:NRM),NGAP(NIM,NBM),
+     '  NKH(NHM,NPM,NCM),NKHE(NKM,NNM,NHM,NEM),NKJE(NKM,NNM,NJM,NEM),
+     '  NLL(12,NEM),NONY(0:NOYM,NYM,NRCM),NPB(0:NP_R_M,5),
+     '  NP_INTERFACE(0:NPM,0:3),NPF(9,NFM),NPNE(NNM,NBFM,NEM),
+     '  NPNODE(0:NP_R_M),NPNY(0:6,NYM,0:NRCM),nr,nr_gkk,
+     '  NRE(NEM),NVJE(NNM,NBFM,NJM,NEM),NW(NEM,3),nx,
+     '  NYNE(NAM,NHM,0:NRCM,NCM,NEM),
+     '  NYNP(NKM,NVM,NHM,NPM,0:NRCM,NCM,NRM)
+      REAL*8 CE(NMM,NEM),CONY(0:NOYM,NYM,NRCM),CURVCORRECT(2,2,NNM,NEM),
+     '  DET(NBFM,0:NNM,NGM,6),DL(3,NLM),GK(NZ_GK_M),GKK(NZ_GKK_M),
+     '  GQ(NZ_GQ_M),PG(NSM,NUM,NGM,NBM),SE(NSM,NBFM,NEM),
+     '  WG(NGM,NBM),XIG(NIM,NGM,NBM),XP(NKM,NVM,NJM,NPM)
+      CHARACTER ERROR*(*)
+      LOGICAL INTERFACE,FULL_EQUATIONS
+!     Local Variables
+
+C CPB 23/9/98 Hard code dimensions of local parallel arrays. Assuming
+C NBFM=99
+C NHM=9
+C NIM=3
+C NJM=9
+C NGM=99
+C NKM=8
+C NNM=64
+C NSM=64
+C NUM=11
+
+      INTEGER LGKE(-8:576,8,2),LGQE(-8:576,8,2)
+      REAL*8 DET_ADAPT(99,0:64,99),DRDN_(99),DRDNO_(99,8),
+     '  GKES(-8:576,8),GQES(-8:576,8),PG_J(64,11,99),PG_Q(64,11,99),
+     '  PG_U(64,11,99),RAD_(99),RG_(99),XA_(1,1,1),XE_(64,9),XG_(9,11),
+     '  XG1_(9,11,99),XIG_J(3,99),XIG_Q(3,99),XIG_U(3,99),XN_(9,99),
+     '  XN_GRAD_(9,99),XR_(9,99),XR_GRAD_(9,99)
+
+      INTEGER ng,nj,ns,nu
+
+      CALL ENTERS('XEGKGQ_3DL',*9999)
+
+      DO nj=1,9
+        DO ns=1,64
+          XE_(ns,nj)=0.0d0
+        ENDDO
+      ENDDO
+      DO ng=1,99
+        DO nu=1,11
+          DO ns=1,64
+            PG_J(ns,nu,ng)=0.0d0
+            PG_Q(ns,nu,ng)=0.0d0
+            PG_U(ns,nu,ng)=0.0d0
+          ENDDO
+        ENDDO
+      ENDDO
+
+      CALL XEGKGQ_3DL_BUFFER(IBT,IDO,INP,ISC_GK,ISC_GKK,ISC_GQ,ISR_GK,
+     '  ISR_GKK,ISR_GQ,LGKE,LGQE,NBH,NBJ,NDET,ne,NENP,NGAP,NKH,NKHE,
+     '  NKJE,NLL,NONY,NPB,NP_INTERFACE,NPF,NPNE,NPNODE,NPNY,nr,nr_gkk,
+     '  NRE,NVJE,NW,nx,NYNE,NYNP,CE,CONY,CURVCORRECT,DET,DET_ADAPT,DL,
+     '  DRDN_,DRDNO_,GK,GKK,GKES,GQ,GQES,PG,PG_J,PG_Q,PG_U,RAD_,RG_,SE,
+     '  WG,XA_,XE_,XG_,XG1_,XIG,XIG_J,XIG_Q,XIG_U,XN_,XN_GRAD_,XP,XR_,
+     '  XR_GRAD_,INTERFACE,FULL_EQUATIONS,ERROR,*9999)
+
+      CALL EXITS('XEGKGQ_3DL')
+      RETURN
+ 9999 CALL ERRORS('XEGKGQ_3DL',ERROR)
+      CALL EXITS('XEGKGQ_3DL')
+      RETURN 1
+      END
+
+

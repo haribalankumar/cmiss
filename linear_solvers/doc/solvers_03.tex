@@ -1,0 +1,190 @@
+
+\section{The Direct Sparse Solvers used in CMISS}\label{s3.0}
+
+The Direct solvers available for solving linear systems within CMISS all
+solve using a $\mathbf{L \, U}$ decomposition. They come from a number
+of third party sources, and for performance and licensing issues not all 
+are still included within the library.
+
+The two solvers retained within the library are SuperLU by Xiaoye Li at
+the Lawrence Berkeley Laboratory in the USA, and Umfpack 4.0 by Tim Davis 
+at the University of Florida, also in the USA. Both are written in C and 
+handle their own memory allocation issues. 
+
+Two older solvers which have been used in the past are the Umfpack 2.2 
+solver (a Fortran version of the solver, which uses static memory 
+allocation), and the venerable MA28AD solver by Iain Duff from the AEA 
+Harwell Laboratory in the UK. 
+Both of these solvers are tied to a license from the AEA that restricts 
+them to academic use. In addition, the MA28AD is extremely inefficient for 
+the large systems that are now able to be solved. For these reasons these
+solvers are no linked to bye the solver library.
+
+\subsection{The SuperLU Solver}\label{s3.1}
+
+The SuperLU library is available in three forms. The standard version 
+SuperLU 2.0 runs on single processor machines within a single thread. 
+However, two older version of the code SuperLU 1.0 MT and SuperLU 1.0 DIST
+are parallel versions of the code, the former being a multi-threaded version 
+which will run on shared memory computers, whilst the latter runs on
+distributed memory machines or clusters using the MPI message passing library.
+
+An example of the use of the interface to the library is shown below in 
+Figure \ref{f3.1}.
+
+\begin{figure}[htb]
+\begin{small}
+\begin{verbatim}
+      INCLUDE 'solver.inc'
+      INTEGER PARAM(10)        ! SuperLU control parameters
+      INTEGER NCPU             ! Number of processors to use
+      INTEGER COL_ORDER        ! Column ordering scheme
+      INTEGER SLU_FILL         ! Estimated amount of fill required
+      INTEGER SLU_RELAX        ! Relaxation parameter
+      INTEGER N,NZA            ! Size of the system
+      INTEGER IROW(N+1)        ! The row index
+      INTEGER ICOL(NZA)        ! The column index
+      REAL*8  A(NZA)           ! The non-zero entries of the matrix
+      REAL*8  ANORM            ! The second norm of A
+      INTEGER D_PTR            ! Pointer to factored system
+      INTEGER OUTPUTCODE       ! Flag to print verbose output
+      CHARACTER*(*) ERROR      ! String containing error message
+
+C     Allocate memory and initialise
+      CALL SUPERLU_RESET(PARAM,ERROR,*9999)
+      CALL SUPERLU_SETPARAM('COLUMN ORDERING',COL_ORDER,PARAM,ERROR,*9999)
+      CALL SUPERLU_SETPARAM('NUMBER OF PROCS',NCPU,PARAM,ERROR,*9999)
+      CALL SUPERLU_SETPARAM('ESTIMATED FILL',SLU_FILL,PARAM,ERROR,*9999)
+      IF(SLU_RELAX.NE.0) THEN
+        CALL SUPERLU_SETPARAM('RELAX PARAMETER',SLU_RELAX,PARAM,ERROR,*9999)
+      ENDIF
+
+C     Factorise the system
+      CALL SUPERLU_FACTOR(A,N,NZA,ICOL,IROW,D_PTR,PARAM,ANORM,ERROR,*9999)
+
+C     Refactorise the system
+C     CALL SUPERLU_REFACTOR(A,N,NZA,ICOL,IROW,D_PTR,PARAM,ANORM,ERROR,*9999)
+
+C     Solve for the given right hand side
+      CALL SUPERLU_SOLVE(B,X,NZA,D_PTR,PARAM,ANORM,OUTPUTCODE,ERROR,*9999)
+
+C     Clear memory
+      CALL SUPERLU_FREE(D_PTR,ERROR,*9999)
+
+      RETURN
+
+C     Catch errors
+ 9999 CONTINUE
+      WRITE(*,'(a)') 'An error occurred in the SuperLU solver'
+      WRITE(*,'(a)') ERROR
+      RETURN
+      END
+\end{verbatim}
+\end{small}
+\caption{\label{f3.1} The {\tt solver} interface to the SuperLU LU
+  solver for sparse compressed row systems. Note that the pointer 
+  {\tt D\_PTR} should be of type {\tt INTEGER*4} on $32$ bit machines, and 
+  {\tt INTEGER*8} on $64$ bit machines. Note also that the commented out call
+  to {\tt SUPERLU\_REFACTOR} can be used instead of {\tt SUPERLU\_FACTOR} 
+  when solving a second system that has the same sparsity pattern as the first.
+  The refactor operation is faster than the original factorisation.}
+\end{figure}
+
+The solver control parameters are contained in the {\tt PARAM} vector, and are
+set to their default values by a call to {\tt SUPERLU\_RESET}. The options
+that can be set are listed in the SuperLU manual. The system is factorised 
+using {\tt SUPERLU\_FACTOR}, which allocates memory and creates the 
+$\mathbf{L}$ and $\mathbf{U}$ factors of $\mathbf{A}$. The system is solved 
+using {\tt SUPERLU\_SOLVE} and the memory used can be deallocated using 
+{\tt SUPERLU\_FREE}.
+
+If a second system is generated which has the same sparsity pattern as an
+already factorised system, it is faster to factorise the system using 
+{\tt SUPERLU\_REFACTOR} than to use {\tt SUPERLU\_FACTOR}.
+
+The bulk of the CPU time in the solution of a system takes place in the 
+factorisation routine. For the multi-threaded versions of the code only the 
+factorisation as been parallelised. Thus for the solution of a single system 
+the method gives good speedup, but for the repeated solution of a system 
+that has been factorised just the once the method does not give as good
+a parallel speedup since more time is being spent in the single threaded 
+{\tt SUPERLU\_SOLVE} routine.
+
+\clearpage
+
+
+\subsection{The Umfpack 4.0 Solver}\label{s3.2}
+
+The Umfpack 4.0 solver is a rewrite of the Umfpack solver into C using dynamic 
+memory storage. This greatly improves the usability of the code over the 
+previous versions that used static storage.
+
+An example of the use of the interface to the library is shown below in 
+Figure \ref{f3.2}.
+
+\begin{figure}[htb]
+\begin{small}
+\begin{verbatim}
+      INCLUDE 'solver.inc'
+      INTEGER N,NZA            ! Size of the system
+      INTEGER IROW(N+1)        ! The row index
+      INTEGER ICOL(NZA)        ! The column index
+      REAL*8  A(NZA)           ! The non-zero entries of the matrix
+      REAL*8  ANORM            ! The second norm of A
+      REAL*8  UMFDEF(40)       !
+      REAL*8  UMF_CONTROL(20)  ! Solver control arrays
+      REAL*8  UMF_INFO(90)     !
+      INTEGER D_PTR,I_PTR      ! Pointers to the factored system
+      INTEGER OUTPUTCODE       ! Flag to print verbose output
+      CHARACTER*(*) ERROR      ! String containing error message
+
+C     Allcate memory and factorise the system
+      CALL UMFPACK4_FACTOR(A,N,NZA,ICOL,IROW,I_PTR,D_PTR,UMFDEF,
+     &  UMF_CONTROL,UMF_INFO,ANORM,ERROR,*9999)
+
+C     Refactorise the system
+C     CALL UMFPACK4_FREE(I_PTR,.FALSE.,D_PTR,.TRUE.,ERROR,*9999)
+C     CALL UMFPACK4_REFACTOR(A,N,NZA,ICOL,IROW,I_PTR,D_PTR,UMF_CONTROL,
+C    &  UMF_INFO,ANORM,ERROR,*9999)
+
+C     Solve for the given right hand side
+      CALL UMFPACK4_SOLVE(A,N,NZA,ICOL,IROW,B,X,D_PTR,UMF_CONTROL,
+     &  UMF_INFO,ANORM,OUTPUTCODE,ERROR,*9999)
+
+C     Clear memory
+      CALL UMFPACK4_FREE(I_PTR,.TRUE.,D_PTR,.TRUE.,ERROR,*9999)
+
+      RETURN
+
+C     Catch errors
+ 9999 CONTINUE
+      WRITE(*,'(a)') 'An error occurred in the Umfpack solver'
+      WRITE(*,'(a)') ERROR
+      RETURN
+      END
+\end{verbatim}
+\end{small}
+\caption{\label{f3.2} The {\tt solver} interface to the Umfpack 4.0
+  LU solver for sparse compressed row systems. Note that the pointers 
+  {\tt D\_PTR} and {\tt I\_PTR} should be of type {\tt INTEGER*4} on $32$ 
+  bit machines, and {\tt INTEGER*8} on $64$ bit machines. 
+  Note also that the commented out call to {\tt UMFPACK4\_REFACTOR} can be 
+  used instead of {\tt UMFPACK4\_FACTOR} when solving a second system that 
+  has the same sparsity pattern as the first.
+  The refactor operation is faster than the original factorisation.}
+\end{figure}
+
+As with SuperLU, if a second system is generated which has the same sparsity 
+pattern as an already factorised system, it is faster to factorise the system 
+using {\tt UMFPACK4\_REFACTOR} than to use {\tt UMFPACK4\_FACTOR}.
+
+
+\subsection{A Comparison of the Sparse LU Solvers}\label{s3.3}
+
+In general the Umfpack 4.0 solver seems to be more efficient and more robust 
+than the SuperLU solver, so it is the default solver used within CMISS.
+However it is single threaded, so when using the multi-threaded version of 
+the code the SuperLU solver must be used.
+
+
+

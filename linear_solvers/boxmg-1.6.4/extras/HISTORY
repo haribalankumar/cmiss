@@ -1,0 +1,59 @@
+===============================================================================
+HISTORY:                                                           boxmg-extras
+===============================================================================
+
+boxmg-extras (2004/01/26)
+   - the boxmg-extras package has been moved to a subdirectory of
+     boxmg, any significant updates will be logged in the top-level 
+     HISTORY file.
+
+boxmg-extras-1.0.8 (2003/04/11)
+   - fixed bug in Makefiles: erroneous check against BOXMGdist 
+     corrected to check EXTRASdist
+   - added "ifndef CPU" check in ./make/global
+   - created distinction in make for the location to build
+     the library and the location to install the library.
+   - updated make to check compenents of the library during 
+     the build phase of both the library and the tests. 
+     This required correcting the name of AFLAGS -> ARFLAGS.
+
+boxmg-extras-1.0.7 (2001/04/16)
+   - adopted a simpler nomenclature for machine architecture
+     ( e.g., Linux-intel instead of Linux-2.2.x-i686 )
+   - improved architecture defaults for optimization
+   - added the option to exclude LAPACK and/or the random number generator.
+   - support for HP-UX has been dropped until we can find a 
+     suitable test machine.
+
+boxmg-extras-1.0.6 (2001/02/08)
+   - updated INSTALL documentation
+   - added default settings for OS,VERSION,CPU (based on information 
+     from uname) to the ./make/global macros.
+   - default compiler on SGI/IRIX is set to be mipspro.
+
+boxmg-extras-1.0.5 (2001/01/08)
+   - added ARCH file for Compaq Tru64 Unix
+   - added necessary files for LAPACK support of Black Box Multigrid
+   - removed LINPACK and the original blas
+
+boxmg-extras-1.0.4 (2000/03/09)
+   - modified Makefiles to be consistent with the Black Box source
+     (created ./ARCH, ./lib, removed the ./make/include, etc.)
+   - added compiler dependencies in the ARCH files.
+     * Compaq Fortran on Linux/Alpha
+     * ABSOFT ProFortran on Linux/Intel 
+     * Sun Fortran on Sun/Ultrasparc
+   - added ARCH files for IRIX/R10k
+   - adopted a single machine-dependent timer wrapper, BMG_timer
+   - added a (poor but okay for our purposes) random number generator.
+   - deleted slatec files
+
+boxmg-extras-1.0.3 (1999/05/13)
+   - added additional timing routine for 3D black box codes.
+     (copied timer.f to utsecond.f and patched function name).
+
+boxmg-extras-1.0.2 (1999/01/08)
+   - added architecture dependent make example for HP-UX
+
+boxmg-extras-1.0.1 (1998/12/14)
+   - initial limited beta release

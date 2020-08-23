@@ -1,0 +1,36 @@
+      SUBROUTINE ADD_EQUATION(LABEL,ERROR,*)
+
+C#### Subroutine: ADD_EQUATION
+C###  Description:
+C###    Adds a new equation.
+
+      IMPLICIT NONE
+      INCLUDE 'equation00.cmn'
+
+!     Parameter List
+      CHARACTER LABEL*(*),ERROR*(*)
+
+      CALL ENTERS('ADD_EQUATION',*9999)
+
+C DMAL 21 JULY 2004: These routine have been written but not used.
+C This block is to satisfy the fortran check errors. Remove as used.
+      IF(.FALSE.)THEN
+        CALL GET_EQUATION_CLASS(%VAL(0),%VAL(0),ERROR,*9999)
+        CALL GET_EQUATION_OUTPUT_NH(%VAL(0),%VAL(0),%VAL(0),
+     &    ERROR,*9999)
+        CALL GET_EQUATION_OUTPUT_NIY(%VAL(0),%VAL(0),%VAL(0),
+     &    ERROR,*9999)
+        CALL PRINT_EQUATION_VALUES(%VAL(0),ERROR,*9999)
+        CALL PRINT_EQUATION_OUTPUT_VALUES(%VAL(0),ERROR,*9999)
+      ENDIF
+
+      CALL SET_LABEL(EQUATION_LABELS_PTR,TOTAL_EQUATION_LABELS,
+     &  ALLOCATED_EQUATION_LABELS,EQUATION_LABELS_LEN,LABEL,ERROR,*9999)
+
+      CALL EXITS('ADD_EQUATION')
+      RETURN
+ 9999 CALL ERRORS('ADD_EQUATION',ERROR)
+      CALL EXITS('ADD_EQUATION')
+      RETURN 1
+      END
+

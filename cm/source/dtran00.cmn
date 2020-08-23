@@ -1,0 +1,4 @@
+!  dtran00.cmn
+      REAL*8 DATRAN(3,4)
+      COMMON/DTRANR/ DATRAN
+

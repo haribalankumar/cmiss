@@ -1,0 +1,42 @@
+#-------------------------------------------------------------------------------
+# Linux configuration
+#-------------------------------------------------------------------------------
+
+CC = gcc
+
+# Generic:
+CFLAGS = -ansi -pedantic -W -Wall -Wno-parentheses -Wshadow -Wcast-align -Winline -Wstrict-prototypes -O3 -fPIC
+
+RANLIB = ranlib
+
+#-------------------------------------------------------------------------------
+# BLAS options:
+#-------------------------------------------------------------------------------
+
+# 1: with no BLAS (this will be slow)
+# CONFIG = -DNBLAS
+# LIB = -lm
+
+# 2: with the C-BLAS (http://www.netlib.org/atlas) in the ../ATLAS directory.
+# If not in ../ATLAS, then simply create a symbolic link to it, via
+# the command (cd .. ; ln -s /path/ATLAS) where /path/ATLAS is your ATLAS
+# installation directory.  This is not tested because of a bug in gcc
+# as distributed in RedHat Linux; ATLAS can't be compiled (this is a known
+# issue posted at http://www.netlib.org/atlas).
+# CONFIG = -I../ATLAS/include
+# LIB = -L../ATLAS/lib/Linux_PIII/ -lcblas -latlas -lm
+
+CONFIG = -DNCBLAS
+LIB = -L$(HOME)/lib -lblas -lf2c -lm
+
+
+#-------------------------------------------------------------------------------
+# For compiling the MATLAB mexFunction.
+#-------------------------------------------------------------------------------
+
+MEX = mex -inline -O
+# UMFPACKMEX = umfpack
+
+# If you do not have MATLAB, uncomment this line:
+UMFPACKMEX = 
+

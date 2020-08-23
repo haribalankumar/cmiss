@@ -1,0 +1,6 @@
+!  four00.cmn
+      INTEGER NPPF
+      REAL*8 OMEGA
+      COMMON /FOUR00I/ NPPF
+      COMMON /FOUR00R/ OMEGA
+

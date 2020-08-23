@@ -1,0 +1,65 @@
+      SUBROUTINE SHPLIN(ISEG,ISPLIN,STRING,ERROR,*)
+
+C#### Subroutine: SHPLIN
+C###  Description:
+C###    SHPLIN shows polyline segment.
+
+      IMPLICIT NONE
+      INCLUDE 'mxch.inc'
+      INCLUDE 'cbdi02.cmn'
+      INCLUDE 'cbdi10.cmn'
+      INCLUDE 'cbwk01.cmn'
+      INCLUDE 'geom00.cmn'
+      INCLUDE 'ntsg00.cmn'
+!     Parameter List
+      INTEGER ISEG(*),ISPLIN(NWM,NGRSEGM)
+      CHARACTER ERROR*(*),STRING*(MXCH)
+!     Local Variables
+      INTEGER IBEG,IEND,iw,IWK(6),noiw,noplin,NTIW
+
+      CALL ENTERS('SHPLIN',*9999)
+      IF(CO(noco+1).EQ.'?') THEN
+        CALL STRING_TRIM(STRING,IBEG,IEND)
+
+C---------------------------------------------------------------------
+
+C#### Command: FEM show polyline
+C###  Parameter:    <on (all/WS#s)[all]>
+C###    Specify the workstation (GX window) to show the
+C###    polyline on.
+C###  Description:
+C###    Make the polyline segments visible on the specified workstation.
+
+        OP_STRING(1)=STRING(1:IEND) //' <on (all/WS#s)[all]>'
+        CALL WRITES(IOH1,OP_STRING,ERROR,*9999)
+
+C---------------------------------------------------------------------
+
+      ELSE IF(CO(noco+1).EQ.'??') THEN
+        CALL DOCUM('fe22','doc','SHPLIN',ERROR,*9999)
+      ELSE
+        CALL WS_LIST(IWK,0,NTIW,noco,NTCO,CO,ERROR,*9999)
+
+        DO noiw=1,NTIW
+          iw=IWK(noiw)
+          IF(IWKS(iw).GT.0) THEN
+            CALL ACWK(iw,1,ERROR,*9999)
+            DO noplin=1,NTPLIN
+              IF(ISEG(ISPLIN(iw,noplin)).EQ.1) THEN
+                CALL VISIB(iw,ISEG,ISPLIN(iw,noplin),'VISIBLE',ERROR,
+     '            *9999)
+              ENDIF
+            ENDDO
+            CALL DAWK(iw,1,ERROR,*9999)
+          ENDIF
+        ENDDO
+      ENDIF
+
+      CALL EXITS('SHPLIN')
+      RETURN
+ 9999 CALL ERRORS('SHPLIN',ERROR)
+      CALL EXITS('SHPLIN')
+      RETURN 1
+      END
+
+

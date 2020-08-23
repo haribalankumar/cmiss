@@ -1,0 +1,17 @@
+Contents
+========
+
+This directory contains the program that parses the output from
+Fortran Check's CMISS diagnostics, and cross references them with
+the actual common files used in CMISS to determine actual common
+file errors. This information is output to an HTML file that can
+be read from our Server.
+
+
+
+Work To Do
+==========
+
+The code works fine, and the only work required is in tidying up the
+source, and breaking the parser.c file into more logically discrete
+chunks (each object having a seperate file, and thus guanteed interface).

@@ -1,0 +1,4 @@
+!  fit001.cmn
+      LOGICAL FIRSTA
+      COMMON /FIT001L/ FIRSTA
+

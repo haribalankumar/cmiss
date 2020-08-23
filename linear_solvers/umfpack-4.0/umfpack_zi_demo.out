@@ -1,0 +1,1144 @@
+
+UMFPACK V4.0 (Apr 11, 2002) demo: _zi_ version
+
+UMFPACK:  Copyright (c) 2002 by Timothy A. Davis.  All Rights Reserved.
+
+
+UMFPACK License:
+
+   Your use or distribution of UMFPACK or any modified version of
+   UMFPACK implies that you agree to this License.
+
+   THIS MATERIAL IS PROVIDED AS IS, WITH ABSOLUTELY NO WARRANTY
+   EXPRESSED OR IMPLIED.  ANY USE IS AT YOUR OWN RISK.
+
+   Permission is hereby granted to use or copy this program, provided
+   that the Copyright, this License, and the Availability of the original
+   version is retained on all copies.  User documentation of any code that
+   uses UMFPACK or any modified version of UMFPACK code must cite the
+   Copyright, this License, the Availability note, and "Used by permission."
+   Permission to modify the code and to distribute modified code is granted,
+   provided the Copyright, this License, and the Availability note are
+   retained, and a notice that the code was modified is included.  This
+   software was developed with support from the National Science Foundation,
+   and is provided to you free of charge.
+
+Availability: http://www.cise.ufl.edu/research/sparse/umfpack
+
+UMFPACK V4.0 (Apr 11, 2002): OK
+
+
+UMFPACK V4.0 (Apr 11, 2002), Control:
+    Matrix entry defined as: double complex
+    Int (generic integer) defined as: int
+    0: print level: 5
+    1: dense row parameter:    0.2
+       ("dense" rows have    > max (16, (0.2)*16*sqrt(n_col)) entries)
+    2: dense column parameter: 0.2
+       ("dense" columns have > max (16, (0.2)*16*sqrt(n_row)) entries)
+    3: pivot tolerance: 0.1
+    4: block size for dense matrix kernels: 24
+    6: initial allocation ratio: 0.7
+    5: relaxed amalgamation parameter:  0.25
+    13: relaxed2 amalgamation parameter: 0.1
+    14: relaxed3 amalgamation parameter: 0.125
+    7: max iterative refinement steps: 2
+
+    The following options can only be changed at compile-time:
+    8: BLAS library used:  none.  UMFPACK will be slow.
+    9: compiled for ANSI C (uses malloc, free, realloc, and printf)
+    10: CPU timer is getrusage.
+    11: compiled for normal operation (debugging disabled)
+    computer/operating system: Sun Solaris
+    size of int: 4 long: 4 Int: 4 pointer: 4 double: 8 Entry: 16 (in bytes)
+
+
+b: dense vector, n = 5. 
+    0 : (8 + 1i)
+    1 : (45 - 5i)
+    2 : (-3 - 2i)
+    3 : (3 + 0i)
+    4 : (19 + 2.2i)
+    dense vector OK
+
+
+A: triplet-form matrix, n_row = 5, n_col = 5 nz = 12. 
+    0 : 0 0  (2 + 1i)
+    1 : 4 4  (1 + 0.4i)
+    2 : 1 0  (3 + 0.1i)
+    3 : 1 2  (4 + 0.2i)
+    4 : 2 1  (-1 - 1i)
+    5 : 2 2  (-3 - 0.2i)
+    6 : 0 1  (3 + 0i)
+    7 : 1 4  (6 + 6i)
+    8 : 2 3  (2 + 3i)
+    9 : 3 2  (1 + 0i)
+    10 : 4 1  (4 + 0.3i)
+    11 : 4 2  (2 + 0.3i)
+    triplet-form matrix OK
+
+
+A: column-form matrix, n_row 5 n_col 5, nz = 12. 
+
+    column 0: start: 0 end: 1 entries: 2
+	row 0 : (2 + 1i)
+	row 1 : (3 + 0.1i)
+
+    column 1: start: 2 end: 4 entries: 3
+	row 0 : (3 + 0i)
+	row 2 : (-1 - 1i)
+	row 4 : (4 + 0.3i)
+
+    column 2: start: 5 end: 8 entries: 4
+	row 1 : (4 + 0.2i)
+	row 2 : (-3 - 0.2i)
+	row 3 : (1 + 0i)
+	row 4 : (2 + 0.3i)
+
+    column 3: start: 9 end: 9 entries: 1
+	row 2 : (2 + 3i)
+
+    column 4: start: 10 end: 11 entries: 2
+	row 1 : (6 + 6i)
+	row 4 : (1 + 0.4i)
+    column-form matrix OK
+
+
+Symbolic factorization of A: Symbolic object: 
+    matrix to be factorized:
+	n_row: 5 n_col: 5
+	number of entries: 12
+	dense row contol parameter used: 0.2
+	dense column contol parameter used: 0.2
+	block size used for dense matrix kernels:  24
+    variable-size part of Numeric object:
+	minimum initial size (Units): 112
+	estimated peak size (Units):  153
+	estimated final size (Units): 32
+    peak memory usage for symbolic factorization (Units): 108
+    frontal matrices / supercolumns:
+	number of frontal chains: 2
+	number of frontal matrices: 3
+	largest frontal matrix size (entries): 16
+	largest frontal matrix row dimension: 4
+	largest frontal matrix column dimension: 4
+
+    Frontal chain: 0.  Frontal matrices 0 to 0
+	Largest frontal matrix in Frontal chain: 1-by-3
+	Front: 0  pivot cols: 1 (pivot columns 0 to 0)
+	    pivot row candidates: 0 to 0
+	    leftmost descendant: 0
+	    1st new candidate row : 0
+	    parent: (none)
+
+    Frontal chain: 1.  Frontal matrices 1 to 2
+	Largest frontal matrix in Frontal chain: 4-by-4
+	Front: 1  pivot cols: 2 (pivot columns 1 to 2)
+	    pivot row candidates: 1 to 3
+	    leftmost descendant: 1
+	    1st new candidate row : 1
+	    parent: 2
+	Front: 2  pivot cols: 2 (pivot columns 3 to 4)
+	    pivot row candidates: 1 to 4
+	    leftmost descendant: 1
+	    1st new candidate row : 4
+	    parent: (none)
+
+Initial column permutation, Qtree: permutation vector, n = 5. 
+    0 : 3 
+    1 : 2 
+    2 : 4 
+    3 : 1 
+    4 : 0 
+    permutation vector OK
+
+
+Initial row permutation, Ptree: permutation vector, n = 5. 
+    0 : 2 
+    1 : 1 
+    2 : 3 
+    3 : 4 
+    4 : 0 
+    permutation vector OK
+
+    Symbolic object:  OK
+
+
+Numeric factorization of A: Numeric object:  
+    n_row: 5  n_col: 5
+    relative pivot tolerance used:              0.1
+    relaxed amalgamation parameters used:       0.25 0.1 0.125
+    initial allocation parameter used:          0.7
+    final total size of Numeric object (Units): 83
+    peak size of variable-size part (Units):    112
+    largest actual frontal matrix size:         9
+    memory defragmentations:                    1
+    memory reallocations:                       1
+    costly memory reallocations:                0
+    entries in compressed pattern (L and U):    6
+    number of nonzeros in L (excl diag):        3
+    number of entries stored in L (excl diag):  3
+    number of nonzeros in U (excl diag):        5
+    number of entries stored in U (excl diag):  5
+    factorization floating-point operations:    51
+    number of nonzeros on diagonal of U:        5
+    smallest abs. value on diagonal of U:       1
+    largest abs. value on diagonal of U:        8.48528
+    reciprical condition number estimate:       0.117851
+
+P: row permutation vector, n = 5. 
+    0 : 2 
+    1 : 1 
+    2 : 3 
+    3 : 0 
+    4 : 4 
+    permutation vector OK
+
+
+Q: column permutation vector, n = 5. 
+    0 : 3 
+    1 : 4 
+    2 : 2 
+    3 : 1 
+    4 : 0 
+    permutation vector OK
+
+
+L in Numeric object, in column-oriented compressed-pattern form:
+    Diagonal entries are all equal to 1.0 (not stored)
+
+    column 0:  length 0.  Start of Lchain.
+
+    column 1:  add 1 entries.  length 1.  Start of Lchain.
+	row 4 :  (0.116667 - 0.05i)
+
+    column 2:  length 1.
+	row 4 :  (1.52333 + 0.476667i)
+
+    column 3:  length 1.
+	row 4 :  (1.33333 + 0.1i)
+
+    column 4:  length 0.  Start of Lchain.
+
+
+U in Numeric object, in row-oriented compressed-pattern form:
+    Diagonal is stored separately.
+
+    row 4:  length 0.  End of Uchain.
+
+    row 3:  length 1.  End of Uchain.
+	col 4 : (2 + 1i)
+
+    row 2:  length 0.  End of Uchain.
+
+    row 1:  length 2.  End of Uchain.
+	col 2 : (4 + 0.2i)
+	col 4 : (3 + 0.1i)
+
+    row 0:  length 2.  End of Uchain.
+	col 2 : (-3 - 0.2i)
+	col 3 : (-1 - 1i)
+
+
+Diagonal of U: dense vector, n = 5. 
+    0 : (2 + 3i)
+    1 : (6 + 6i)
+    2 : (1 + 0i)
+    3 : (3 + 0i)
+    4 : (-2.92167 - 1.395i)
+    dense vector OK
+
+    Numeric object:  OK
+
+
+UMFPACK V4.0 (Apr 11, 2002), Info:
+    matrix entry defined as: double complex
+    Int (generic integer) defined as: int
+    BLAS library used: none.  UMFPACK will be slow.
+    MATLAB: no.
+    CPU timer: getrusage.
+    number of rows in input matrix:   5
+    number of colums in input matrix: 5
+    entries in input matrix:          12
+    memory usage is reported below in 8-byte Units
+    size of int:  4 bytes
+    size of long:  4 bytes
+    size of pointer:  4 bytes
+    size of numerical entry:  16 bytes
+    symbolic/numeric factorization:         estimate               actual      %
+    number of "dense" rows                         -                    0      -
+    rows with entries only in "dense" columns      -                    0      -
+    number of "dense" columns                      -                    0      -
+    columns with entries only in "dense" rows      -                    0      -
+    symbolic factorization defragmentations        -                    0      -
+    symbolic memory usage (Units)                  -                  108      -
+    Symbolic size (Units)                          -                   35      -
+    symbolic factorization time (sec)              -                 0.00      -
+    variable-sized part of Numeric object:
+        initial size (Units)                     112                  112   100%
+        peak size (Units)                        153                  112    73%
+        final size (Units)                        32                   21    66%
+    Numeric final size (Units)                    91                   77    85%
+    peak memory usage (Units)                    323                  282    87%
+    numeric factorization flops                  108                   51    47%
+    nz in L (incl diagonal)                        9                    8    89%
+    nz in U (incl diagonal)                       13                   10    77%
+    nz in L+U (incl diagonal)                     17                   13    76%
+    largest front (# entries)                     16                    9    56%
+    nonzeros on diagonal of U                      -                    5      -
+    estimate of reciprocal of condition number     -          1.17851e-01      -
+    indices in compressed pattern                  -                    6      -
+    numerical values stored in Numeric object      -                   13      -
+    numeric factorization defragmentations         -                    1      -
+    numeric factorization reallocations            -                    1      -
+    costly numeric factorization reallocations     -                    0      -
+    numeric factorization time (sec)               -                 0.00      -
+    solve flops                                    -                  488      -
+    iterative refinement steps taken               -                    0      -
+    iterative refinement steps attempted           -                    0      -
+    sparse backward error omega1                   -          5.28199e-17      -
+    sparse backward error omega2                   -                    0      -
+    solve time (sec)                               -                 0.00      -
+
+
+UMFPACK:  Copyright (c) 2002 by Timothy A. Davis.  All Rights Reserved.
+
+UMFPACK V4.0 (Apr 11, 2002): OK
+
+
+x (solution of Ax=b): dense vector, n = 5. 
+    0 : (0.121188 - 0.561001i)
+    1 : (2.39887 + 0.666938i)
+    2 : (3 + 0i)
+    3 : (1.57395 - 1.52801i)
+    4 : (2.3876 - 3.04245i)
+    dense vector OK
+
+maxnorm of residual: 3.55271e-15
+
+
+UMFPACK V4.0 (Apr 11, 2002), Info:
+    matrix entry defined as: double complex
+    Int (generic integer) defined as: int
+    BLAS library used: none.  UMFPACK will be slow.
+    MATLAB: no.
+    CPU timer: getrusage.
+    number of rows in input matrix:   5
+    number of colums in input matrix: 5
+    entries in input matrix:          12
+    memory usage is reported below in 8-byte Units
+    size of int:  4 bytes
+    size of long:  4 bytes
+    size of pointer:  4 bytes
+    size of numerical entry:  16 bytes
+    symbolic/numeric factorization:         estimate               actual      %
+    number of "dense" rows                         -                    0      -
+    rows with entries only in "dense" columns      -                    0      -
+    number of "dense" columns                      -                    0      -
+    columns with entries only in "dense" rows      -                    0      -
+    symbolic factorization defragmentations        -                    0      -
+    symbolic memory usage (Units)                  -                  108      -
+    Symbolic size (Units)                          -                   35      -
+    symbolic factorization time (sec)              -                 0.00      -
+    variable-sized part of Numeric object:
+        initial size (Units)                     112                  112   100%
+        peak size (Units)                        153                  112    73%
+        final size (Units)                        32                   21    66%
+    Numeric final size (Units)                    91                   77    85%
+    peak memory usage (Units)                    323                  282    87%
+    numeric factorization flops                  108                   51    47%
+    nz in L (incl diagonal)                        9                    8    89%
+    nz in U (incl diagonal)                       13                   10    77%
+    nz in L+U (incl diagonal)                     17                   13    76%
+    largest front (# entries)                     16                    9    56%
+    nonzeros on diagonal of U                      -                    5      -
+    estimate of reciprocal of condition number     -          1.17851e-01      -
+    indices in compressed pattern                  -                    6      -
+    numerical values stored in Numeric object      -                   13      -
+    numeric factorization defragmentations         -                    1      -
+    numeric factorization reallocations            -                    1      -
+    costly numeric factorization reallocations     -                    0      -
+    numeric factorization time (sec)               -                 0.00      -
+    solve flops                                    -                  458      -
+    iterative refinement steps taken               -                    0      -
+    iterative refinement steps attempted           -                    0      -
+    sparse backward error omega1                   -          1.94664e-16      -
+    sparse backward error omega2                   -                    0      -
+    solve time (sec)                               -                 0.00      -
+
+
+x (solution of A'x=b): dense vector, n = 5. 
+    0 : (3.39246 + 0.13257i)
+    1 : (0.31463 + 1.38626i)
+    2 : (0.461538 + 0.692308i)
+    3 : (-20.9089 - 1.55801i)
+    4 : (9.04015 - 0.613724i)
+    dense vector OK
+
+maxnorm of residual: 4.4964e-15
+
+
+changing A (1,4) to zero
+
+modified A: column-form matrix, n_row 5 n_col 5, nz = 12. 
+
+    column 0: start: 0 end: 1 entries: 2
+	row 0 : (2 + 1i)
+	row 1 : (3 + 0.1i)
+
+    column 1: start: 2 end: 4 entries: 3
+	row 0 : (3 + 0i)
+	row 2 : (-1 - 1i)
+	row 4 : (4 + 0.3i)
+
+    column 2: start: 5 end: 8 entries: 4
+	row 1 : (4 + 0.2i)
+	row 2 : (-3 - 0.2i)
+	row 3 : (1 + 0i)
+	row 4 : (2 + 0.3i)
+
+    column 3: start: 9 end: 9 entries: 1
+	row 2 : (2 + 3i)
+
+    column 4: start: 10 end: 11 entries: 2
+	row 1 : (0 + 0i)
+	row 4 : (1 + 0.4i)
+    column-form matrix OK
+
+
+Numeric factorization of modified A: Numeric object:  
+    n_row: 5  n_col: 5
+    relative pivot tolerance used:              0.1
+    relaxed amalgamation parameters used:       0.25 0.1 0.125
+    initial allocation parameter used:          0.7
+    final total size of Numeric object (Units): 80
+    peak size of variable-size part (Units):    112
+    largest actual frontal matrix size:         9
+    memory defragmentations:                    1
+    memory reallocations:                       1
+    costly memory reallocations:                0
+    entries in compressed pattern (L and U):    4
+    number of nonzeros in L (excl diag):        2
+    number of entries stored in L (excl diag):  2
+    number of nonzeros in U (excl diag):        5
+    number of entries stored in U (excl diag):  5
+    factorization floating-point operations:    26
+    number of nonzeros on diagonal of U:        5
+    smallest abs. value on diagonal of U:       1
+    largest abs. value on diagonal of U:        4.02716
+    reciprical condition number estimate:       0.248314
+
+P: row permutation vector, n = 5. 
+    0 : 2 
+    1 : 4 
+    2 : 3 
+    3 : 0 
+    4 : 1 
+    permutation vector OK
+
+
+Q: column permutation vector, n = 5. 
+    0 : 3 
+    1 : 4 
+    2 : 2 
+    3 : 0 
+    4 : 1 
+    permutation vector OK
+
+
+L in Numeric object, in column-oriented compressed-pattern form:
+    Diagonal entries are all equal to 1.0 (not stored)
+
+    column 0:  length 0.  Start of Lchain.
+
+    column 1:  length 0.  Start of Lchain.
+
+    column 2:  add 1 entries.  length 1.  Start of Lchain.
+	row 4 :  (4 + 0.2i)
+
+    column 3:  length 1.
+	row 4 :  (1.22 - 0.56i)
+
+    column 4:  length 0.  Start of Lchain.
+
+
+U in Numeric object, in row-oriented compressed-pattern form:
+    Diagonal is stored separately.
+
+    row 4:  length 0.  End of Uchain.
+
+    row 3:  length 1.  End of Uchain.
+	col 4 : (3 + 0i)
+
+    row 2:  length 0.  End of Uchain.
+
+    row 1:  length 2.  End of Uchain.
+	col 2 : (2 + 0.3i)
+	col 4 : (4 + 0.3i)
+
+    row 0:  length 2.
+	col 2 : (-3 - 0.2i)
+	col 4 : (-1 - 1i)
+
+
+Diagonal of U: dense vector, n = 5. 
+    0 : (2 + 3i)
+    1 : (1 + 0.4i)
+    2 : (1 + 0i)
+    3 : (2 + 1i)
+    4 : (-3.66 + 1.68i)
+    dense vector OK
+
+    Numeric object:  OK
+
+
+UMFPACK V4.0 (Apr 11, 2002), Info:
+    matrix entry defined as: double complex
+    Int (generic integer) defined as: int
+    BLAS library used: none.  UMFPACK will be slow.
+    MATLAB: no.
+    CPU timer: getrusage.
+    number of rows in input matrix:   5
+    number of colums in input matrix: 5
+    entries in input matrix:          12
+    memory usage is reported below in 8-byte Units
+    size of int:  4 bytes
+    size of long:  4 bytes
+    size of pointer:  4 bytes
+    size of numerical entry:  16 bytes
+    symbolic/numeric factorization:         estimate               actual      %
+    number of "dense" rows                         -                    0      -
+    rows with entries only in "dense" columns      -                    0      -
+    number of "dense" columns                      -                    0      -
+    columns with entries only in "dense" rows      -                    0      -
+    symbolic factorization defragmentations        -                    0      -
+    symbolic memory usage (Units)                  -                  108      -
+    Symbolic size (Units)                          -                   35      -
+    symbolic factorization time (sec)              -                 0.00      -
+    variable-sized part of Numeric object:
+        initial size (Units)                     112                  112   100%
+        peak size (Units)                        153                  112    73%
+        final size (Units)                        32                   18    56%
+    Numeric final size (Units)                    91                   74    81%
+    peak memory usage (Units)                    323                  282    87%
+    numeric factorization flops                  108                   26    24%
+    nz in L (incl diagonal)                        9                    7    78%
+    nz in U (incl diagonal)                       13                   10    77%
+    nz in L+U (incl diagonal)                     17                   12    71%
+    largest front (# entries)                     16                    9    56%
+    nonzeros on diagonal of U                      -                    5      -
+    estimate of reciprocal of condition number     -          2.48314e-01      -
+    indices in compressed pattern                  -                    4      -
+    numerical values stored in Numeric object      -                   12      -
+    numeric factorization defragmentations         -                    1      -
+    numeric factorization reallocations            -                    1      -
+    costly numeric factorization reallocations     -                    0      -
+    numeric factorization time (sec)               -                 0.00      -
+    solve flops                                    -                  480      -
+    iterative refinement steps taken               -                    0      -
+    iterative refinement steps attempted           -                    0      -
+    sparse backward error omega1                   -          7.32678e-17      -
+    sparse backward error omega2                   -                    0      -
+    solve time (sec)                               -                 0.00      -
+
+
+x (with modified A): dense vector, n = 5. 
+    0 : (10.9256 - 2.23085i)
+    1 : (-5.36071 - 1.82131i)
+    2 : (3 + 0i)
+    3 : (-1.60191 - 1.88814i)
+    4 : (32.7361 - 2.90097i)
+    dense vector OK
+
+maxnorm of residual: 5.9952e-15
+
+changing real part of A (0,0) from 2 to 2
+changing real part of A (1,0) from 3 to 2
+changing real part of A (0,1) from 3 to 13
+changing real part of A (2,1) from -1 to 7
+changing real part of A (4,1) from 4 to 10
+changing real part of A (1,2) from 4 to 23
+changing real part of A (2,2) from -3 to 15
+changing real part of A (3,2) from 1 to 18
+changing real part of A (4,2) from 2 to 18
+changing real part of A (2,3) from 2 to 30
+changing real part of A (1,4) from 0 to 39
+changing real part of A (4,4) from 1 to 37
+
+completely modified A (same pattern): column-form matrix, n_row 5 n_col 5, nz = 12. 
+
+    column 0: start: 0 end: 1 entries: 2
+	row 0 : (2 + 1i)
+	row 1 : (2 + 0.1i)
+
+    column 1: start: 2 end: 4 entries: 3
+	row 0 : (13 + 0i)
+	row 2 : (7 - 1i)
+	row 4 : (10 + 0.3i)
+
+    column 2: start: 5 end: 8 entries: 4
+	row 1 : (23 + 0.2i)
+	row 2 : (15 - 0.2i)
+	row 3 : (18 + 0i)
+	row 4 : (18 + 0.3i)
+
+    column 3: start: 9 end: 9 entries: 1
+	row 2 : (30 + 3i)
+
+    column 4: start: 10 end: 11 entries: 2
+	row 1 : (39 + 0i)
+	row 4 : (37 + 0.4i)
+    column-form matrix OK
+
+
+Numeric factorization of completely modified A: Numeric object:  
+    n_row: 5  n_col: 5
+    relative pivot tolerance used:              0.1
+    relaxed amalgamation parameters used:       0.25 0.1 0.125
+    initial allocation parameter used:          0.7
+    final total size of Numeric object (Units): 83
+    peak size of variable-size part (Units):    112
+    largest actual frontal matrix size:         9
+    memory defragmentations:                    1
+    memory reallocations:                       1
+    costly memory reallocations:                0
+    entries in compressed pattern (L and U):    6
+    number of nonzeros in L (excl diag):        3
+    number of entries stored in L (excl diag):  3
+    number of nonzeros in U (excl diag):        5
+    number of entries stored in U (excl diag):  5
+    factorization floating-point operations:    51
+    number of nonzeros on diagonal of U:        5
+    smallest abs. value on diagonal of U:       3.53648
+    largest abs. value on diagonal of U:        39
+    reciprical condition number estimate:       0.0906789
+
+P: row permutation vector, n = 5. 
+    0 : 2 
+    1 : 1 
+    2 : 3 
+    3 : 0 
+    4 : 4 
+    permutation vector OK
+
+
+Q: column permutation vector, n = 5. 
+    0 : 3 
+    1 : 4 
+    2 : 2 
+    3 : 1 
+    4 : 0 
+    permutation vector OK
+
+
+L in Numeric object, in column-oriented compressed-pattern form:
+    Diagonal entries are all equal to 1.0 (not stored)
+
+    column 0:  length 0.  Start of Lchain.
+
+    column 1:  add 1 entries.  length 1.  Start of Lchain.
+	row 4 :  (0.948718 + 0.0102564i)
+
+    column 2:  length 1.
+	row 4 :  (-0.212137 - 0.00698006i)
+
+    column 3:  length 1.
+	row 4 :  (0.769231 + 0.0230769i)
+
+    column 4:  length 0.  Start of Lchain.
+
+
+U in Numeric object, in row-oriented compressed-pattern form:
+    Diagonal is stored separately.
+
+    row 4:  length 0.  End of Uchain.
+
+    row 3:  length 1.  End of Uchain.
+	col 4 : (2 + 1i)
+
+    row 2:  length 0.  End of Uchain.
+
+    row 1:  length 2.  End of Uchain.
+	col 2 : (23 + 0.2i)
+	col 4 : (2 + 0.1i)
+
+    row 0:  length 2.  End of Uchain.
+	col 2 : (15 - 0.2i)
+	col 3 : (7 - 1i)
+
+
+Diagonal of U: dense vector, n = 5. 
+    0 : (30 + 3i)
+    1 : (39 + 0i)
+    2 : (18 + 0i)
+    3 : (13 + 0i)
+    4 : (-3.41179 - 0.930769i)
+    dense vector OK
+
+    Numeric object:  OK
+
+
+UMFPACK V4.0 (Apr 11, 2002), Info:
+    matrix entry defined as: double complex
+    Int (generic integer) defined as: int
+    BLAS library used: none.  UMFPACK will be slow.
+    MATLAB: no.
+    CPU timer: getrusage.
+    number of rows in input matrix:   5
+    number of colums in input matrix: 5
+    entries in input matrix:          12
+    memory usage is reported below in 8-byte Units
+    size of int:  4 bytes
+    size of long:  4 bytes
+    size of pointer:  4 bytes
+    size of numerical entry:  16 bytes
+    symbolic/numeric factorization:         estimate               actual      %
+    number of "dense" rows                         -                    0      -
+    rows with entries only in "dense" columns      -                    0      -
+    number of "dense" columns                      -                    0      -
+    columns with entries only in "dense" rows      -                    0      -
+    symbolic factorization defragmentations        -                    0      -
+    symbolic memory usage (Units)                  -                  108      -
+    Symbolic size (Units)                          -                   35      -
+    symbolic factorization time (sec)              -                 0.00      -
+    variable-sized part of Numeric object:
+        initial size (Units)                     112                  112   100%
+        peak size (Units)                        153                  112    73%
+        final size (Units)                        32                   21    66%
+    Numeric final size (Units)                    91                   77    85%
+    peak memory usage (Units)                    323                  282    87%
+    numeric factorization flops                  108                   51    47%
+    nz in L (incl diagonal)                        9                    8    89%
+    nz in U (incl diagonal)                       13                   10    77%
+    nz in L+U (incl diagonal)                     17                   13    76%
+    largest front (# entries)                     16                    9    56%
+    nonzeros on diagonal of U                      -                    5      -
+    estimate of reciprocal of condition number     -          9.06789e-02      -
+    indices in compressed pattern                  -                    6      -
+    numerical values stored in Numeric object      -                   13      -
+    numeric factorization defragmentations         -                    1      -
+    numeric factorization reallocations            -                    1      -
+    costly numeric factorization reallocations     -                    0      -
+    numeric factorization time (sec)               -                 0.00      -
+    solve flops                                    -                  488      -
+    iterative refinement steps taken               -                    0      -
+    iterative refinement steps attempted           -                    0      -
+    sparse backward error omega1                   -          2.91123e-17      -
+    sparse backward error omega2                   -                    0      -
+    solve time (sec)                               -                 0.00      -
+
+
+x (with completely modified A): dense vector, n = 5. 
+    0 : (7.56307 - 3.68974i)
+    1 : (-0.831991 + 0.0627998i)
+    2 : (0.166667 + 0i)
+    3 : (-0.00206892 - 0.107735i)
+    4 : (0.658245 + 0.0407649i)
+    dense vector OK
+
+maxnorm of residual: 4.9856e-15
+
+
+C (transpose of A): column-form matrix, n_row 5 n_col 5, nz = 12. 
+
+    column 0: start: 0 end: 1 entries: 2
+	row 0 : (2 - 1i)
+	row 1 : (13 + 0i)
+
+    column 1: start: 2 end: 4 entries: 3
+	row 0 : (2 - 0.1i)
+	row 2 : (23 - 0.2i)
+	row 4 : (39 + 0i)
+
+    column 2: start: 5 end: 7 entries: 3
+	row 1 : (7 + 1i)
+	row 2 : (15 + 0.2i)
+	row 3 : (30 - 3i)
+
+    column 3: start: 8 end: 8 entries: 1
+	row 2 : (18 + 0i)
+
+    column 4: start: 9 end: 11 entries: 3
+	row 1 : (10 - 0.3i)
+	row 2 : (18 - 0.3i)
+	row 4 : (37 - 0.4i)
+    column-form matrix OK
+
+
+Symbolic factorization of C: Symbolic object: 
+    matrix to be factorized:
+	n_row: 5 n_col: 5
+	number of entries: 12
+	dense row contol parameter used: 0.2
+	dense column contol parameter used: 0.2
+	block size used for dense matrix kernels:  24
+    variable-size part of Numeric object:
+	minimum initial size (Units): 112
+	estimated peak size (Units):  146
+	estimated final size (Units): 34
+    peak memory usage for symbolic factorization (Units): 108
+    frontal matrices / supercolumns:
+	number of frontal chains: 2
+	number of frontal matrices: 3
+	largest frontal matrix size (entries): 20
+	largest frontal matrix row dimension: 4
+	largest frontal matrix column dimension: 5
+
+    Frontal chain: 0.  Frontal matrices 0 to 1
+	Largest frontal matrix in Frontal chain: 4-by-5
+	Front: 0  pivot cols: 1 (pivot columns 0 to 0)
+	    pivot row candidates: 0 to 1
+	    leftmost descendant: 0
+	    1st new candidate row : 0
+	    parent: 1
+	Front: 1  pivot cols: 3 (pivot columns 1 to 3)
+	    pivot row candidates: 0 to 3
+	    leftmost descendant: 0
+	    1st new candidate row : 2
+	    parent: (none)
+
+    Frontal chain: 1.  Frontal matrices 2 to 2
+	Largest frontal matrix in Frontal chain: 1-by-1
+	Front: 2  pivot cols: 1 (pivot columns 4 to 4)
+	    pivot row candidates: 4 to 4
+	    leftmost descendant: 2
+	    1st new candidate row : 4
+	    parent: (none)
+
+Initial column permutation, Qtree: permutation vector, n = 5. 
+    0 : 0 
+    1 : 4 
+    2 : 1 
+    3 : 3 
+    4 : 2 
+    permutation vector OK
+
+
+Initial row permutation, Ptree: permutation vector, n = 5. 
+    0 : 0 
+    1 : 1 
+    2 : 2 
+    3 : 4 
+    4 : 3 
+    permutation vector OK
+
+    Symbolic object:  OK
+
+
+Get the contents of the Symbolic object for C:
+(compare with umfpack_zi_report_symbolic output, above)
+From the Symbolic object, C is of dimension 5-by-5
+   with nz = 12, number of fronts = 3,
+   number of frontal matrix chains = 2
+
+Pivot columns in each front, and parent of each front:
+    Front 0: parent front: 1 number of pivot cols: 1
+        0-th pivot column is column 0 in original matrix
+    Front 1: parent front: -1 number of pivot cols: 3
+        1-th pivot column is column 4 in original matrix
+        2-th pivot column is column 1 in original matrix
+        3-th pivot column is column 3 in original matrix
+    Front 2: parent front: -1 number of pivot cols: 1
+        4-th pivot column is column 2 in original matrix
+
+Note that the column ordering, above, will be refined
+in the numeric factorization below.  The assignment of pivot
+columns to frontal matrices will always remain unchanged.
+
+Total number of pivot columns in frontal matrices: 5
+
+Frontal matrix chains:
+   Frontal matrices 0 to 1 are factorized in a single
+        working array of size 4-by-5
+   Frontal matrices 2 to 2 are factorized in a single
+        working array of size 1-by-1
+
+Numeric factorization of C: Numeric object:  
+    n_row: 5  n_col: 5
+    relative pivot tolerance used:              0.1
+    relaxed amalgamation parameters used:       0.25 0.1 0.125
+    initial allocation parameter used:          0.7
+    final total size of Numeric object (Units): 85
+    peak size of variable-size part (Units):    112
+    largest actual frontal matrix size:         4
+    memory defragmentations:                    1
+    memory reallocations:                       1
+    costly memory reallocations:                0
+    entries in compressed pattern (L and U):    7
+    number of nonzeros in L (excl diag):        2
+    number of entries stored in L (excl diag):  2
+    number of nonzeros in U (excl diag):        6
+    number of entries stored in U (excl diag):  6
+    factorization floating-point operations:    34
+    number of nonzeros on diagonal of U:        5
+    smallest abs. value on diagonal of U:       2.23607
+    largest abs. value on diagonal of U:        37.0022
+    reciprical condition number estimate:       0.0604307
+
+P: row permutation vector, n = 5. 
+    0 : 0 
+    1 : 2 
+    2 : 4 
+    3 : 1 
+    4 : 3 
+    permutation vector OK
+
+
+Q: column permutation vector, n = 5. 
+    0 : 0 
+    1 : 3 
+    2 : 4 
+    3 : 1 
+    4 : 2 
+    permutation vector OK
+
+
+L in Numeric object, in column-oriented compressed-pattern form:
+    Diagonal entries are all equal to 1.0 (not stored)
+
+    column 0:  add 1 entries.  length 1.  Start of Lchain.
+	row 3 :  (5.2 + 2.6i)
+
+    column 1:  length 0.  Start of Lchain.
+
+    column 2:  add 1 entries.  length 1.  Start of Lchain.
+	row 3 :  (0.270326 - 0.00518566i)
+
+    column 3:  length 0.  Start of Lchain.
+
+    column 4:  length 0.  Start of Lchain.
+
+
+U in Numeric object, in row-oriented compressed-pattern form:
+    Diagonal is stored separately.
+
+    row 4:  length 0.  End of Uchain.
+
+    row 3:  length 1.  End of Uchain.
+	col 4 : (7 + 1i)
+
+    row 2:  length 1.  End of Uchain.
+	col 3 : (39 + 0i)
+
+    row 1:  length 3.  End of Uchain.
+	col 3 : (23 - 0.2i)
+	col 2 : (18 - 0.3i)
+	col 4 : (15 + 0.2i)
+
+    row 0:  remove 2 entries.  length 1.
+	col 3 : (2 - 0.1i)
+
+
+Diagonal of U: dense vector, n = 5. 
+    0 : (2 - 1i)
+    1 : (18 + 0i)
+    2 : (37 - 0.4i)
+    3 : (-21.2027 - 4.47776i)
+    4 : (30 - 3i)
+    dense vector OK
+
+    Numeric object:  OK
+
+
+L (lower triangular factor of C): row-form matrix, n_row 5 n_col 5, nz = 7. 
+
+    row 0: start: 0 end: 0 entries: 1
+	column 0 : (1 + 0i)
+
+    row 1: start: 1 end: 1 entries: 1
+	column 1 : (1 + 0i)
+
+    row 2: start: 2 end: 2 entries: 1
+	column 2 : (1 + 0i)
+
+    row 3: start: 3 end: 5 entries: 3
+	column 0 : (5.2 + 2.6i)
+	column 2 : (0.270326 - 0.00518566i)
+	column 3 : (1 + 0i)
+
+    row 4: start: 6 end: 6 entries: 1
+	column 4 : (1 + 0i)
+    row-form matrix OK
+
+
+U (upper triangular factor of C): column-form matrix, n_row 5 n_col 5, nz = 11. 
+
+    column 0: start: 0 end: 0 entries: 1
+	row 0 : (2 - 1i)
+
+    column 1: start: 1 end: 1 entries: 1
+	row 1 : (18 + 0i)
+
+    column 2: start: 2 end: 3 entries: 2
+	row 1 : (18 - 0.3i)
+	row 2 : (37 - 0.4i)
+
+    column 3: start: 4 end: 7 entries: 4
+	row 0 : (2 - 0.1i)
+	row 1 : (23 - 0.2i)
+	row 2 : (39 + 0i)
+	row 3 : (-21.2027 - 4.47776i)
+
+    column 4: start: 8 end: 10 entries: 3
+	row 1 : (15 + 0.2i)
+	row 3 : (7 + 1i)
+	row 4 : (30 - 3i)
+    column-form matrix OK
+
+
+P: permutation vector, n = 5. 
+    0 : 0 
+    1 : 2 
+    2 : 4 
+    3 : 1 
+    4 : 3 
+    permutation vector OK
+
+
+Q: permutation vector, n = 5. 
+    0 : 0 
+    1 : 3 
+    2 : 4 
+    3 : 1 
+    4 : 2 
+    permutation vector OK
+
+
+Converting L to triplet form, and printing it:
+
+L, in triplet form: triplet-form matrix, n_row = 5, n_col = 5 nz = 7. 
+    0 : 0 0  (1 + 0i)
+    1 : 1 1  (1 + 0i)
+    2 : 2 2  (1 + 0i)
+    3 : 3 0  (5.2 + 2.6i)
+    4 : 3 2  (0.270326 - 0.00518566i)
+    5 : 3 3  (1 + 0i)
+    6 : 4 4  (1 + 0i)
+    triplet-form matrix OK
+
+
+UMFPACK V4.0 (Apr 11, 2002), Info:
+    matrix entry defined as: double complex
+    Int (generic integer) defined as: int
+    BLAS library used: none.  UMFPACK will be slow.
+    MATLAB: no.
+    CPU timer: getrusage.
+    number of rows in input matrix:   5
+    number of colums in input matrix: 5
+    entries in input matrix:          12
+    memory usage is reported below in 8-byte Units
+    size of int:  4 bytes
+    size of long:  4 bytes
+    size of pointer:  4 bytes
+    size of numerical entry:  16 bytes
+    symbolic/numeric factorization:         estimate               actual      %
+    number of "dense" rows                         -                    0      -
+    rows with entries only in "dense" columns      -                    0      -
+    number of "dense" columns                      -                    0      -
+    columns with entries only in "dense" rows      -                    0      -
+    symbolic factorization defragmentations        -                    0      -
+    symbolic memory usage (Units)                  -                  108      -
+    Symbolic size (Units)                          -                   35      -
+    symbolic factorization time (sec)              -                 0.00      -
+    variable-sized part of Numeric object:
+        initial size (Units)                     112                  112   100%
+        peak size (Units)                        146                  112    77%
+        final size (Units)                        34                   23    68%
+    Numeric final size (Units)                    93                   79    85%
+    peak memory usage (Units)                    324                  290    90%
+    numeric factorization flops                  124                   34    27%
+    nz in L (incl diagonal)                        9                    7    78%
+    nz in U (incl diagonal)                       14                   11    79%
+    nz in L+U (incl diagonal)                     18                   13    72%
+    largest front (# entries)                     20                    4    20%
+    nonzeros on diagonal of U                      -                    5      -
+    estimate of reciprocal of condition number     -          6.04307e-02      -
+    indices in compressed pattern                  -                    7      -
+    numerical values stored in Numeric object      -                   13      -
+    numeric factorization defragmentations         -                    1      -
+    numeric factorization reallocations            -                    1      -
+    costly numeric factorization reallocations     -                    0      -
+    numeric factorization time (sec)               -                 0.00      -
+    solve flops                                    -                  458      -
+    iterative refinement steps taken               -                    0      -
+    iterative refinement steps attempted           -                    0      -
+    sparse backward error omega1                   -          7.75005e-17      -
+    sparse backward error omega2                   -                    0      -
+    solve time (sec)                               -                 0.00      -
+
+
+x (solution of C'x=b): dense vector, n = 5. 
+    0 : (7.56307 - 3.68974i)
+    1 : (-0.831991 + 0.0627998i)
+    2 : (0.166667 + 0i)
+    3 : (-0.00206892 - 0.107735i)
+    4 : (0.658245 + 0.0407649i)
+    dense vector OK
+
+maxnorm of residual: 7.10543e-15
+
+
+Solving C'x=b again, using umfpack_zi_wsolve instead:
+
+UMFPACK V4.0 (Apr 11, 2002), Info:
+    matrix entry defined as: double complex
+    Int (generic integer) defined as: int
+    BLAS library used: none.  UMFPACK will be slow.
+    MATLAB: no.
+    CPU timer: getrusage.
+    number of rows in input matrix:   5
+    number of colums in input matrix: 5
+    entries in input matrix:          12
+    memory usage is reported below in 8-byte Units
+    size of int:  4 bytes
+    size of long:  4 bytes
+    size of pointer:  4 bytes
+    size of numerical entry:  16 bytes
+    symbolic/numeric factorization:         estimate               actual      %
+    number of "dense" rows                         -                    0      -
+    rows with entries only in "dense" columns      -                    0      -
+    number of "dense" columns                      -                    0      -
+    columns with entries only in "dense" rows      -                    0      -
+    symbolic factorization defragmentations        -                    0      -
+    symbolic memory usage (Units)                  -                  108      -
+    Symbolic size (Units)                          -                   35      -
+    symbolic factorization time (sec)              -                 0.00      -
+    variable-sized part of Numeric object:
+        initial size (Units)                     112                  112   100%
+        peak size (Units)                        146                  112    77%
+        final size (Units)                        34                   23    68%
+    Numeric final size (Units)                    93                   79    85%
+    peak memory usage (Units)                    324                  290    90%
+    numeric factorization flops                  124                   34    27%
+    nz in L (incl diagonal)                        9                    7    78%
+    nz in U (incl diagonal)                       14                   11    79%
+    nz in L+U (incl diagonal)                     18                   13    72%
+    largest front (# entries)                     20                    4    20%
+    nonzeros on diagonal of U                      -                    5      -
+    estimate of reciprocal of condition number     -          6.04307e-02      -
+    indices in compressed pattern                  -                    7      -
+    numerical values stored in Numeric object      -                   13      -
+    numeric factorization defragmentations         -                    1      -
+    numeric factorization reallocations            -                    1      -
+    costly numeric factorization reallocations     -                    0      -
+    numeric factorization time (sec)               -                 0.00      -
+    solve flops                                    -                  458      -
+    iterative refinement steps taken               -                    0      -
+    iterative refinement steps attempted           -                    0      -
+    sparse backward error omega1                   -          7.75005e-17      -
+    sparse backward error omega2                   -                    0      -
+    solve time (sec)                               -                 0.00      -
+
+
+x (solution of C'x=b): dense vector, n = 5. 
+    0 : (7.56307 - 3.68974i)
+    1 : (-0.831991 + 0.0627998i)
+    2 : (0.166667 + 0i)
+    3 : (-0.00206892 - 0.107735i)
+    4 : (0.658245 + 0.0407649i)
+    dense vector OK
+
+maxnorm of residual: 7.10543e-15
+
+
+umfpack_zi_demo complete.  Total time:  0.01 (seconds)

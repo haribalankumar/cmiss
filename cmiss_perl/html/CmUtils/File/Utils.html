@@ -1,0 +1,29 @@
+<HTML>
+<HEAD>
+<TITLE>Useful routines for parsing files.</TITLE>
+</HEAD>
+<BODY BGCOLOR="#fffff8" TEXT="#000000">
+<UL>
+<LI><A HREF="#CmUtils%3a%3aFile%3a%3aUtils">CmUtils::File::Utils</A></LI>
+<LI><A HREF="#VERSION">VERSION</A></LI>
+<UL>
+<LI><A HREF="#strtonum(string)">strtonum(string)</A></LI>
+<LI><A HREF="#compare_arrays(%24array1%2c%20%24array2)">compare_arrays($array1, $array2)</A></LI>
+</UL>
+</UL>
+<HR>
+<H1><A NAME="CmUtils%3a%3aFile%3a%3aUtils">CmUtils::File::Utils</A></H1>
+
+<P>Useful routines for parsing files.</P><H1><A NAME="VERSION">VERSION</A></H1>
+
+<P>1.01 (28 March 2001)</P>
+<P>Moved 'list_to_string' to CmUtils::Utils as it is more globally useful than
+just in parsing Cmiss files.</P><H2><A NAME="strtonum(string)">strtonum(string)</A></H2>
+
+<P>Returns a numeric representation of a string, or 'undef' if the string is 
+not a number.  Handles Fortran strings with 'D'.</P><H2><A NAME="compare_arrays(%24array1%2c%20%24array2)">compare_arrays($array1, $array2)</A></H2>
+
+<P>Returns True (1) if two arrays (passed by reference) are identical 
+(same elements and same number of elements), otherwise returns False (0).</P>
+</BODY>
+</HTML>

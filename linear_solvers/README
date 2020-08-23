@@ -1,0 +1,103 @@
+
+
+		The linear_solvers directory
+		-----------------------------
+
+Contains linear solvers and other linear algebra routines used by CMISS.
+To build one version of the library run gmake in the linear_solver directory.
+This will recurse into the subdirectories and build the librarys needed for
+the current platform. The object files are made in each of the subdirectories
+whilst the librarys are made in the lib/$ARCH directory. CMISS looks for the 
+librarys in the $CMISS_ROOT/cm/lib/$ARCH directories, so after building the
+librarys can be moved to this location, or symbolic links can be used to 
+link to the librarys in the linear_solvers/lib/$ARCH directory.
+
+The top makefile recognises the ABI, MP and OPT flags used in the CMISS
+Makefile. Thus to build the optimised multiprocesser version type
+
+	gmake OPT= MP=
+
+Note however that the object files for different versions are built into
+the same subdirectory. Thus before building for a new set of options you 
+will have to do a
+
+	gmake clean
+
+to get rid of the old object files.
+
+To build all desired versions for the current platform run the make_all
+script in the linear_solvers directory. This does the necissary build and
+clean steps for the different librarys wanted for the current platform.
+
+The compiler options for all librarys are contained in the Makefile.inc
+file in the top directory. To add a new platform you will have to add a 
+section like
+
+	ifeq ($(SYSNAME),OSF1)
+	  # Set options here
+	endif
+
+where the options for the named system (OSF1 in this case) are set.
+The Makefiles expect the following variables to be set
+
+	FC		Fortran compiler name
+	FFLAGS		Fortran compiler flags
+	FPPFLAGS	Fortran preprocessor flags
+	CC		C compiler name
+	CFLAGS		C compiler flags
+	CPPFLAGS	C preprocessor flags
+	AR		Library archiver name
+	AFLAGS		Library archiver flags
+	RANLIB		Program to build symbol table in library (if
+			there is no ranlib just use "true")
+	DIRNAM		The directory that the cmiss code builds into.
+			For example, mips3-n32, aix-32, linux86
+	SCILIB		The link lines for the lapack and blas librarys on
+			the current platform.
+
+Other options specific to each library are also set in this file.
+
+The library currently builds for SGI (IRIX, IRIX64), IBM (AIX), DEC Alpha
+(OSF1, Linux), and Intel x86 (Win32, Linux) platforms.
+
+
+Notes:
+
+1) The Intel and DEC Alpha Linux platforms offer more than one Fortran Compiler.
+   By default the g77 compiler is used, but if the Digital compiler (fort) is
+   to be used on AlphaLinux, compile with the
+
+        gmake FC=fort
+
+   option. Similarly, to use the Intel Fortran compiler (ifc), use the
+
+        gmake FC=ifc
+
+   switch.
+
+2) By default the solver, xblas, superlu and umfpack-4.0 librarys get built.
+   However, the IBM ESSL library is missing some LAPACK routines used by
+   CMISS, so the generic LAPACK library gets built on that platform as well.
+
+   Linux installations vary in their availability/location of lapack and blas,
+   so these librarys get built for that platform. To inhibit their building
+   modify the Makefile in the linear_solvers directory, removing
+
+        ifeq ($(SYSNAME),Linux)
+          DIR_BUILD += libblas liblapack
+        endif
+
+   and change the SCILIB line to reflect the name of the library being used.
+
+   The lapack and blas librarys also get built under Win32.
+
+3) When building the multiprocessor librarys, the xblas, solver and
+   superlu-1.0_omp librarys get built. For serial code the xblas, solver,
+   superlu-2.0 and umfpack-4.0 librarys are built.
+
+4) The Makefiles require gmake -- the traditional Unix make on most systems
+   will not work.
+
+5) The source for the standard distributions of the librarys, as well as the
+   old versions of the librarys that were previously in the CMISS distribution,
+   are stored in the arch directory.
